@@ -10,6 +10,10 @@ Les services Templates et Instances orchestrent les écritures. Access centralis
 
 L’éditeur JavaScript manipule seulement une définition structurée. Le serveur refuse les propriétés inconnues, les valeurs malformées, les conditions invalides et les cycles. Aucun interpréteur de code utilisateur n’est présent.
 
+Les services Assignees et TicketMessages gèrent l’équipe du lancement et les suivis natifs ITILFollowup. Les colonnes assigned_users et assigned_groups sont des listes JSON nullables ; la migration 3 vers 4 laisse les anciennes instances sans équipe imposée. Une affectation explicite sur l’étape prime sur l’équipe du workflow, après les contrôles des droits du ticket et du modèle.
+
+Les suivis internes font partie de la transaction de l’action. Ils appliquent can(CREATE) natif avant add ; un refus ou un échec annule les valeurs, états, intervenants et historique de l’action. Les options notify_available, notify_taken et notify_done sont des booléens du modèle, activés par défaut lors de la normalisation des anciennes définitions. Le lien d’ouverture peut résoudre une clé de lancement, puis applique les mêmes contrôles Access::instance que l’accès par identifiant : la clé n’accorde aucun droit.
+
 ## Guide intégré
 
 Le [guide utilisateur](user-guide.md) est l’unique source éditoriale. Guide lit uniquement ce chemin fixe, contrôle la taille et l’UTF-8, puis utilise la bibliothèque League CommonMark déjà livrée par GLPI. Aucun Composer supplémentaire n’est requis en production. Le HTML brut est supprimé, les protocoles des liens sont filtrés et seules les captures PNG du répertoire public/images/guide sont admises. Le rendu adapte leurs chemins au sous-répertoire de GLPI et ajoute les ancres du sommaire. La page front/guide.php exige le droit de lecture du plugin ou des modèles ; son téléchargement Markdown renvoie les octets de la même source.
@@ -26,7 +30,7 @@ Toutes les tables sont préfixées glpi_plugin_workflowbuilder_ et utilisent Inn
 | steps | Projection ordonnée des étapes publiées |
 | rules | Projection des règles publiées |
 | dependencies | Arêtes du graphe par version |
-| instances | Ticket, version, auteur du lancement, état, révision, dates, clé unique |
+| instances | Ticket, version, auteur du lancement, équipe utilisateurs/groupes, état, révision, dates, clé unique |
 | stepinstances | États, responsables, dates et utilisateur de validation |
 | values | Valeurs typées JSON, indexées par instance, étape et identifiant de champ |
 | history | Acteur, action, ancien/nouvel état, noms des champs modifiés et commentaire |
@@ -55,7 +59,7 @@ Les valeurs du lancement sont immuables. Les conditions de workflow s’appuient
 8. Insérer instance, étapes, valeurs et historique.
 9. Valider la transaction.
 
-Une erreur SQL ou métier annule les écritures. Les effets externes déclenchés par d’autres plugins pendant Ticket::add ne peuvent pas être annulés par ce plugin.
+Une erreur SQL ou métier annule les écritures. Les effets externes déclenchés pendant Ticket::add ou ITILFollowup::add, notamment les notifications GLPI et les hooks d’autres plugins, ne peuvent pas être annulés par la transaction SQL.
 
 ## Exécution et concurrence
 
@@ -79,12 +83,12 @@ Les requêtes de données utilisent le DBAL GLPI. Les rares SQL explicites ne re
 
 Les journaux n’enregistrent pas les anciennes et nouvelles valeurs. Ils enregistrent les identifiants des champs modifiés. Les formulaires interdisent les noms de champs de mots de passe, secrets et jetons. Les champs libres et commentaires ne constituent pas un coffre-fort ; un utilisateur peut toujours y coller une information sensible. L’avertissement fonctionnel et la politique d’utilisation doivent être respectés.
 
-Le format d’échange possède son propre numéro schema 1, distinct du numéro de schéma SQL 3.
+Le format d’échange possède son propre numéro schema 1, distinct du numéro de schéma SQL 4.
 
 L’import est limité à 512 Kio et n’exécute aucun code. Les références locales de permissions, affectations et connaissance sont retirées à l’import pour être sélectionnées dans l’instance cible.
 
 ## Installation et évolutions
 
-Le schéma courant porte le numéro 3, enregistré dans la configuration du plugin après création des tables. Les DDL sont rejouables, car MariaDB effectue des commits implicites sur les DDL. La désactivation conserve les données. La désinstallation supprime uniquement les tables et droits du plugin, pas les tickets ni documents natifs.
+Le schéma courant porte le numéro 4, enregistré dans la configuration du plugin après création des tables. Les DDL sont rejouables, car MariaDB effectue des commits implicites sur les DDL. La désactivation conserve les données. La désinstallation supprime uniquement les tables et droits du plugin, pas les tickets ni documents natifs.
 
 La migration 1 vers 2 conserve les données du schéma de développement : définitions longues et colonnes temporelles TIMESTAMP conformes aux conventions GLPI 12. Elle est rejouable avant enregistrement du numéro final. Les futures versions devront ajouter des migrations numérotées avant de relever Schema::VERSION ; une simple création IF NOT EXISTS ne suffit pas à modifier une table existante. Les changements du format de définition devront conserver un lecteur des versions déjà publiées.

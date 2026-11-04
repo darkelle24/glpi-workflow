@@ -1,10 +1,14 @@
 # État des fonctionnalités et limites
 
+## Ajouts de la version 0.1.4 — messages et équipe
+
+Trois suivis internes par étape sont configurables et activés par défaut : disponibilité, prise en charge et fin. Ils incluent un lien vers le workflow, les intervenants et la progression ; la fin reprend les réponses visibles et le commentaire. Le lancement permet de sélectionner une équipe de plusieurs utilisateurs et groupes pour les étapes sans responsable explicite. L’ouverture du ticket affiche une présentation du workflow et un bouton d’accès. Le schéma SQL 4 conserve l’équipe ; la migration préserve les instances existantes.
+
 ## Ajouts de la version 0.1.3 — procédures GLPI
 
 Les étapes disposent d’un sélecteur de fiches avec aperçus, recherche titre/contenu, filtres FAQ/interne, auteur connecté, modification depuis une date et tri par création. Une fiche structurée peut être créée et associée depuis l’étape, puis complétée dans GLPI. Le ticket propose un bouton direct vers chaque fiche. Les droits natifs s’appliquent aux recherches, aux titres rechargés, à la création et à la consultation. Les textes libres historiques restent conservés pour conversion ; le champ Instructions n’est plus éditable.
 
-## Socle conservé dans 0.1.3
+## Socle conservé dans 0.1.4
 
 Le code livré couvre un socle générique : administration, champs et étapes, conditions ET/OU, dépendances, prévisualisation, publication de versions figées, lancement, tickets existants et création dédiée, checklist, valeurs persistantes, progression, affectations, commentaires, historique, droits, import/export, trois exemples et tableau de bord simple.
 
@@ -29,7 +33,7 @@ Le guide illustré est conservé dans un seul [fichier Markdown](user-guide.md),
 - Pagination : affichage par 20, avec filtrage des droits avant affichage ; le chargement des grandes listes reste à optimiser pour un usage massif.
 - Historique : toutes les opérations de l’instance sont tracées ; pas de journal détaillé des différences éditoriales des brouillons.
 - Versionnement : historique publié et définitions conservées ; aucune migration d’instances existantes vers une autre version.
-- Schéma : installation versionnée et rejouable ; migrations 1 vers 2 et 2 vers 3 fournies. La migration de prise en charge préserve les données existantes.
+- Schéma : installation versionnée et rejouable ; migrations 1 vers 2, 2 vers 3 et 3 vers 4 fournies. La migration de prise en charge préserve les données existantes.
 - Langues : interface en français ; domaine GLPI présent pour les menus et droits. La traduction exhaustive des textes PHP et JavaScript reste à compléter.
 - Administration : désactivation/archivage et duplication ; suppression définitive d’un modèle non proposée pour préserver les versions utilisées.
 - Aucun mécanisme de décision ne remplace les actions réelles dans Microsoft 365, MAGIS, UNI.T NG ou l’inventaire.
@@ -37,7 +41,7 @@ Le guide illustré est conservé dans un seul [fichier Markdown](user-guide.md),
 ## Non réalisé
 
 - Bibliothèque centrale d’étapes réutilisables avec gestion de leurs versions.
-- Notifications natives d’attribution d’étapes.
+- Scénarios de notifications dédiés au workflow en dehors des suivis de ticket.
 - Approbations distinctes des droits de validation d’une étape.
 - Synchronisation avec les tâches natives GLPI.
 - Affectation automatique des acteurs du ticket depuis les champs de formulaire.

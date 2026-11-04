@@ -4,6 +4,7 @@ require __DIR__.'/support/FakeGlpi.php';
 require dirname(__DIR__).'/bootstrap.php';
 use WorkflowBuilder\{Access, Definition, Instances, Store, Templates, TicketGuard, ValidationException};
 $DB=new FakeDb();
+$CFG_GLPI=['root_doc'=>''];
 $passed=$failed=0;
 function check(string $name,callable $run):void {
     global $passed,$failed;
@@ -14,6 +15,7 @@ function denied(callable $run):void{try{$run();}catch(ValidationException){retur
 function rights():void {
     Session::$rights=array_fill_keys(array_keys(Access::RIGHTS),READ|UPDATE|CREATE);
     Session::$rights['native_ticket']=READ|UPDATE|CREATE;
+    Session::$rights['native_followup']=CREATE;
     $_SESSION['glpigroups']=[12];
 }
 function definition():array {
@@ -151,4 +153,121 @@ check('guide permissions allow plugin readers and reject unrelated profiles',fun
         Session::$rights['plugin_workflowbuilder_template']=READ;WorkflowBuilder\Guide::requireAccess();
     }finally{rights();}
 });
+function messageFixture(array $overrides = [], array $team = []): int {
+    Session::$user = 7; rights();
+    $d = definition();
+    $d['steps'][0] = array_replace($d['steps'][0], $overrides);
+    $t = Templates::save(0, $d, 0, false, 0); Templates::publish($t, 1);
+    return Instances::launch($t, 0, 0, ['request' => 'Demande <script>'], bin2hex(random_bytes(32)), 0, $team);
+}
+function messages(int $id): array {
+    global $DB;
+    $ticket = Store::one('instances', $id)['tickets_id'];
+    return iterator_to_array($DB->request(['FROM'=>'glpi_itilfollowups','WHERE'=>['items_id'=>$ticket]]), false);
+}
+check('new and legacy definitions enable all three ticket messages by default', function() {
+    $step = definition()['steps'][0];
+    foreach (['notify_available','notify_taken','notify_done'] as $key) { eq(true, $step[$key]); }
+    $d=definition();$d['steps'][0]['notify_done']='invalid'; denied(fn()=>Definition::validate($d));
+});
+check('launch writes a structured opening and only announces available steps', function() {
+    global $DB;
+    $id=messageFixture();$ticket=Store::one('instances',$id)['tickets_id'];$content=$DB->tables['glpi_tickets'][$ticket]['content'];
+    foreach (['WORKFLOW','Informations du lancement','request_key=','Ouvrir le workflow du ticket','0 %','&lt;script&gt;'] as $part) {
+        if(!str_contains($content,$part))throw new RuntimeException('Opening misses '.$part);
+    }
+    eq(1,count(messages($id)));eq(1,messages($id)[0]['is_private']);
+    if(!str_contains(messages($id)[0]['content'],'Étape disponible'))throw new RuntimeException('Missing activation');
+});
+check('repeated launch key does not duplicate native followups',function(){
+    $id=messageFixture();$i=Store::one('instances',$id);$before=messages($id);
+    eq($id,Instances::launch((int)$i['templates_id'],0,0,['request'=>'Retry'],$i['request_key']));
+    eq($before,messages($id));
+});
+check('claim announces the operator once and saves do not spam the ticket',function(){
+    $id=messageFixture();Instances::act($id,'check','start',[],revision($id));eq(2,count(messages($id)));
+    Instances::act($id,'check','save',['ok'=>'1'],revision($id));eq(2,count(messages($id)));
+    $body=messages($id)[1]['content'];
+    if(!str_contains($body,'Étape prise en charge')||!str_contains($body,'Technicien A'))throw new RuntimeException('Missing operator');
+});
+check('completion includes answers, safe comment, actor, link and final progress and activates dependencies',function(){
+    $id=messageFixture();Instances::act($id,'check','complete',['ok'=>'1'],revision($id),'<script>comment</script>');
+    $m=messages($id);eq(4,count($m));
+    foreach(['Étape terminée','Technicien A','Vérifié','Oui','50 %','instance.php?id=','#wb-step-check','&lt;script&gt;comment'] as $part){
+        if(!str_contains($m[2]['content'],$part))throw new RuntimeException('Completion misses '.$part);
+    }
+    if(str_contains($m[2]['content'],'<script>'))throw new RuntimeException('Unescaped comment');
+    if(!str_contains($m[3]['content'],'Étape disponible')||!str_contains($m[3]['content'],'Finaliser'))throw new RuntimeException('Dependency missing');
+});
+check('checkboxes independently disable claim and completion messages',function(){
+    $id=messageFixture(['notify_taken'=>false,'notify_done'=>false]);
+    Instances::act($id,'check','start',[],revision($id));eq(1,count(messages($id)));
+    Instances::act($id,'check','complete',['ok'=>'1'],revision($id));eq(2,count(messages($id)));
+    if(!str_contains(messages($id)[1]['content'],'Étape disponible'))throw new RuntimeException('Dependency must still notify');
+});
+check('availability checkbox disables only that step activation message',function(){
+    $id=messageFixture(['notify_available'=>false]);eq([],messages($id));
+    Instances::act($id,'check','start',[],revision($id));eq(1,count(messages($id)));
+});
+check('release announces availability and a new claim announces the new operator',function(){
+    $id=messageFixture();Instances::act($id,'check','start',[],revision($id));Instances::act($id,'check','release',[],revision($id));
+    Session::$user=8;Instances::act($id,'check','start',[],revision($id));Session::$user=7;
+    eq(4,count(messages($id)));
+    if(!str_contains(messages($id)[3]['content'],'Technicien B'))throw new RuntimeException('New operator missing');
+});
+check('followup failure rolls back ownership, values, revision and history',function(){
+    $id=messageFixture();$before=Instances::data($id);$history=Store::rows('history',['instances_id'=>$id]);$oldMessages=messages($id);
+    ITILFollowup::$failNext=true;denied(fn()=>Instances::act($id,'check','complete',['ok'=>'1'],revision($id)));
+    eq($before,Instances::data($id));eq($history,Store::rows('history',['instances_id'=>$id]));eq($oldMessages,messages($id));
+});
+check('native followup permissions cannot be bypassed by workflow rights',function(){
+    $id=messageFixture();$before=Instances::data($id);Session::$rights['native_followup']=0;
+    try{denied(fn()=>Instances::act($id,'check','start',[],revision($id)));eq($before,Instances::data($id));}finally{rights();}
+});
+check('hidden answers never appear in completion messages and false and zero are preserved',function(){
+    $fields=WorkflowBuilder\Fields::definitions([
+        ['id'=>'show','label'=>'Afficher','type'=>'boolean'],
+        ['id'=>'hidden','label'=>'Caché','type'=>'text','condition'=>['field'=>'self.show','op'=>'true']],
+        ['id'=>'count','label'=>'Quantité','type'=>'number']
+    ],['self.show']);
+    $html=WorkflowBuilder\TicketMessages::values($fields,['show'=>false,'hidden'=>'CONFIDENTIEL','count'=>0]);
+    if(str_contains($html,'CONFIDENTIEL')||!str_contains($html,'Non')||!str_contains($html,'>0<'))throw new RuntimeException('Invalid visible answers');
+});
+check('workflow team is persisted with multiple users and groups',function(){
+    $id=messageFixture([],['users'=>[7,8],'groups'=>[12]]);
+    eq(['users'=>[7,8],'groups'=>[12]],WorkflowBuilder\Assignees::forInstance(Instances::data($id)['instance']));
+});
+check('workflow team restricts unassigned steps while matching members may execute',function(){
+    $id=messageFixture([],['users'=>[8]]);Session::$rights['plugin_workflowbuilder_admin']=0;
+    denied(fn()=>Instances::act($id,'check','start',[],revision($id)));
+    Session::$user=8;Instances::act($id,'check','start',[],revision($id));eq(8,stepRow($id)['started_by']);Session::$user=7;rights();
+});
+check('workflow group membership permits execution',function(){
+    $id=messageFixture([],['users'=>[999],'groups'=>[12]]);Session::$rights['plugin_workflowbuilder_admin']=0;
+    Instances::act($id,'check','start',[],revision($id));eq(7,stepRow($id)['started_by']);rights();
+});
+check('explicit step assignment takes priority over workflow team',function(){
+    $id=messageFixture(['users_id'=>8],['users'=>[7]]);Session::$rights['plugin_workflowbuilder_admin']=0;
+    denied(fn()=>Instances::act($id,'check','start',[],revision($id)));Session::$user=8;
+    Instances::act($id,'check','start',[],revision($id));Session::$user=7;rights();
+});
+check('bad workflow assignee references are rejected before ticket creation',function(){
+    global $DB;
+    $d=definition();$t=Templates::save(0,$d,0,false,0);Templates::publish($t,1);$count=count($DB->tables['glpi_tickets']);
+    denied(fn()=>Instances::launch($t,0,0,['request'=>'A'],bin2hex(random_bytes(32)),0,['users'=>[404]]));
+    eq($count,count($DB->tables['glpi_tickets']));
+    denied(fn()=>WorkflowBuilder\Assignees::fromInput(['assigned_users'=>'7']));
+});
+check('workflow assignment never substitutes for ticket access',function(){
+    $id=messageFixture([],['users'=>[7]]);Session::$rights['native_ticket']=0;
+    try{denied(fn()=>Instances::act($id,'check','start',[],revision($id)));}finally{rights();}
+});
+check('attaching a workflow writes its opening as an internal native followup',function(){
+    $id=messageFixture();$i=Store::one('instances',$id);
+    $other=Instances::launch((int)$i['templates_id'],(int)$i['tickets_id'],0,['request'=>'Autre'],bin2hex(random_bytes(32)));
+    $m=messages($other);eq(3,count($m));
+    if(!str_contains($m[1]['content'],'Informations du lancement')||$m[1]['is_private']!==1)throw new RuntimeException('Missing attachment opening');
+});
+
+
 echo "\n$passed service tests passed; $failed failed (GLPI and database test doubles)\n";exit($failed?1:0);

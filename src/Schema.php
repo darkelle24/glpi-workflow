@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace WorkflowBuilder;
 final class Schema
 {
-    public const VERSION = 3;
+    public const VERSION = 4;
     public static function install(): void
     {
         global $DB;
@@ -23,6 +23,10 @@ final class Schema
         }
         if ($current > 0 && $current < 3) {
             $upgrade = require dirname(__DIR__) . '/migrations/3.php';
+            $upgrade();
+        }
+        if ($current > 0 && $current < 4) {
+            $upgrade = require dirname(__DIR__) . '/migrations/4.php';
             $upgrade();
         }
         \Config::setConfigurationValues('plugin:workflowbuilder', ['schema_version' => self::VERSION]);
@@ -69,6 +73,7 @@ final class Schema
             'instances' => 'templates_id int unsigned NOT NULL, versions_id int unsigned NOT NULL,
                 tickets_id int unsigned NOT NULL, entities_id int unsigned NOT NULL,
                 users_id int unsigned NOT NULL, request_key char(64) NOT NULL,
+                assigned_users longtext DEFAULT NULL, assigned_groups longtext DEFAULT NULL,
                 status varchar(16) NOT NULL, revision int unsigned NOT NULL DEFAULT 1,
                 date_creation timestamp NOT NULL, date_mod timestamp NOT NULL, date_completion timestamp NULL DEFAULT NULL,
                 UNIQUE KEY request_key (request_key), KEY ticket (tickets_id),

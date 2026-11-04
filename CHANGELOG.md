@@ -1,5 +1,15 @@
 # Historique des versions
 
+## 0.1.4 — 4 novembre 2026
+
+- Trois options de suivi interne par étape, activées par défaut : disponibilité, prise en charge et fin.
+- Suivis GLPI avec lien vers l’étape, intervenants et progression ; la fin d’étape reprend les réponses visibles et le commentaire enregistré.
+- Protection contre les suivis de prise en charge répétés lors des simples enregistrements ; écriture dans la transaction de l’action et contrôle du droit natif d’ajout de suivi.
+- Sélection de plusieurs utilisateurs et groupes au lancement du workflow ; l’équipe s’applique aux étapes sans responsable explicite.
+- Présentation structurée à l’ouverture du ticket, avec identification du workflow, version, responsables, données de lancement et bouton d’accès au workflow. Ajout sous forme de suivi interne pour un ticket existant.
+- Schéma SQL 4 : colonnes assigned_users et assigned_groups ; migration 3 vers 4 rejouable préservant les instances. Format JSON conservé en schema 1.
+
+
 ## 0.1.3 — 4 novembre 2026
 
 - Sélecteur de fiches de connaissance GLPI avec titres, aperçus, pagination et filtres combinables : titre/contenu, FAQ/interne, fiches de l’auteur connecté et date de modification.

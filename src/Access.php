@@ -97,7 +97,7 @@ final class Access
         }
         return $ticket;
     }
-    public static function step(array $definition, array $row, string $action): void
+    public static function step(array $definition, array $row, string $action, array $team = []): void
     {
         $right = match ($action) {
             'complete' => 'validate',
@@ -120,6 +120,10 @@ final class Access
             throw new ValidationException('Vous ne faites pas partie des exécutants de ce workflow.');
         }
         $assigned = (int) $row['users_id'] || (int) $row['groups_id'];
+        if (!$assigned && (!empty($team['users']) || !empty($team['groups']))
+            && !in_array($me, $team['users'] ?? [], true) && !array_intersect(self::groups(), $team['groups'] ?? [])) {
+            throw new ValidationException('Cette étape est réservée aux responsables du workflow.');
+        }
         if ($assigned && (int) $row['users_id'] !== (int) \Session::getLoginUserID()
             && !in_array((int) $row['groups_id'], self::groups(), true)) {
             throw new ValidationException('Cette étape est affectée à un autre responsable.');

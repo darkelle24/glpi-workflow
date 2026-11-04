@@ -148,3 +148,40 @@ test('knowledge ignores stale searches when filters change', async({page}) => {
     await page.waitForTimeout(900);
     await expect(step.getByText('Résultat périmé',{exact:true})).toHaveCount(0);
 });
+
+test('three automatic message options default to checked and preserve disabled options after duplication', async({page}) => {
+    await page.goto('/tests/editor-fixture.php');
+    await page.getByRole('button',{name:'Étapes',exact:true}).click();
+    await page.getByRole('button',{name:'Ajouter une étape',exact:true}).click();
+    let step = page.locator('.wb-step-editor').last();
+    for(const label of ['Étape disponible','Étape prise en charge','Étape terminée']) await expect(step.getByLabel(label,{exact:true})).toBeChecked();
+    await step.getByLabel('Étape prise en charge',{exact:true}).uncheck();
+    await step.getByRole('button',{name:'Dupliquer',exact:true}).first().click();
+    step = page.locator('.wb-step-editor').last();
+    await step.locator('summary').first().click();
+    await expect(step.getByLabel('Étape prise en charge',{exact:true})).not.toBeChecked();
+    await page.locator('[data-wb-editor]').evaluate(form=>form.addEventListener('submit',e=>e.preventDefault()));
+    await page.getByRole('button',{name:'Enregistrer le brouillon',exact:true}).click();
+    const model=JSON.parse(await page.locator('[name="definition"]').inputValue());
+    expect(model.steps.at(-1)).toMatchObject({notify_available:true,notify_taken:false,notify_done:true});
+});
+
+test('launch team accepts multiple users and groups and submits removable selections', async({page}) => {
+    await page.route('**/lookup-fixture.php?**',route=>{
+        const type=new URL(route.request().url()).searchParams.get('type');
+        return route.fulfill({json:{items:type==='user'?[{id:7,label:'Alice'},{id:8,label:'Bob'}]:[{id:12,label:'Support'}],next:0}});
+    });
+    await page.goto('/tests/launch-fixture.php');
+    const user=page.getByRole('searchbox',{name:'Rechercher Utilisateurs du workflow',exact:true});
+    await user.fill('al');await page.getByRole('button',{name:'Alice (#7)',exact:true}).click();
+    await user.fill('bo');await page.getByRole('button',{name:'Bob (#8)',exact:true}).click();
+    await page.getByRole('searchbox',{name:'Rechercher Groupes du workflow',exact:true}).fill('su');
+    await page.getByRole('button',{name:'Support (#12)',exact:true}).click();
+    expect(await page.locator('[name="assigned_users[]"]').evaluateAll(nodes=>nodes.map(n=>n.value))).toEqual(['7','8']);
+    await expect(page.locator('[name="assigned_groups[]"]')).toHaveValue('12');
+    await page.getByRole('button',{name:'Alice ×',exact:true}).click();
+    await expect(page.locator('[name="assigned_users[]"]')).toHaveCount(1);
+    await expect(page.locator('[name="assigned_users[]"]')).toHaveValue('8');
+    await page.setViewportSize({width:390,height:844});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});

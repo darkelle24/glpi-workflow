@@ -72,7 +72,7 @@ final class Definition
         $vars = array_map(static fn($f) => 'form.' . $f['id'], $data['fields']);
         $stepIds = [];
         foreach ($data['steps'] as &$step) {
-            if (!is_array($step) || array_diff(array_keys($step), ['id', 'title', 'description', 'instructions', 'required', 'users_id', 'groups_id', 'condition', 'depends_on', 'dependency_mode', 'knowbaseitems_id', 'fields', 'initial_state'])) {
+            if (!is_array($step) || array_diff(array_keys($step), ['id', 'title', 'description', 'instructions', 'required', 'users_id', 'groups_id', 'condition', 'depends_on', 'dependency_mode', 'knowbaseitems_id', 'fields', 'initial_state', 'notify_available', 'notify_taken', 'notify_done'])) {
                 throw new ValidationException('Propriétés d’étape inconnues.');
             }
             self::identifier($step['id'] ?? null);
@@ -85,6 +85,9 @@ final class Definition
             // Legacy imports/versions retain this text so the editor can migrate it into a native KB article.
             $step['instructions'] = self::text($step['instructions'] ?? '', 10000);
             $step['required'] = self::boolean($step['required'] ?? true);
+            foreach (['notify_available', 'notify_taken', 'notify_done'] as $option) {
+                $step[$option] = self::boolean($step[$option] ?? true);
+            }
             foreach (['users_id', 'groups_id'] as $key) {
                 if (filter_var($step[$key] ?? 0, FILTER_VALIDATE_INT) === false || (int) ($step[$key] ?? 0) < 0) {
                     throw new ValidationException('Responsable invalide.');

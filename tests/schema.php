@@ -52,6 +52,15 @@ try {
     $after=$db->query('SELECT * FROM '.$table)->fetch_assoc();
     if($after['state']!==$before['state']||$after['started_at']!==$before['started_at']||$after['started_by']!==null)throw new RuntimeException('Ownership migration changed legacy data');
     echo "PASS migration 2 to 3 preserves rows and can be repeated\n";
+    $instances=Store::table('instances');
+    $oldInstance=$db->query('SELECT * FROM '.$instances.' WHERE id=1')->fetch_assoc();
+    $db->query('ALTER TABLE '.$instances.' DROP COLUMN assigned_users, DROP COLUMN assigned_groups');
+    $upgrade=require dirname(__DIR__).'/migrations/4.php';$upgrade();$upgrade();
+    $newInstance=$db->query('SELECT * FROM '.$instances.' WHERE id=1')->fetch_assoc();
+    if($newInstance['request_key']!==$oldInstance['request_key']||$newInstance['status']!==$oldInstance['status']
+        ||$newInstance['assigned_users']!==null||$newInstance['assigned_groups']!==null)throw new RuntimeException('Assignment migration changed existing workflows');
+    echo "PASS migration 3 to 4 preserves instances and can be repeated\n";
+
     foreach(array_reverse(Store::TABLES) as $table)$db->query('DROP TABLE IF EXISTS '.Store::table($table));
     if($db->query('SHOW TABLES')->num_rows!==0)throw new RuntimeException('Uninstall did not drop tables');
     echo "PASS all plugin tables removable\n";

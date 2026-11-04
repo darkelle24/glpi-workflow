@@ -1,5 +1,33 @@
 # Rapport de validation — 4 novembre 2026
 
+## Mise à jour 0.1.4 — suivis de ticket et équipe du workflow
+
+Contrôles exécutés le 4 novembre 2026 sur un GLPI local et une base MariaDB de test dédiée :
+
+| Vérification | Résultat |
+| --- | --- |
+| Moteur et validations | 80 tests réussis |
+| Services et autorisations | 57 tests réussis avec doublures |
+| Éditeur et formulaires Chromium | 9 tests réussis |
+| Schéma MariaDB et migrations rejouées | 9 contrôles réussis |
+| Suivis et équipe dans GLPI natif | 12 contrôles réussis |
+| Parcours navigateur GLPI complet | 6 contrôles réussis |
+| Syntaxe PHP | 56 fichiers vérifiés |
+| Conditions JavaScript | 18 cas réussis |
+| Guide intégré | 10 contrôles réussis |
+
+Les services vérifient les options activées par défaut et leur désactivation individuelle, le contenu des suivis, les réponses conditionnelles, l’échappement, la progression, l’absence de doublons, le refus d’un suivi non autorisé et l’annulation transactionnelle en cas d’échec. L’équipe est testée sur les utilisateurs, les groupes, la priorité des responsables d’étapes, les références invalides et le maintien des droits natifs du ticket.
+
+Le test natif crée de vrais tickets et suivis internes, valide la copie des réponses à la fin d’étape et la progression jusqu’à 100 %. Le navigateur confirme l’identité GLPI, sélectionne un utilisateur par la recherche native, lance le workflow, prend et termine une étape, consulte le contenu du ticket et ses boutons, ouvre le workflow par la clé de lancement puis cible une étape terminée. Le rendu mobile et l’absence d’erreurs JavaScript sont contrôlés. La migration 3 vers 4 est rejouée en conservant les instances ; les anciennes affectations restent sans équipe imposée.
+
+~~~sh
+WORKFLOWBUILDER_ALLOW_NATIVE_TESTS=1 WB_MESSAGES_STATE_PATH=/tmp/messages-state.json php tests/messages-native.php /chemin/vers/glpi
+WORKFLOWBUILDER_ALLOW_NATIVE_TESTS=1 WB_MESSAGES_STATE_PATH=/tmp/messages-state.json WB_MESSAGES_BASE_URL=http://127.0.0.1:8765 node tests/messages-browser.cjs
+~~~
+
+Ces scripts exigent un environnement local de test explicite et créent des données fictives. Aucun déploiement de production n’a été modifié.
+
+
 ## Mise à jour 0.1.3 — procédures dans la base de connaissances
 
 Contrôles exécutés le 4 novembre 2026, sur un GLPI 12 isolé et sa base MariaDB de test :

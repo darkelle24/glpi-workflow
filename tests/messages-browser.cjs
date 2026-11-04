@@ -1,0 +1,65 @@
+'use strict';
+const {chromium} = require('playwright');
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
+const base = process.env.WB_MESSAGES_BASE_URL || 'http://127.0.0.1:8765';
+if(process.env.WORKFLOWBUILDER_ALLOW_NATIVE_TESTS!=='1'||!['localhost','127.0.0.1'].includes(new URL(base).hostname))throw new Error('Dedicated local GLPI required');
+const state=JSON.parse(fs.readFileSync(process.env.WB_MESSAGES_STATE_PATH,'utf8'));
+(async()=>{
+    const browser=await chromium.launch({headless:true});
+    const context=await browser.newContext({viewport:{width:1440,height:1000},locale:'fr-FR'});
+    const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+    try {
+        await page.goto(base+'/index.php?noAUTO=1');
+        await page.locator('input[type="text"]').first().fill(process.env.WB_GLPI_TEST_USER||'glpi');
+        await page.locator('input[type="password"]').fill(process.env.WB_GLPI_TEST_PASSWORD||'glpi');
+        await Promise.all([page.waitForURL(url=>!url.pathname.endsWith('/index.php')),page.locator('button[type="submit"]').first().click()]);
+        await page.goto(base+'/plugins/workflowbuilder/front/reauth.php');
+        if(await page.locator('input[name="user_input"]').count()) {
+            await page.locator('input[name="user_input"]').fill(process.env.WB_GLPI_TEST_PASSWORD||'glpi');
+            await Promise.all([page.waitForURL(url=>url.pathname.endsWith('/plugins/workflowbuilder/front/index.php')),page.getByRole('button',{name:/Verify|Vérifier/}).click()]);
+        }
+        await page.goto(base+'/plugins/workflowbuilder/front/launch.php?template='+state.template);
+        await page.getByRole('searchbox',{name:'Rechercher Utilisateurs du workflow',exact:true}).fill(process.env.WB_GLPI_TEST_USER||'glpi');
+        await page.locator('[data-wb-assignees] .wb-search-results button').filter({hasText:'(#'+state.user+')'}).click();
+        await page.getByLabel('Demande *',{exact:true}).fill('Préparer le poste de démonstration');
+        await page.getByRole('button',{name:'Valider et créer le ticket',exact:true}).click();
+        await page.locator('.wb-instance').waitFor();
+        const instance=new URL(page.url()).searchParams.get('id');
+        assert.ok(Number(instance)>0);
+        assert.match(await page.locator('.wb-instance').textContent(),/Responsables du workflow/);
+        console.log('PASS native launch persists the selected workflow team');
+        const ticketLink=page.locator('.wb-instance a').filter({hasText:/^#\d+$/}).first();
+        const ticketUrl=await ticketLink.getAttribute('href');
+        const first=page.locator('#wb-step-check');
+        await first.getByRole('button',{name:'Je prends en charge',exact:true}).click();
+        await page.locator('#wb-step-check .wb-worker').waitFor();
+        await page.locator('[name="values[ok]"][type="checkbox"]').check();
+        await page.locator('[name="values[details]"]').fill('Poste vérifié, accès validés');
+        await page.locator('#wb-step-check').getByRole('button',{name:'Terminer',exact:true}).click();
+        await page.getByText('1 / 2 étapes obligatoires terminées',{exact:false}).waitFor();
+        console.log('PASS claim and completion update the workflow through the native UI');
+        await page.goto(new URL(ticketUrl,base).href);
+        const opening=page.getByRole('link',{name:'Ouvrir le workflow du ticket',exact:true}).first();
+        await opening.waitFor();
+        assert.match(await page.locator('body').textContent(),/Ce ticket est piloté par un workflow/);
+        assert.match(await page.locator('body').textContent(),/Étape terminée/);
+        assert.match(await page.locator('body').textContent(),/Poste vérifié, accès validés/);
+        assert.match(await page.locator('body').textContent(),/50 %/);
+        console.log('PASS native ticket timeline displays the opening, actors, percentage and final data');
+        if(process.env.WB_MESSAGES_PREVIEW_PATH)await page.screenshot({path:process.env.WB_MESSAGES_PREVIEW_PATH,fullPage:true});
+        const href=await opening.getAttribute('href');
+        assert.match(href,/instance\.php\?request_key=/);
+        await page.goto(new URL(href,base).href);await page.locator('.wb-instance').waitFor();
+        assert.equal(await page.locator('#wb-step-check').count(),1);
+        console.log('PASS opening button resolves the authenticated workflow for the correct ticket');
+        await page.goto(base+'/plugins/workflowbuilder/front/instance.php?id='+instance+'#wb-step-check');
+        await page.locator('#wb-step-check').waitFor();
+        assert.equal(await page.locator('#wb-step-check').getAttribute('open'),'');
+        console.log('PASS step followup links open the completed step');
+        await page.setViewportSize({width:390,height:844});await page.evaluate(()=>document.fonts.ready);
+        assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+        assert.deepEqual(errors,[]);
+        console.log('PASS workflow remains usable on mobile with no JavaScript errors');
+    } catch(error) { console.error('Failed page',page.url(),await page.locator('.alert').allTextContents()); throw error; } finally {await context.close();await browser.close();}
+})().catch(error=>{console.error(error);process.exitCode=1;});

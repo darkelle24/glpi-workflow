@@ -56,3 +56,8 @@
 .wb-procedures { margin:.8rem 0; padding:.8rem 1rem; border-radius:.5rem; border:1px solid var(--wb-border); background:var(--tblr-bg-surface-secondary,#f4f7fa); }
 .wb-procedures a { white-space:normal; text-align:left; overflow-wrap:anywhere; }
 @media(max-width:650px){.wb-knowledge{padding:.65rem}.wb-knowledge-card{padding:.75rem}.wb-knowledge .wb-toolbar>.btn{flex:1 1 auto}}
+.wb-step-messages { margin:1rem 0; padding:1rem; border:1px solid var(--wb-border); border-radius:.5rem; background:var(--tblr-bg-surface-secondary,#f4f7fa); }
+.wb-step-messages legend,.wb-assignees legend { font-size:1rem; font-weight:600; width:auto; margin:0; }
+.wb-step[id] { scroll-margin-top:6rem; }
+.wb-step:target { outline:2px solid var(--tblr-primary,#206bc4); outline-offset:3px; }
+.wb-assignees { min-width:0; }.wb-assignees .wb-picker { max-width:100%; }

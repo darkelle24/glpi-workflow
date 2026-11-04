@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace WorkflowBuilder;
 final class Instances
 {
-    public static function launch(int $templateId, int $ticketId, int $entity, array $input, string $key, int $expectedVersion = 0): int
+    public static function launch(int $templateId, int $ticketId, int $entity, array $input, string $key, int $expectedVersion = 0, array $assignees = []): int
     {
         Access::need('view');
         Access::need('launch', CREATE);
@@ -11,7 +11,7 @@ final class Instances
             throw new ValidationException('Clé de lancement invalide.');
         }
         if ($ticketId) { TicketMutex::acquire($ticketId); }
-        return Store::transaction(function () use ($templateId, $ticketId, $entity, $input, $key, $expectedVersion) {
+        return Store::transaction(function () use ($templateId, $ticketId, $entity, $input, $key, $expectedVersion, $assignees) {
             $template = Store::lock('templates', $templateId);
             $existing = Store::rows('instances', ['request_key' => $key], ['LIMIT' => 1]);
             if ($existing) {
@@ -41,13 +41,18 @@ final class Instances
             if (!($ticketId ? $definition['allow_attach'] : $definition['allow_create'])) {
                 throw new ValidationException('Ce mode de lancement est désactivé.');
             }
+            $assignees = Assignees::normalize($assignees);
+            Assignees::check($assignees);
             $form = Fields::formValues($definition['fields'], $input);
             Access::references($definition['fields'], $form, $ticketId ?: null);
+            $states = Engine::states($definition, $form);
+            $progress = Engine::progress($definition, $states);
+            $newTicket = !$ticketId;
             if (!$ticketId) {
                 $title = trim(Engine::substitute($definition['ticket_title'], $definition, $form));
                 Definition::text($title, 255, true);
-                $description = Engine::substitute($definition['ticket_description'], $definition, $form);
-                $ticketInput = ['name' => $title, 'content' => nl2br(htmlspecialchars($description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')),
+                $description = TicketMessages::opening($definition, $form, $progress, $assignees, (int) $version['number'], $key);
+                $ticketInput = ['name' => $title, 'content' => $description,
                     'entities_id' => $entity, '_users_id_requester' => (int) \Session::getLoginUserID(),
                     'status' => \CommonITILObject::INCOMING];
                 $ticket = new \Ticket();
@@ -74,12 +79,11 @@ final class Instances
                     throw new ValidationException('Le ticket vient d’être résolu ou clôturé.');
                 }
             }
-            $states = Engine::states($definition, $form);
-            $progress = Engine::progress($definition, $states);
             $now = Store::now();
             $instance = Store::insert('instances', ['templates_id' => $templateId, 'versions_id' => $version['id'],
                 'tickets_id' => $ticketId, 'entities_id' => $entity, 'users_id' => (int) \Session::getLoginUserID(),
                 'request_key' => $key, 'status' => $progress['status'], 'revision' => 1,
+                'assigned_users' => Store::json($assignees['users']), 'assigned_groups' => Store::json($assignees['groups']),
                 'date_creation' => $now, 'date_mod' => $now, 'date_completion' => $progress['status'] === 'completed' ? $now : null]);
             self::putValues($instance, '', $form);
             foreach ($definition['steps'] as $step) {
@@ -87,6 +91,10 @@ final class Instances
                     'state' => $states[$step['id']], 'users_id' => $step['users_id'], 'groups_id' => $step['groups_id']]);
             }
             Store::audit($instance, null, 'launch', null, $progress['status']);
+            if (!$newTicket) {
+                TicketMessages::post($ticketId, TicketMessages::opening($definition, $form, $progress, $assignees, (int) $version['number'], $key));
+            }
+            TicketMessages::activated(self::data($instance), []);
             return $instance;
         });
     }
@@ -142,9 +150,10 @@ final class Instances
                 Store::update('stepinstances', (int) $row['id'], $assignment);
                 Store::audit($id, $stepKey, 'assign', $row['state'], $assignment['state'] ?? $row['state'], array_keys($assignment), $comment);
                 Store::update('instances', $id, ['revision' => $revision + 1, 'date_mod' => Store::now()]);
+                TicketMessages::activated(self::data($id), $data['states']);
                 return;
             }
-            Access::step($data['definition'], $row, $action);
+            Access::step($data['definition'], $row, $action, Assignees::forInstance($instance));
             $result = Engine::transition($data['definition'], $data['values'][''] ?? [],
                 array_column($data['steps'], 'state', 'step_key'), $stepKey, $action, $input);
             $definitionStep = array_column($data['definition']['steps'], null, 'id')[$stepKey];
@@ -196,6 +205,14 @@ final class Instances
             if ($instance['status'] !== $status) {
                 Store::audit($id, null, 'progress', $instance['status'], $status);
             }
+            $after = self::data($id);
+            $updatedRow = array_column($after['steps'], null, 'step_key')[$stepKey];
+            if (in_array($action, ['start', 'save', 'complete', 'reopen'], true)
+                && (empty($row['started_by']) || $action === 'reopen')) {
+                TicketMessages::event($after, $definitionStep, $updatedRow, 'taken');
+            }
+            if ($action === 'complete') { TicketMessages::event($after, $definitionStep, $updatedRow, 'done', $comment); }
+            TicketMessages::activated($after, $data['states']);
         });
     }
     private static function putValues(int $id, string $step, array $values): void

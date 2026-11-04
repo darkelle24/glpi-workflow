@@ -2,7 +2,7 @@
 
 **Créer une procédure, la lancer sur un ticket et suivre le travail de chaque technicien.**
 
-Ce guide accompagne Workflow Builder 0.1.3 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
+Ce guide accompagne Workflow Builder 0.1.4 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
 
 > **Un seul guide, deux accès.** Ce fichier Markdown est la source du bouton **Guide utilisateur** dans GLPI et du guide consultable dans le dépôt. La page GLPI lit le fichier livré avec le plugin. Déployer sa mise à jour actualise aussi le guide affiché.
 >
@@ -226,6 +226,31 @@ Les anciens textes d’instructions restent conservés dans les définitions. Lo
 Sur le ticket, le bloc **Comment réaliser cette étape ?** ouvre les fiches associées dans un autre onglet. La lecture reste soumise aux droits GLPI du technicien ; une fiche supprimée ou inaccessible ne révèle pas son contenu. Le contenu d’une fiche suit ses modifications dans GLPI et n’est pas figé avec la version du workflow.
 
 
+### Choisir les messages automatiques
+
+Chaque étape propose trois cases, cochées par défaut dans **Messages automatiques dans le ticket** :
+
+| Option | Moment du suivi |
+| --- | --- |
+| Étape disponible | Au lancement si l’étape est disponible, puis quand une dépendance terminée ou un déblocage la rend disponible. |
+| Étape prise en charge | À la première prise en charge, y compris lors d’un premier enregistrement, d’une validation directe ou d’une réouverture. |
+| Étape terminée | À chaque validation de l’étape. |
+
+Les suivis sont **internes au ticket**. Ils contiennent le nom du workflow et de l’étape, les intervenants, le pourcentage d’avancement et un bouton vers l’étape du workflow. Le suivi de fin ajoute la personne ayant terminé, les réponses enregistrées et le commentaire éventuel. Les champs masqués par leurs conditions ne sont pas copiés.
+
+Un simple enregistrement d’une étape déjà prise en charge ne répète pas le suivi de prise en charge. Une libération peut annoncer que l’étape est à nouveau disponible. Décocher une case désactive uniquement le suivi concerné pour cette étape ; enregistrer et publier le modèle pour les futurs lancements.
+
+Les suivis automatiques exigent le droit natif GLPI d’ajouter un suivi au ticket. Si l’écriture du suivi échoue, l’action du workflow est annulée avec ses changements afin de conserver un état cohérent.
+
+### Affecter le workflow au lancement
+
+Le formulaire de lancement propose **Affectation du workflow**. Rechercher et sélectionner plusieurs utilisateurs et/ou groupes ; retirer une sélection avec son bouton ×.
+
+Cette équipe est enregistrée pour ce lancement et s’applique aux étapes sans responsable explicite. Un responsable défini sur l’étape garde la priorité. Sans équipe sélectionnée, les permissions habituelles du modèle s’appliquent. Les droits de lecture et de modification du ticket et les restrictions d’exécution restent obligatoires. L’équipe du workflow ne modifie pas les acteurs natifs du ticket.
+
+Un nouveau ticket présente le nom du workflow, sa version, le demandeur du lancement, l’équipe, la progression et les informations saisies dans une présentation structurée. Le bouton **Ouvrir le workflow du ticket** donne accès à son exécution. Lors d’un ajout à un ticket existant, cette présentation est ajoutée comme suivi interne et conserve le message d’origine du ticket.
+
+
 ### Définir le ticket créé au lancement
 
 Dans **Paramètres**, autoriser la création d’un ticket, l’association à un ticket existant, ou les deux.
@@ -394,4 +419,4 @@ Les noms des champs modifiés sont tracés. Le journal ne recopie pas les ancien
 
 Le bouton **Télécharger le Markdown** fournit exactement le fichier du dépôt. Pour consulter ses images hors ligne, conserver l’arborescence du plugin : le guide dans le dossier docs et les captures dans public/images/guide.
 
-Le guide décrit les fonctions disponibles dans cette version. Les notifications d’attribution, approbations dédiées et tâches natives synchronisées ne sont pas disponibles actuellement.
+Le guide décrit les fonctions disponibles dans cette version, dont les suivis automatiques de ticket. Les scénarios de notifications dédiés hors suivis, approbations dédiées et tâches natives synchronisées restent à réaliser.

@@ -2,7 +2,7 @@
 
 Workflow Builder permet de construire des procédures génériques depuis GLPI : formulaire de lancement, étapes avec champs, conditions visuelles, dépendances, documentation et historique. Les définitions sont enregistrées dans MariaDB. Chaque lancement conserve sa version publiée.
 
-Version courante : **0.1.3**. Nom technique et dossier d’installation : **workflowbuilder**. Cible déclarée : **GLPI 12.0.x**, PHP **8.3 minimum**, MariaDB avec InnoDB. Les points d’extension ont été contrôlés dans les sources officielles de GLPI **12.0.0 et 12.0.1**. La validation de votre déploiement Docker reste nécessaire ; consulter le [rapport de validation](docs/validation.md).
+Version courante : **0.1.4**. Nom technique et dossier d’installation : **workflowbuilder**. Cible déclarée : **GLPI 12.0.x**, PHP **8.3 minimum**, MariaDB avec InnoDB. Les points d’extension ont été contrôlés dans les sources officielles de GLPI **12.0.0 et 12.0.1**. La validation de votre déploiement Docker reste nécessaire ; consulter le [rapport de validation](docs/validation.md).
 
 ## Démarrage
 
@@ -23,6 +23,7 @@ Aucune modification du cœur GLPI n’est nécessaire. Le serveur n’a besoin n
 - Conditions ET/OU, visibilité des champs et étapes, activation et blocage ; rejet des dépendances circulaires.
 - Création de ticket par une page dédiée et association aux tickets existants.
 - États persistants, validation côté serveur, responsables, dates, commentaires et progression.
+- Suivis internes automatiques par étape, équipe choisie au lancement et présentation du ticket avec bouton d’accès au workflow.
 - Prise en charge nominative : « Je prends en charge », nom du technicien visible sur l’étape et libération pour passer le relais.
 - Sélecteur de fiches GLPI avec aperçus, filtres combinables, création de procédures structurées et accès direct depuis les étapes du ticket ; droits natifs vérifiés.
 - Brouillons, publications immuables, archivage, duplication, historique des versions et import/export JSON validé.
@@ -32,7 +33,7 @@ Aucune modification du cœur GLPI n’est nécessaire. Le serveur n’a besoin n
 - Contrôle avant résolution ou clôture via le modèle GLPI lorsque le plugin est actif.
 - Liste des instances et indicateurs d’avancement, limités aux tickets accessibles.
 
-La [liste précise des limites](docs/status.md) fait partie de la livraison. Les notifications, approbations, bibliothèque centrale d’étapes et synchronisation des tâches natives ne sont pas réalisées dans cette version.
+La [liste précise des limites](docs/status.md) fait partie de la livraison. Les scénarios de notifications dédiés hors suivis de ticket, approbations, bibliothèque centrale d’étapes et synchronisation des tâches natives ne sont pas réalisés dans cette version.
 
 ## Documentation
 

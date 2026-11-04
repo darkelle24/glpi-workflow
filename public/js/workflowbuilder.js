@@ -164,11 +164,11 @@
             hidden.dispatchEvent(new Event('change',{bubbles:true}));
         });
     }
-    function picker(parent, label, type, ids, change, multiple) {
+    function picker(parent, label, type, ids, change, multiple, initialNames = {}) {
         const box = el('div', null, 'wb-picker');
         box.append(el('strong', label));
         const selected = el('div', null, 'wb-toolbar'); box.append(selected); parent.append(box);
-        const names = new Map();
+        const names = new Map(Object.entries(initialNames).map(([id,name]) => [Number(id),name]));
         let current = ids.slice();
         const draw = function () {
             selected.replaceChildren();
@@ -183,6 +183,7 @@
             current = multiple ? Array.from(new Set(current.concat(item.id))) : [item.id];
             change(current); draw();
         });
+        box.querySelector('input[type="search"]').setAttribute('aria-label','Rechercher ' + label);
         draw();
     }
     function knowledgePicker(parent, step, model, form) {
@@ -507,6 +508,12 @@
                     knowledgePicker(card,step,model,form);
 
                     control(card,'Étape obligatoire',step.required!==false,v=>{step.required=v;},'checkbox');
+                    const messages = el('fieldset',null,'wb-step-messages'); card.append(messages);
+                    messages.append(el('legend','Messages automatiques dans le ticket'));
+                    messages.append(el('p','Suivis internes avec lien du workflow, intervenants et progression. Le message de fin inclut les données renseignées.','text-muted'));
+                    [['notify_available','Étape disponible'],['notify_taken','Étape prise en charge'],['notify_done','Étape terminée']].forEach(([key,label]) => {
+                        control(messages,label,step[key] !== false,value => {step[key] = value;},'checkbox');
+                    });
                     picker(card,'Utilisateur responsable','user',step.users_id?[step.users_id]:[],ids=>{step.users_id=ids[0]||0;},false);
                     picker(card,'Groupe responsable','group',step.groups_id?[step.groups_id]:[],ids=>{step.groups_id=ids[0]||0;},false);
                     const options={};model.steps.filter(s=>s.id!==step.id).forEach(s=>{options[s.id]=s.title;});
@@ -517,7 +524,7 @@
                     card.append(el('h4','Champs de l’étape'));step.fields=step.fields||[];fieldEditor(card,step.fields,model,false);
                 });
                 button('Ajouter une étape',function () {
-                    model.steps.push({id:uid('s'),title:'Nouvelle étape',description:'',required:true,users_id:0,groups_id:0,depends_on:[],dependency_mode:'start',initial_state:'available',condition:null,knowbaseitems_id:[],fields:[]});
+                    model.steps.push({id:uid('s'),title:'Nouvelle étape',description:'',required:true,notify_available:true,notify_taken:true,notify_done:true,users_id:0,groups_id:0,depends_on:[],dependency_mode:'start',initial_state:'available',condition:null,knowbaseitems_id:[],fields:[]});
                     draw(2,pane);pane.querySelectorAll('.wb-step-editor')[model.steps.length-1]?.setAttribute('open','');
                 },pane);
             } else if(index===3) {
@@ -580,8 +587,28 @@
         });
         draw(0,views[0]);
     }
+    function launchAssignments(box) {
+        if (box.dataset.wbAssigneesReady) return;
+        box.dataset.wbAssigneesReady = '1';
+        const team = JSON.parse(box.dataset.assignees);
+        const labels = JSON.parse(box.dataset.assigneeLabels || '{}');
+        const ui = box.querySelector('[data-assignees-ui]');
+        const inputs = box.querySelector('[data-assignees-inputs]');
+        function sync() {
+            inputs.replaceChildren();
+            ['users','groups'].forEach(key => team[key].forEach(function (id) {
+                const input = el('input'); input.type = 'hidden';
+                input.name = 'assigned_' + key + '[]'; input.value = id; inputs.append(input);
+            }));
+        }
+        picker(ui,'Utilisateurs du workflow','user',team.users, ids => {team.users = ids; sync();},true,labels.users);
+        picker(ui,'Groupes du workflow','group',team.groups, ids => {team.groups = ids; sync();},true,labels.groups);
+        sync();
+    }
+
     function init(root) {
         root.querySelectorAll('[data-wb-editor]').forEach(editor);
+        root.querySelectorAll('[data-wb-assignees]').forEach(launchAssignments);
         root.querySelectorAll('[data-wb-runtime]').forEach(runtime);
         root.querySelectorAll('.wb-reference').forEach(references);
     }
@@ -589,7 +616,14 @@
         const target=event.target.closest('[data-confirm]');
         if(target && !confirm(target.dataset.confirm))event.preventDefault();
     });
+    function openLinkedStep() {
+        if (!location.hash.startsWith('#wb-step-')) return;
+        const step = document.getElementById(location.hash.slice(1));
+        if (step?.matches('details.wb-step')) step.open = true;
+    }
+    globalThis.addEventListener('hashchange',openLinkedStep);
     function boot() {
+        openLinkedStep();
         init(document);
         let pending=false;
         new MutationObserver(function () {

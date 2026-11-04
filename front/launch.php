@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/_init.php';
-use WorkflowBuilder\{Access, Http, View, Store, Templates, Instances, ValidationException};
+use WorkflowBuilder\{Access, Assignees, Http, View, Store, Templates, Instances, ValidationException};
 Http::start('Lancer un workflow');
 try {
     Access::need('launch', CREATE);
@@ -10,10 +10,11 @@ try {
     $entity = Http::integer($_POST + $_GET, 'entities_id', (int) ($_SESSION['glpiactive_entity'] ?? 0));
     if ($ticketId) { $entity = (int) Access::ticket($ticketId, true)->fields['entities_id']; }
     $templateId = Http::integer($_POST + $_GET, 'template');
+    $assignees = Assignees::fromInput($_POST);
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             Http::post();
-            $instance = Instances::launch($templateId, $ticketId, $entity, Http::values($_POST), Http::string($_POST, 'request_key'), Http::integer($_POST, 'version'));
+            $instance = Instances::launch($templateId, $ticketId, $entity, Http::values($_POST), Http::string($_POST, 'request_key'), Http::integer($_POST, 'version'), $assignees);
             Http::redirect(Http::url('instance.php', ['id' => $instance]));
         } catch (Throwable $error) { Http::error($error); }
     }
@@ -36,6 +37,7 @@ try {
         echo '<form method="post" data-wb-runtime data-initial-form data-form-values="{}">';
         Http::hidden(['template' => $templateId, 'version' => $version['id'], 'tickets_id' => $ticketId, 'entities_id' => $entity,
             'request_key' => Http::string($_POST, 'request_key', bin2hex(random_bytes(32)))]);
+        Assignees::show($assignees);
         WorkflowBuilder\FormView::show($definition['fields'], Http::values($_POST), false, $ticketId ?: null);
         echo '<button class="btn btn-primary mt-3">Valider et ' . ($ticketId ? 'associer au ticket' : 'créer le ticket') . '</button></form>';
     }

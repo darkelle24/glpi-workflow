@@ -52,6 +52,7 @@ final class View
         echo '<article class="wb-instance card mb-4"><div class="card-body"><div class="wb-toolbar"><h2>' . self::e($definition['name']) . '</h2>' . self::badge($p['status']) . '</div><p>' . nl2br(self::e($definition['description'])) . '</p>';
         echo '<p>Version ' . (int) $version['number'] . ' · Lancé le ' . self::e($instance['date_creation']) . ' par ' . self::e(self::person('User', (int) $instance['users_id'])) . ' · Ticket <a href="' . self::e(\Ticket::getFormURLWithID($ticketId)) . '">#' . $ticketId . '</a></p>';
         echo '<p>' . $p['done'] . ' / ' . $p['total'] . ' étapes obligatoires terminées — ' . $p['percent'] . ' % · ' . $p['remaining'] . ' restantes · ' . $p['blocked'] . ' bloquées · ' . $p['optional'] . ' facultatives</p><progress max="100" value="' . $p['percent'] . '" aria-label="Progression">' . $p['percent'] . '%</progress>';
+        echo '<p><strong>Responsables du workflow :</strong> ' . self::e(Assignees::names(Assignees::forInstance($instance))) . '</p>';
         echo '<details class="my-3"><summary>Informations du lancement</summary>';
         FormView::show($definition['fields'], $data['values'][''] ?? [], true, $ticketId, Fields::context($data['values'][''] ?? []));
         echo '</details><p class="text-muted">Ne saisir aucun mot de passe, secret ou jeton.</p>';
@@ -61,7 +62,7 @@ final class View
             $row = $rows[$key];
             $state = $data['states'][$key];
             $operator = (int) ($row['started_by'] ?? 0);
-            echo '<details class="wb-step wb-step-' . self::e($state) . '"' . (in_array($state, ['available', 'progress', 'blocked'], true) ? ' open' : '') . '><summary>' . self::e($step['title']) . ' ' . self::badge($state) . ($step['required'] ? '' : ' · Facultative');
+            echo '<details id="wb-step-' . self::e($key) . '" class="wb-step wb-step-' . self::e($state) . '"' . (in_array($state, ['available', 'progress', 'blocked'], true) ? ' open' : '') . '><summary>' . self::e($step['title']) . ' ' . self::badge($state) . ($step['required'] ? '' : ' · Facultative');
             if ($operator && in_array($state, ['progress', 'blocked', 'available'], true)) {
                 echo '<span class="wb-worker">Pris en charge par ' . self::e(self::participant($operator))
                     . ' · depuis ' . self::e($row['started_at'] ?? '—') . '</span>';
@@ -92,7 +93,7 @@ final class View
                 $actions['release'] = 'Libérer l’étape';
             }
             foreach ($actions as $action => $label) {
-                try { Access::instance($instance, true); Access::step($definition, $row, $action); }
+                try { Access::instance($instance, true); Access::step($definition, $row, $action, Assignees::forInstance($instance)); }
                 catch (ValidationException) { unset($actions[$action]); }
             }
             if (!$actions) {

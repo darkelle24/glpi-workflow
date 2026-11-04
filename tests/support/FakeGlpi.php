@@ -76,6 +76,17 @@ final class Ticket extends CommonITILObject
         $this->fields=$DB->tables['glpi_tickets'][$DB->insertId()];return $DB->insertId();
     }
 }
+final class ITILFollowup
+{
+    public static bool $failNext = false;
+    public function can($id, int $right, ?array &$input = null): bool { return Session::haveRight('native_followup', $right); }
+    public function add(array $input): int|false {
+        global $DB;
+        if (self::$failNext) { self::$failNext = false; return false; }
+        $DB->insert('glpi_itilfollowups', $input);
+        return $DB->insertId();
+    }
+}
 class Reference
 {
     public array $fields=[];
