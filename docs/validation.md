@@ -1,6 +1,6 @@
 # Rapport de validation — 4 novembre 2026
 
-## Évolution en cours — procédures dans la base de connaissances
+## Mise à jour 0.1.3 — procédures dans la base de connaissances
 
 Contrôles exécutés le 4 novembre 2026, sur un GLPI 12 isolé et sa base MariaDB de test :
 

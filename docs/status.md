@@ -1,10 +1,10 @@
 # État des fonctionnalités et limites
 
-## Évolution en cours — procédures GLPI
+## Ajouts de la version 0.1.3 — procédures GLPI
 
 Les étapes disposent d’un sélecteur de fiches avec aperçus, recherche titre/contenu, filtres FAQ/interne, auteur connecté, modification depuis une date et tri par création. Une fiche structurée peut être créée et associée depuis l’étape, puis complétée dans GLPI. Le ticket propose un bouton direct vers chaque fiche. Les droits natifs s’appliquent aux recherches, aux titres rechargés, à la création et à la consultation. Les textes libres historiques restent conservés pour conversion ; le champ Instructions n’est plus éditable.
 
-## Implémenté dans 0.1.2
+## Socle conservé dans 0.1.3
 
 Le code livré couvre un socle générique : administration, champs et étapes, conditions ET/OU, dépendances, prévisualisation, publication de versions figées, lancement, tickets existants et création dédiée, checklist, valeurs persistantes, progression, affectations, commentaires, historique, droits, import/export, trois exemples et tableau de bord simple.
 

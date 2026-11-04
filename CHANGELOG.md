@@ -1,5 +1,14 @@
 # Historique des versions
 
+## 0.1.3 — 4 novembre 2026
+
+- Sélecteur de fiches de connaissance GLPI avec titres, aperçus, pagination et filtres combinables : titre/contenu, FAQ/interne, fiches de l’auteur connecté et date de modification.
+- Création et association d’une fiche depuis chaque étape, avec un modèle à six rubriques à compléter dans GLPI et une visibilité personnelle ou limitée à l’entité du workflow.
+- Remplacement du champ Instructions par les fiches de connaissance ; reprise des anciens textes lors de la création d’une fiche.
+- Accès direct aux procédures associées depuis les étapes du ticket, avec respect des droits natifs GLPI.
+- Tests du sélecteur, des permissions, de la création native et du parcours complet jusqu’au ticket ; documentation mise à jour.
+- Schéma SQL inchangé : version 3. Format JSON des modèles inchangé : schema 1.
+
 ## 0.1.2 — 4 novembre 2026
 
 - Guide utilisateur réécrit avec dix captures GLPI réelles sur des données fictives, sommaire, parcours technicien et administration, permissions et dépannage.

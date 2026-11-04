@@ -44,4 +44,4 @@ La [CI](../.github/workflows/tests.yml) exécute aussi les tests de rendu avec u
 
 ## Livrer
 
-Exécuter [tools/package.ps1](../tools/package.ps1). L’archive doit contenir le guide, les captures et la page intégrée. Le schéma SQL reste en version 3 pour la livraison 0.1.2.
+Exécuter [tools/package.ps1](../tools/package.ps1). L’archive doit contenir le guide, les captures et la page intégrée. Le schéma SQL reste en version 3 pour la livraison 0.1.3.
