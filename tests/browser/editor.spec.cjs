@@ -1,0 +1,46 @@
+const {test,expect} = require('@playwright/test');
+test('create fields and steps, preserve IDs, reorder and serialize',async({page})=>{
+    await page.goto('/tests/editor-fixture.php');
+    await expect(page.locator('.wb-tabs button')).toHaveCount(7);
+    await page.getByRole('button',{name:'Formulaire',exact:true}).click();
+    await page.getByRole('button',{name:'Ajouter un champ',exact:true}).click();
+    const field=page.locator('.wb-pane:not([hidden]) > div > details').last();
+    const id=await field.locator('input').first().inputValue();
+    await field.locator('input').nth(1).fill('Adresse de livraison');
+    await field.locator('select').selectOption('email');
+    await expect(field).toHaveAttribute('open','');
+    await expect(field.locator('input').first()).toHaveValue(id);
+    await page.getByRole('button',{name:'Étapes',exact:true}).click();
+    await page.getByRole('button',{name:'Ajouter une étape',exact:true}).click();
+    const step=page.locator('.wb-step-editor').last();
+    await expect(step).toHaveAttribute('open','');
+    await step.locator('input').nth(1).fill('Contrôle de livraison');
+    await step.locator('input').nth(1).blur();
+    await step.getByRole('button',{name:'Déplacer vers le haut',exact:true}).first().click();
+    await page.locator('[data-wb-editor]').evaluate(form=>form.addEventListener('submit',e=>e.preventDefault()));
+    await page.getByRole('button',{name:'Enregistrer le brouillon',exact:true}).click();
+    const json=JSON.parse(await page.locator('[name="definition"]').inputValue());
+    expect(json.fields.at(-1)).toMatchObject({id:id,label:'Adresse de livraison',type:'email'});
+    expect(json.steps[8].title).toBe('Contrôle de livraison');
+});
+test('preview evaluates conditions through PHP without creating a ticket',async({page})=>{
+    await page.goto('/tests/editor-fixture.php');
+    await page.getByRole('button',{name:'Prévisualisation',exact:true}).click();
+    await expect(page.getByText('Installer le système — Non applicable',{exact:true})).toBeVisible();
+    await page.locator('.wb-pane:not([hidden]) select').nth(0).selectOption('1');
+    await page.locator('.wb-pane:not([hidden]) select').nth(1).selectOption('1');
+    await page.getByRole('button',{name:'Tester les valeurs et conditions',exact:true}).click();
+    await expect(page.getByText('Installer le système — En attente',{exact:true})).toBeVisible();
+    await expect(page.getByText('Configurer les accès — En attente',{exact:true})).toBeVisible();
+    await page.setViewportSize({width:390,height:844});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+test('native reference search widget selects and clears a result',async({page})=>{
+    await page.goto('/tests/editor-fixture.php');
+    await page.getByRole('button',{name:'Prévisualisation',exact:true}).click();
+    await page.getByRole('searchbox',{name:'Rechercher Utilisateur destinataire'}).fill('test');
+    await page.getByRole('button',{name:'Élément de test (#7)',exact:true}).click();
+    await expect(page.locator('[name="values[demandeur]"]')).toHaveValue('7');
+    await page.getByRole('button',{name:'Effacer',exact:true}).click();
+    await expect(page.locator('[name="values[demandeur]"]')).toHaveValue('');
+});

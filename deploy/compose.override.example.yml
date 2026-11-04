@@ -1,0 +1,9 @@
+# Add this mount to your EXISTING GLPI service; adapt its name if needed.
+# The source is an absolute TrueNAS HOST path.
+services:
+  glpi:
+    volumes:
+      - type: bind
+        source: ${WORKFLOWBUILDER_SOURCE:?Set the absolute plugin source path}
+        target: /var/glpi/marketplace/workflowbuilder
+        read_only: true

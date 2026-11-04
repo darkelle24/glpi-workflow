@@ -1,0 +1,321 @@
+{
+  "schema": 1,
+  "description": "Préparer, sécuriser, tester et affecter un ordinateur.",
+  "category": "UDAF24",
+  "icon": "ti ti-checklist",
+  "launch_groups": [],
+  "execute_groups": [],
+  "manage_groups": [],
+  "launch_users": [],
+  "execute_users": [],
+  "manage_users": [],
+  "ticket_title": "{{workflow}}",
+  "ticket_description": "{{summary}}",
+  "allow_create": true,
+  "allow_attach": true,
+  "require_before_close": true,
+  "rules": [],
+  "name": "Préparation d’un ordinateur",
+  "fields": [
+    {
+      "id": "demandeur",
+      "label": "Utilisateur destinataire",
+      "type": "user",
+      "required": true
+    },
+    {
+      "id": "service",
+      "label": "Service",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "date_prevue",
+      "label": "Date prévue",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "logiciels",
+      "label": "Logiciels nécessaires",
+      "type": "textarea",
+      "required": true
+    },
+    {
+      "id": "installer_os",
+      "label": "Réinstaller le système",
+      "type": "boolean",
+      "required": true
+    },
+    {
+      "id": "acces_specifiques",
+      "label": "Accès spécifiques nécessaires",
+      "type": "boolean",
+      "required": true
+    }
+  ],
+  "steps": [
+    {
+      "id": "selectionner",
+      "title": "Sélectionner le matériel",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "ordinateur",
+          "label": "Ordinateur GLPI",
+          "type": "asset",
+          "required": true
+        },
+        {
+          "id": "etat",
+          "label": "État constaté",
+          "type": "text",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "installer",
+      "title": "Installer le système",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": {
+        "field": "form.installer_os",
+        "op": "true"
+      },
+      "depends_on": [
+        "selectionner"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "systeme",
+          "label": "Système installé",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "date",
+          "label": "Date d’installation",
+          "type": "date",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "maj",
+      "title": "Mettre à jour le système",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "selectionner",
+        "installer"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "ok",
+          "label": "Mises à jour installées",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "logiciels",
+      "title": "Installer les logiciels",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "maj"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "liste",
+          "label": "Logiciels installés",
+          "type": "textarea",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "securite",
+      "title": "Configurer la sécurité",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "logiciels"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "chiffrement",
+          "label": "Chiffrement activé",
+          "type": "boolean",
+          "required": true
+        },
+        {
+          "id": "protection",
+          "label": "Protection vérifiée",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "acces",
+      "title": "Configurer les accès",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": {
+        "field": "form.acces_specifiques",
+        "op": "true"
+      },
+      "depends_on": [
+        "securite"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "detail",
+          "label": "Accès configurés",
+          "type": "textarea",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "tester",
+      "title": "Tester le poste",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "securite",
+        "acces"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "resultat",
+          "label": "Résultat",
+          "type": "select",
+          "required": true,
+          "choices": [
+            "Conforme",
+            "À corriger"
+          ]
+        },
+        {
+          "id": "ok",
+          "label": "Tests concluants",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "associer",
+      "title": "Associer le matériel à un utilisateur GLPI",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "tester"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "utilisateur",
+          "label": "Utilisateur GLPI",
+          "type": "user",
+          "required": true
+        },
+        {
+          "id": "ok",
+          "label": "Affectation effectuée dans GLPI",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "finaliser",
+      "title": "Finaliser",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "associer"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "compte_rendu",
+          "label": "Compte rendu",
+          "type": "textarea",
+          "required": true
+        },
+        {
+          "id": "preuve",
+          "label": "Document joint au ticket",
+          "type": "document",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

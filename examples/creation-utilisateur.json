@@ -1,0 +1,414 @@
+{
+  "schema": 1,
+  "description": "Arrivée d’une personne : comptes, logiciels et matériel.",
+  "category": "UDAF24",
+  "icon": "ti ti-checklist",
+  "launch_groups": [],
+  "execute_groups": [],
+  "manage_groups": [],
+  "launch_users": [],
+  "execute_users": [],
+  "manage_users": [],
+  "ticket_title": "Création utilisateur - {{prenom}} {{nom}}",
+  "ticket_description": "{{summary}}",
+  "allow_create": true,
+  "allow_attach": true,
+  "require_before_close": true,
+  "rules": [],
+  "name": "Création utilisateur",
+  "fields": [
+    {
+      "id": "nom",
+      "label": "Nom",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "prenom",
+      "label": "Prénom",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "service",
+      "label": "Service",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "fonction",
+      "label": "Fonction",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "arrivee",
+      "label": "Date d’arrivée",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "responsable",
+      "label": "Responsable",
+      "type": "user",
+      "required": false
+    },
+    {
+      "id": "logiciels",
+      "label": "Logiciels nécessaires",
+      "type": "multiselect",
+      "required": false,
+      "choices": [
+        "Microsoft 365",
+        "MAGIS",
+        "UNI.T NG"
+      ]
+    },
+    {
+      "id": "ordinateur",
+      "label": "Besoin d’un ordinateur",
+      "type": "boolean",
+      "required": true
+    },
+    {
+      "id": "telephone",
+      "label": "Besoin d’un téléphone",
+      "type": "boolean",
+      "required": true
+    },
+    {
+      "id": "magis",
+      "label": "Besoin de MAGIS",
+      "type": "boolean",
+      "required": true
+    },
+    {
+      "id": "unit_ng",
+      "label": "Besoin de UNI.T NG",
+      "type": "boolean",
+      "required": true
+    },
+    {
+      "id": "commentaires",
+      "label": "Commentaires complémentaires",
+      "type": "textarea",
+      "required": false
+    }
+  ],
+  "steps": [
+    {
+      "id": "verifier",
+      "title": "Vérifier les informations",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "conforme",
+          "label": "Informations vérifiées",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "m365",
+      "title": "Créer le compte Microsoft 365",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "verifier"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "adresse",
+          "label": "Adresse e-mail créée",
+          "type": "email",
+          "required": true
+        },
+        {
+          "id": "date_creation",
+          "label": "Date de création",
+          "type": "date",
+          "required": true
+        },
+        {
+          "id": "compte_cree",
+          "label": "Compte créé",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "licence",
+      "title": "Attribuer la licence",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "m365"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "licence",
+          "label": "Type de licence",
+          "type": "select",
+          "required": true,
+          "choices": [
+            "Business Basic",
+            "Business Standard",
+            "Business Premium",
+            "Autre"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "groupes",
+      "title": "Configurer les groupes",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "m365"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "groupes",
+          "label": "Groupes configurés",
+          "type": "textarea",
+          "required": true
+        },
+        {
+          "id": "ok",
+          "label": "Configuration vérifiée",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "magis",
+      "title": "Créer le compte MAGIS",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": {
+        "field": "form.magis",
+        "op": "true"
+      },
+      "depends_on": [
+        "verifier"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "identifiant",
+          "label": "Identifiant du compte",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "ok",
+          "label": "Accès testé",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "unit_ng",
+      "title": "Créer les accès UNI.T NG",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": {
+        "field": "form.unit_ng",
+        "op": "true"
+      },
+      "depends_on": [
+        "verifier"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "identifiant",
+          "label": "Identifiant du compte",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "ok",
+          "label": "Accès testé",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "preparer",
+      "title": "Préparer l’ordinateur",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": {
+        "field": "form.ordinateur",
+        "op": "true"
+      },
+      "depends_on": [
+        "verifier"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "materiel",
+          "label": "Ordinateur",
+          "type": "asset",
+          "required": true
+        },
+        {
+          "id": "logiciels",
+          "label": "Logiciels installés",
+          "type": "textarea",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "affecter",
+      "title": "Affecter le matériel",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": {
+        "field": "form.ordinateur",
+        "op": "true"
+      },
+      "depends_on": [
+        "preparer"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "utilisateur",
+          "label": "Utilisateur GLPI",
+          "type": "user",
+          "required": true
+        },
+        {
+          "id": "ok",
+          "label": "Inventaire mis à jour",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "tester",
+      "title": "Tester les accès",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "licence",
+        "groupes",
+        "magis",
+        "unit_ng",
+        "affecter"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "resultat",
+          "label": "Résultat des tests",
+          "type": "textarea",
+          "required": true
+        },
+        {
+          "id": "ok",
+          "label": "Tests concluants",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "finaliser",
+      "title": "Finaliser la demande",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "tester"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "commentaire",
+          "label": "Compte rendu",
+          "type": "textarea",
+          "required": true
+        },
+        {
+          "id": "ok",
+          "label": "Informations transmises",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

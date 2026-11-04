@@ -1,0 +1,11 @@
+{
+  "name": "glpi-workflowbuilder-tests",
+  "private": true,
+  "scripts": {
+    "test:conditions": "node tests/conditions.cjs",
+    "test:ui": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  }
+}

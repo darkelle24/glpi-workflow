@@ -1,0 +1,274 @@
+{
+  "schema": 1,
+  "description": "Gestion du départ : accès, messagerie, matériel et inventaire.",
+  "category": "UDAF24",
+  "icon": "ti ti-checklist",
+  "launch_groups": [],
+  "execute_groups": [],
+  "manage_groups": [],
+  "launch_users": [],
+  "execute_users": [],
+  "manage_users": [],
+  "ticket_title": "{{workflow}}",
+  "ticket_description": "{{summary}}",
+  "allow_create": true,
+  "allow_attach": true,
+  "require_before_close": true,
+  "rules": [],
+  "name": "Départ utilisateur",
+  "fields": [
+    {
+      "id": "utilisateur",
+      "label": "Utilisateur concerné",
+      "type": "user",
+      "required": true
+    },
+    {
+      "id": "depart",
+      "label": "Date de départ",
+      "type": "datetime",
+      "required": true
+    },
+    {
+      "id": "service",
+      "label": "Service",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "consignes",
+      "label": "Consignes validées",
+      "type": "textarea",
+      "required": false
+    }
+  ],
+  "steps": [
+    {
+      "id": "verifier",
+      "title": "Vérifier la date de départ",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "date",
+          "label": "Date confirmée",
+          "type": "datetime",
+          "required": true
+        },
+        {
+          "id": "ok",
+          "label": "Date vérifiée",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "desactiver",
+      "title": "Désactiver les accès",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "verifier"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "date",
+          "label": "Date de désactivation",
+          "type": "datetime",
+          "required": true
+        },
+        {
+          "id": "ok",
+          "label": "Accès désactivés",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "messagerie",
+      "title": "Traiter la messagerie selon la procédure interne",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "desactiver"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "traitement",
+          "label": "Traitement autorisé",
+          "type": "select",
+          "required": true,
+          "choices": [
+            "Conservation selon procédure",
+            "Transfert autorisé",
+            "Archivage selon procédure"
+          ]
+        },
+        {
+          "id": "commentaire",
+          "label": "Compte rendu",
+          "type": "textarea",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "logiciels",
+      "title": "Révoquer les accès logiciels",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "desactiver"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "liste",
+          "label": "Applications traitées",
+          "type": "textarea",
+          "required": true
+        },
+        {
+          "id": "ok",
+          "label": "Accès révoqués",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "recuperer",
+      "title": "Récupérer le matériel",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "verifier"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "materiel",
+          "label": "Matériel récupéré",
+          "type": "textarea",
+          "required": true
+        },
+        {
+          "id": "date",
+          "label": "Date de restitution",
+          "type": "date",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "inventaire",
+      "title": "Mettre à jour l’inventaire GLPI",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "recuperer"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "ok",
+          "label": "Inventaire mis à jour",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "controler",
+      "title": "Vérifier la fin des opérations",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "messagerie",
+        "logiciels",
+        "inventaire"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "ok",
+          "label": "Contrôle terminé",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "terminer",
+      "title": "Terminer la procédure",
+      "description": "",
+      "instructions": "Adapter les instructions et sélectionner les procédures GLPI dans l’éditeur avant publication.",
+      "required": true,
+      "users_id": 0,
+      "groups_id": 0,
+      "condition": null,
+      "depends_on": [
+        "controler"
+      ],
+      "dependency_mode": "start",
+      "initial_state": "available",
+      "knowbaseitems_id": [],
+      "fields": [
+        {
+          "id": "bilan",
+          "label": "Compte rendu final",
+          "type": "textarea",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

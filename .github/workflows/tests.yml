@@ -1,0 +1,72 @@
+name: Tests
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  php:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.3', '8.4']
+        glpi: ['12.0.0', '12.0.1']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring
+          coverage: none
+      - run: find . -name '*.php' -not -path './node_modules/*' -print0 | xargs -0 -n1 php -l
+      - run: php tests/run.php
+      - run: php tests/services.php
+      - uses: actions/checkout@v4
+        with:
+          repository: glpi-project/glpi
+          ref: ${{ matrix.glpi }}
+          path: build/glpi
+          fetch-depth: 1
+      - run: php tests/contracts.php build/glpi
+  ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm run test:conditions
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:ui
+
+  mariadb:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: mariadb:11.4
+        env:
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mariadb-admin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mysqli
+          coverage: none
+      - run: php tests/schema.php
+        env:
+          WORKFLOWBUILDER_ALLOW_DB_TESTS: '1'
+          WB_DB_HOST: 127.0.0.1
+          WB_DB_PORT: 3306
+          WB_DB_USER: root
