@@ -2,14 +2,15 @@
 declare(strict_types=1);
 require_once __DIR__ . '/_init.php';
 global $DB;
-use WorkflowBuilder\{Access, Fields, Http, View, ValidationException};
+use WorkflowBuilder\{Access, Fields, Http, Knowledge, View, ValidationException};
 use Symfony\Component\HttpFoundation\JsonResponse;
 try {
     if (!Access::has('template') && !Access::has('view')) { throw new ValidationException('Accès refusé.'); }
     $type = Http::string($_GET, 'type');
     $query = Http::string($_GET, 'q');
+    if ($type === 'knowledge') { return new JsonResponse(Knowledge::search($_GET), 200, ['Cache-Control' => 'no-store']); }
     if (mb_strlen($query) < 2 || mb_strlen($query) > 100) { return new JsonResponse(['items' => [], 'next' => 0]); }
-    $types = Fields::REFERENCES + ['knowledge' => 'KnowbaseItem'];
+    $types = Fields::REFERENCES;
     if (!isset($types[$type])) { throw new ValidationException('Type inconnu.'); }
     $class = $types[$type];
     if ($type === 'user' && User::isUserReauthenticationNeeded()) { return new JsonResponse(['items' => [], 'next' => 0, 'message' => 'GLPI demande une confirmation d’identité. Utiliser le lien Confirmer l’identité GLPI, puis relancer la recherche.']); }

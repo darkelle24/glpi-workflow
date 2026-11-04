@@ -1,5 +1,37 @@
 # Rapport de validation — 4 novembre 2026
 
+## Évolution en cours — procédures dans la base de connaissances
+
+Contrôles exécutés le 4 novembre 2026, sur un GLPI 12 isolé et sa base MariaDB de test :
+
+| Vérification | Résultat |
+| --- | --- |
+| Syntaxe PHP | 51 fichiers vérifiés |
+| Moteur et validations | 80 tests réussis |
+| Services existants et permissions | 39 tests réussis avec doublures |
+| Conditions JavaScript | 18 cas réussis |
+| Éditeur, sélecteur et création | 7 tests Chromium réussis |
+| Connaissances natives GLPI/MariaDB | 21 contrôles réussis |
+| Parcours HTTP et navigateur GLPI | 7 contrôles réussis |
+| Rendu du guide | 10 contrôles réussis |
+
+Le sélecteur est testé sur la recherche combinée, les aperçus, la pagination, l’association/retrait, la reprise des titres après changement d’onglet, la création et l’erreur de permission, la conservation du texte historique en cas d’échec, la sérialisation et les réponses de recherche périmées. Le mobile est contrôlé à 390 pixels.
+
+Les tests natifs vérifient la création d’un vrai KnowbaseItem et ses six rubriques, l’échappement HTML, la copie des anciens textes, les cibles de visibilité natives, les filtres SQL, l’hydratation sans fuite des fiches privées et les droits de création, d’entité et de gestion du modèle. Le navigateur crée une fiche depuis l’étape, l’ouvre dans GLPI, recharge l’association sauvegardée, publie le modèle, crée le ticket et vérifie son lien direct. Une requête de création sans jeton est refusée.
+
+Reproduction dans un environnement de test dédié :
+
+~~~sh
+WORKFLOWBUILDER_ALLOW_NATIVE_TESTS=1 php tests/knowledge-native.php /chemin/vers/glpi
+WORKFLOWBUILDER_ALLOW_NATIVE_TESTS=1 WB_KNOWLEDGE_BASE_URL=http://127.0.0.1:8765 node tests/knowledge-browser.cjs
+npm run test:ui
+~~~
+
+Ces commandes ajoutent des fiches, modèles et tickets fictifs à une base de test. Le script PHP refuse une base dont le nom ne suit pas le motif workflowbuilder_glpi12_* ou workflowbuilder_test_* ; le navigateur exige une URL locale et le drapeau explicite. Utiliser WB_GLPI_TEST_USER et WB_GLPI_TEST_PASSWORD pour d’autres identifiants de test.
+
+Aucun changement de schéma SQL. Les tests ont utilisé une installation locale isolée ; aucun déploiement de production n’a été modifié.
+
+
 ## Mise à jour 0.1.2 — guide illustré intégré
 
 Contrôles exécutés le 4 novembre 2026 sur la livraison 0.1.2 :

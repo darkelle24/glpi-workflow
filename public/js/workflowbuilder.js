@@ -34,7 +34,7 @@
         const wrap = el('label', null, 'wb-control');
         wrap.append(el('span', label, 'form-label'));
         const node = el('select', null, 'form-select');
-        node.multiple = !!multiple;
+        node.multiple = !!multiple; node.setAttribute('aria-label',label);
         Object.entries(options).forEach(function (pair) {
             const opt = el('option', pair[1]); opt.value = pair[0];
             opt.selected = multiple ? (value || []).includes(pair[0]) : String(value) === pair[0];
@@ -185,6 +185,159 @@
         });
         draw();
     }
+    function knowledgePicker(parent, step, model, form) {
+        const box = el('section', null, 'wb-knowledge');
+        box.setAttribute('aria-label', 'Procédures de l’étape');
+        parent.append(box);
+        box.append(el('h4', 'Procédures — base de connaissances GLPI'));
+        box.append(el('p', 'Associer une fiche existante ou créer une procédure à compléter. Le technicien pourra l’ouvrir depuis le ticket.', 'text-muted'));
+        const selected = el('div', null, 'wb-knowledge-selected'); box.append(selected);
+        const toolbar = el('div', null, 'wb-toolbar'); box.append(toolbar);
+        const browser = el('div', null, 'wb-knowledge-browser'); browser.hidden = true; box.append(browser);
+        const creator = el('div', null, 'wb-knowledge-creator'); creator.hidden = true; box.append(creator);
+        const notice = el('p', '', 'text-muted'); notice.setAttribute('role', 'status'); box.append(notice);
+        const names = new Map();
+        const root = form.closest('[data-wb-root]');
+        const current = () => step.knowbaseitems_id || [];
+        const readonly = form.dataset.readonly === '1';
+        let loaded = false, serial = 0, timer, hydrated = false;
+        const lookup = async function (params) {
+            const url = new URL(root.dataset.lookup, location.href);
+            url.searchParams.set('type', 'knowledge');
+            Object.entries(params).forEach(([key,value]) => url.searchParams.set(key,value));
+            const response = await fetch(url, {credentials:'same-origin',headers:{Accept:'application/json'}});
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Recherche impossible.');
+            return data;
+        };
+        function link(item, label) {
+            const a = el('a', label || item.label, 'btn btn-sm btn-outline-primary');
+            a.href = item.url; a.target = '_blank'; a.rel = 'noopener'; return a;
+        }
+        function drawSelected() {
+            selected.replaceChildren();
+            if (!current().length) selected.append(el('p', 'Aucune fiche associée.', 'text-muted'));
+            current().forEach(function (id) {
+                const row = el('div', null, 'wb-knowledge-card');
+                const item = names.get(id);
+                row.append(item ? link(item) : el('span', (hydrated ? 'Fiche supprimée ou inaccessible' : 'Fiche associée') + ' (#' + id + ')'));
+                const remove = button('Retirer', function () {
+                    step.knowbaseitems_id = current().filter(v => v !== id); drawSelected(); updateResults();
+                }, row);
+                remove.setAttribute('aria-label', 'Retirer la fiche #' + id); remove.disabled = readonly;
+                selected.append(row);
+            });
+        }
+        function choose(item) {
+            if (readonly) return;
+            if (!current().includes(item.id) && current().length >= 200) { notice.textContent = '200 fiches maximum par étape.'; return; }
+            names.set(item.id, item);
+            step.knowbaseitems_id = Array.from(new Set(current().concat(item.id)));
+            drawSelected(); updateResults();
+        }
+        function updateResults() {
+            browser.querySelectorAll('[data-knowledge-id]').forEach(function (b) {
+                const chosen = current().includes(Number(b.dataset.knowledgeId));
+                b.disabled = readonly || chosen; b.textContent = chosen ? 'Déjà associée' : 'Associer à l’étape';
+            });
+        }
+        async function hydrate() {
+            if (hydrated || !current().length) return;
+            try {
+                const data = await lookup({ids:current().join(',')});
+                data.items.forEach(item => names.set(item.id,item)); hydrated = true; drawSelected();
+            } catch (error) { notice.textContent = error.message; }
+        }
+        const stepCard = parent.closest('details');
+        stepCard?.addEventListener('toggle', () => { if (stepCard.open) hydrate(); });
+        if (stepCard?.open) hydrate();
+        button('Choisir une fiche', function () {
+            browser.hidden = !browser.hidden; creator.hidden = true;
+            if (!browser.hidden && !loaded) refresh();
+        }, toolbar);
+        const createToggle = button('Créer une fiche', function () {
+            creator.hidden = !creator.hidden; browser.hidden = true;
+            if (!creator.hidden) title.value = (model.name + ' — ' + step.title).slice(0,255);
+        }, toolbar);
+        if (readonly || !form.dataset.knowledgeCreate) { createToggle.disabled = true; createToggle.title = 'Création indisponible dans cette page.'; }
+        const searchInput = control(browser, 'Rechercher des fiches', '', function () {}, 'search');
+        searchInput.placeholder = 'Titre, mots de la procédure…'; searchInput.maxLength = 100;
+        const filters = el('div', null, 'wb-knowledge-filters'); browser.append(filters);
+        const scope = select(filters, 'Rechercher dans', {all:'Titre et contenu',title:'Titre uniquement'}, 'all', refresh);
+        const kind = select(filters, 'Type de fiche', {all:'Toutes les fiches',internal:'Connaissances internes',faq:'FAQ'}, 'all', refresh);
+        const sort = select(filters, 'Trier par', {newest:'Création : plus récentes',oldest:'Création : plus anciennes'}, 'newest', refresh);
+        const since = control(filters, 'Modifiées depuis le', '', refresh, 'date');
+        const mine = control(filters, 'Mes fiches uniquement', false, refresh, 'checkbox');
+        const status = el('p', '', 'text-muted'); status.setAttribute('role','status'); browser.append(status);
+        const results = el('div', null, 'wb-knowledge-results'); browser.append(results);
+        const moreHost = el('div', null, 'wb-toolbar'); browser.append(moreHost);
+        const reset = button('Réinitialiser les filtres', function () {
+            searchInput.value = ''; scope.value = 'all'; kind.value = 'all'; sort.value = 'newest'; since.value = ''; mine.checked = false; refresh();
+        }, browser);
+        reset.classList.add('wb-knowledge-reset');
+        function refresh() {
+            clearTimeout(timer); const request = ++serial;
+            results.replaceChildren(); moreHost.replaceChildren(); loaded = true;
+            status.textContent = 'Recherche en cours…';
+            timer = setTimeout(() => run(0,request), 250);
+        }
+        async function run(after, request) {
+            try {
+                const data = await lookup({q:searchInput.value,scope:scope.value,kind:kind.value,sort:sort.value,since:since.value,mine:mine.checked?'1':'0',after:after||0});
+                if (request !== serial) return;
+                if (!after) results.replaceChildren();
+                moreHost.replaceChildren();
+                data.items.forEach(function (item) {
+                    names.set(item.id,item);
+                    const card = el('article', null, 'wb-knowledge-card');
+                    card.append(el('strong',item.label), el('small',(item.faq?'FAQ':'Connaissance interne') + ' · #' + item.id + (item.modified?' · Modifiée le '+item.modified:''),'text-muted'));
+                    card.append(el('p',item.excerpt || 'Aucun aperçu disponible.'));
+                    const actions = el('div',null,'wb-toolbar'); card.append(actions);
+                    actions.append(link(item,'Consulter la fiche'));
+                    button('Associer à l’étape', () => choose(item), actions).dataset.knowledgeId = item.id;
+                    results.append(card);
+                });
+                drawSelected(); updateResults();
+                status.textContent = results.children.length ? results.children.length + ' fiche(s) affichée(s).' : 'Aucune fiche accessible avec ces filtres.';
+                if (data.next) button('Afficher la suite', function (event) {
+                    event.currentTarget.disabled = true; run(data.next,request);
+                }, moreHost);
+            } catch (error) {
+                if (request !== serial) return;
+                status.textContent = error.message;
+                moreHost.replaceChildren();
+                button('Réessayer la recherche', () => run(after,request), moreHost);
+            }
+        }
+        searchInput.addEventListener('input', refresh);
+        const title = control(creator, 'Titre de la nouvelle fiche', '', function () {});
+        title.maxLength = 255;
+        const visibility = select(creator, 'Visibilité initiale', {entity:'Techniciens de l’entité du workflow (droits GLPI requis)',private:'Personnelle — partager ensuite dans GLPI'}, 'entity', function () {});
+        creator.append(el('p', 'Modèle : Objectif · Prérequis · Procédure détaillée · Contrôles et résultat attendu · En cas de problème / retour arrière · Références et pièces jointes.'));
+        const legacy = el('p', step.instructions ? 'L’ancien texte d’instructions sera repris dans la rubrique Procédure détaillée.' : '', 'text-muted');
+        creator.append(legacy);
+        creator.append(el('p', 'La fiche est créée immédiatement dans GLPI. Compléter son contenu, puis enregistrer le brouillon du workflow pour conserver l’association.', 'text-muted'));
+        const create = button('Créer et associer la fiche', async function () {
+            if (!title.value.trim() || !step.title.trim()) { notice.textContent = 'Renseigner le titre de la fiche et de l’étape.'; return; }
+            if (current().length >= 200) { notice.textContent = '200 fiches maximum par étape.'; return; }
+            create.disabled = true; createToggle.disabled = true; notice.textContent = 'Création de la fiche…';
+            const body = new FormData();
+            Object.entries({_wb_token:form.querySelector('[name="_wb_token"]').value,template:form.querySelector('[name="id"]')?.value||0,
+                entity:form.querySelector('[name="entities_id"]')?.value||0,title:title.value,workflow:model.name,step:step.title,
+                description:step.description||'',legacy:step.instructions||'',visibility:visibility.value}).forEach(([key,value]) => body.set(key,value));
+            try {
+                const response = await fetch(form.dataset.knowledgeCreate,{method:'POST',body:body,credentials:'same-origin',headers:{Accept:'application/json'}});
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Création impossible.');
+                choose(data.item); step.instructions = ''; legacy.textContent = ''; creator.hidden = true;
+                notice.replaceChildren(el('span','Fiche créée et associée. '),link(data.item,'Compléter la fiche dans GLPI'));
+            } catch (error) { notice.textContent = error.message; }
+            finally { create.disabled = false; createToggle.disabled = false; }
+        }, creator);
+        drawSelected();
+    }
+
+
     function variables(model, localFields) {
         const out = {};
         model.fields.filter(f => f.type !== 'section').forEach(f => { out['form.'+f.id] = f.label + ' (formulaire)'; });
@@ -351,7 +504,8 @@
                     control(card,'Identifiant stable',step.id,function () {}).readOnly=true;
                     control(card,'Titre',step.title,v=>{step.title=v;title.textContent=v;});
                     control(card,'Description',step.description||'',v=>{step.description=v;},'textarea');
-                    control(card,'Instructions',step.instructions||'',v=>{step.instructions=v;},'textarea');
+                    knowledgePicker(card,step,model,form);
+
                     control(card,'Étape obligatoire',step.required!==false,v=>{step.required=v;},'checkbox');
                     picker(card,'Utilisateur responsable','user',step.users_id?[step.users_id]:[],ids=>{step.users_id=ids[0]||0;},false);
                     picker(card,'Groupe responsable','group',step.groups_id?[step.groups_id]:[],ids=>{step.groups_id=ids[0]||0;},false);
@@ -360,11 +514,10 @@
                     select(card,'Les dépendances empêchent…',{start:'Le démarrage',complete:'La validation uniquement'},step.dependency_mode||'start',v=>{step.dependency_mode=v;});
                     select(card,'État initial',{available:'Disponible',blocked:'Bloquée'},step.initial_state||'available',v=>{step.initial_state=v;});
                     card.append(el('h4','Afficher cette étape si…'));condition(card,step.condition||null,variables(model),v=>{step.condition=v;},0);
-                    picker(card,'Articles de connaissance','knowledge',step.knowbaseitems_id||[],ids=>{step.knowbaseitems_id=ids;},true);
                     card.append(el('h4','Champs de l’étape'));step.fields=step.fields||[];fieldEditor(card,step.fields,model,false);
                 });
                 button('Ajouter une étape',function () {
-                    model.steps.push({id:uid('s'),title:'Nouvelle étape',description:'',instructions:'',required:true,users_id:0,groups_id:0,depends_on:[],dependency_mode:'start',initial_state:'available',condition:null,knowbaseitems_id:[],fields:[]});
+                    model.steps.push({id:uid('s'),title:'Nouvelle étape',description:'',required:true,users_id:0,groups_id:0,depends_on:[],dependency_mode:'start',initial_state:'available',condition:null,knowbaseitems_id:[],fields:[]});
                     draw(2,pane);pane.querySelectorAll('.wb-step-editor')[model.steps.length-1]?.setAttribute('open','');
                 },pane);
             } else if(index===3) {

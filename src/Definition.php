@@ -82,6 +82,7 @@ final class Definition
             $stepIds[] = $step['id'];
             $step['title'] = self::text($step['title'] ?? '', 255, true);
             $step['description'] = self::text($step['description'] ?? '', 10000);
+            // Legacy imports/versions retain this text so the editor can migrate it into a native KB article.
             $step['instructions'] = self::text($step['instructions'] ?? '', 10000);
             $step['required'] = self::boolean($step['required'] ?? true);
             foreach (['users_id', 'groups_id'] as $key) {

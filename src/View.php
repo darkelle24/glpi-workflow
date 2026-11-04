@@ -69,16 +69,18 @@ final class View
                 echo '<span class="wb-worker">En cours — prise en charge à confirmer</span>';
             }
             echo '</summary>';
-            echo '<p>' . nl2br(self::e($step['description'])) . '</p><div class="wb-instructions">' . nl2br(self::e($step['instructions'])) . '</div><p>Utilisateur : ' . self::e(self::person('User', (int) $row['users_id'])) . ' · Groupe : ' . self::e(self::person('Group', (int) $row['groups_id'])) . '</p>';
+            echo '<p>' . nl2br(self::e($step['description'])) . '</p><p>Utilisateur : ' . self::e(self::person('User', (int) $row['users_id'])) . ' · Groupe : ' . self::e(self::person('Group', (int) $row['groups_id'])) . '</p>';
             echo '<p>Prise en charge : ' . ($operator ? self::e(self::participant($operator)) : 'Non prise en charge') . '</p>';
             echo '<p>Début : ' . self::e($row['started_at'] ?? '—') . ' · Fin : ' . self::e($row['completed_at'] ?? '—') . ' · Validée par : ' . self::e(self::participant((int) ($row['completed_by'] ?? 0))) . '</p>';
             if ($step['depends_on']) { echo '<p>Dépendances : ' . self::e(implode(', ', $step['depends_on'])) . '</p>'; }
+            if ($step['knowbaseitems_id']) { echo '<section class="wb-procedures"><h3>Comment réaliser cette étape ?</h3><div class="wb-toolbar">'; }
             foreach ($step['knowbaseitems_id'] as $articleId) {
                 $article = new \KnowbaseItem();
                 echo $article->can($articleId, READ)
-                    ? '<p><a target="_blank" rel="noopener" href="' . self::e(\KnowbaseItem::getFormURLWithID($articleId)) . '">Voir la procédure : ' . self::e($article->fields['name']) . '</a></p>'
+                    ? '<a class="btn btn-outline-primary" target="_blank" rel="noopener" href="' . self::e(\KnowbaseItem::getFormURLWithID($articleId)) . '">Voir la procédure : ' . self::e($article->fields['name']) . '</a>'
                     : '<p class="text-muted">Procédure supprimée ou inaccessible.</p>';
             }
+            if ($step['knowbaseitems_id']) { echo '</div></section>'; }
             $actions = match ($state) {
                 'done' => ['reopen' => 'Réouvrir', 'comment' => 'Commenter'],
                 'blocked' => ['unblock' => 'Débloquer', 'comment' => 'Commenter'],

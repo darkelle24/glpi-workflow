@@ -75,7 +75,7 @@ La fin du workflow ne ferme pas automatiquement le ticket. Le contrôle de réso
 
 ## Sécurité et données sensibles
 
-Les requêtes de données utilisent le DBAL GLPI. Les rares SQL explicites ne reçoivent que des identifiants de table contrôlés et des nombres entiers ou noms de verrous générés. Tout texte affiché est échappé. Les instructions sont du texte, et non du HTML administrateur exécutable.
+Les requêtes de données utilisent le DBAL GLPI. Les rares SQL explicites ne reçoivent que des identifiants de table contrôlés et des nombres entiers ou noms de verrous générés. Tout texte affiché est échappé. Les procédures utilisent les fiches natives KnowbaseItem. Le modèle de fiche est généré en HTML avec échappement de tout texte fourni. Les recherches et l’hydratation des titres appliquent can(READ) à chaque fiche avant de retourner un extrait en texte. La création impose POST, le jeton du plugin, les droits de gestion du modèle, l’accès à l’entité et can(CREATE) natif ; la visibilité utilise le mécanisme _visibility de GLPI. Les anciens textes instructions restent lisibles dans le format de définition pour permettre leur conversion en fiche.
 
 Les journaux n’enregistrent pas les anciennes et nouvelles valeurs. Ils enregistrent les identifiants des champs modifiés. Les formulaires interdisent les noms de champs de mots de passe, secrets et jetons. Les champs libres et commentaires ne constituent pas un coffre-fort ; un utilisateur peut toujours y coller une information sensible. L’avertissement fonctionnel et la politique d’utilisation doivent être respectés.
 

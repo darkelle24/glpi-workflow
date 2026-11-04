@@ -30,7 +30,7 @@ try {
     if ($template) {
         try { Access::template($template, true); } catch (ValidationException) { $editable = false; }
     }
-    echo '<form method="post" data-wb-editor data-definition="' . View::e(Store::json($definition)) . '" data-preview="' . View::e(Http::url('preview.php')) . '" data-readonly="' . ($editable ? '0' : '1') . '" action="' . View::e(Http::url('template.form.php', $id ? ['id' => $id] : [])) . '">';
+    echo '<form method="post" data-wb-editor data-knowledge-create="' . View::e(Http::url('knowledge.php')) . '" data-definition="' . View::e(Store::json($definition)) . '" data-preview="' . View::e(Http::url('preview.php')) . '" data-readonly="' . ($editable ? '0' : '1') . '" action="' . View::e(Http::url('template.form.php', $id ? ['id' => $id] : [])) . '">';
     Http::hidden(['id' => $id, 'revision' => $revision]);
     echo '<input type="hidden" name="definition"><div class="wb-scope"><label>Entité<select name="entities_id" class="form-select">';
     $entities = array_map('intval', $_SESSION['glpiactiveentities'] ?? [$entity]);

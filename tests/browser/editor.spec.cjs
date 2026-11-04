@@ -44,3 +44,107 @@ test('native reference search widget selects and clears a result',async({page})=
     await page.getByRole('button',{name:'Effacer',exact:true}).click();
     await expect(page.locator('[name="values[demandeur]"]')).toHaveValue('');
 });
+
+test('knowledge browser filters, pagination, association and removal', async({page}) => {
+    const item = {id:17,label:'Procédure réseau',excerpt:'Contrôler le câble et le port.',url:'/front/knowbaseitem.form.php?id=17',faq:false,modified:'2026-11-04'};
+    const requests = [];
+    await page.route('**/lookup-fixture.php?**', async route => {
+        const params = new URL(route.request().url()).searchParams;
+        if (params.get('type') !== 'knowledge') return route.fulfill({json:{items:[],next:0}});
+        requests.push(Object.fromEntries(params));
+        const next = params.get('after') === '17';
+        await route.fulfill({json:{items:next?[{...item,id:16,label:'Autre procédure'}]:[item],next:next?0:17}});
+    });
+    await page.goto('/tests/editor-fixture.php');
+    await page.getByRole('button',{name:'Étapes',exact:true}).click();
+    const step = page.locator('.wb-step-editor').first();
+    await step.locator('summary').first().click();
+    await expect(step.getByLabel('Instructions',{exact:true})).toHaveCount(0);
+    await step.getByRole('button',{name:'Choisir une fiche',exact:true}).click();
+    await expect(step.getByText('Contrôler le câble et le port.',{exact:true})).toBeVisible();
+    await step.getByLabel('Rechercher des fiches',{exact:true}).fill('réseau');
+    await step.getByLabel('Rechercher dans',{exact:true}).selectOption('title');
+    await step.getByLabel('Type de fiche',{exact:true}).selectOption('internal');
+    await step.getByLabel('Trier par',{exact:true}).selectOption('oldest');
+    await step.getByLabel('Modifiées depuis le',{exact:true}).fill('2026-10-01');
+    await step.getByLabel('Mes fiches uniquement',{exact:true}).check();
+    await expect.poll(() => requests.at(-1)?.mine).toBe('1');
+    expect(requests.at(-1)).toMatchObject({q:'réseau',scope:'title',kind:'internal',sort:'oldest',since:'2026-10-01',mine:'1'});
+    await step.getByRole('button',{name:'Associer à l’étape',exact:true}).click();
+    await expect(step.locator('.wb-knowledge-selected a')).toHaveText('Procédure réseau');
+    await expect(step.getByRole('button',{name:'Déjà associée',exact:true})).toBeDisabled();
+    await step.getByRole('button',{name:'Afficher la suite',exact:true}).click();
+    await expect(step.getByText('Autre procédure',{exact:true})).toBeVisible();
+    await expect(step.locator('.wb-knowledge-results article')).toHaveCount(2);
+    await step.getByRole('button',{name:'Retirer la fiche #17',exact:true}).click();
+    await expect(step.locator('.wb-knowledge-selected')).toHaveText('Aucune fiche associée.');
+    await step.getByRole('button',{name:'Réinitialiser les filtres',exact:true}).click();
+    await expect.poll(() => requests.at(-1)?.q).toBe('');
+    await page.setViewportSize({width:390,height:844});
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('knowledge creation preserves legacy text and serializes the new association', async({page}) => {
+    let posted;
+    await page.route('**/knowledge-fixture.php', async route => {
+        posted = route.request().postData();
+        await route.fulfill({status:201,json:{item:{id:42,label:'Ma nouvelle procédure',url:'/front/knowbaseitem.form.php?id=42'}}});
+    });
+    await page.goto('/tests/editor-fixture.php');
+    await page.getByRole('button',{name:'Étapes',exact:true}).click();
+    const step = page.locator('.wb-step-editor').first();
+    await step.locator('summary').first().click();
+    await step.getByRole('button',{name:'Créer une fiche',exact:true}).click();
+    await step.getByLabel('Titre de la nouvelle fiche',{exact:true}).fill('Ma nouvelle procédure');
+    await step.getByRole('button',{name:'Créer et associer la fiche',exact:true}).click();
+    await expect(step.getByRole('link',{name:'Compléter la fiche dans GLPI',exact:true})).toHaveAttribute('href','/front/knowbaseitem.form.php?id=42');
+    expect(posted).toContain('Adapter les instructions');
+    expect(posted).toContain('name="_wb_token"');
+    await page.locator('[data-wb-editor]').evaluate(form => form.addEventListener('submit',e => e.preventDefault()));
+    await page.getByRole('button',{name:'Enregistrer le brouillon',exact:true}).click();
+    const model = JSON.parse(await page.locator('[name="definition"]').inputValue());
+    expect(model.steps[0].knowbaseitems_id).toEqual([42]);
+    expect(model.steps[0].instructions).toBe('');
+    await page.getByRole('button',{name:'Général',exact:true}).click();
+    await page.route('**/lookup-fixture.php?**',route => route.fulfill({json:{items:[{id:42,label:'Ma nouvelle procédure',url:'/front/knowbaseitem.form.php?id=42'}],next:0}}));
+    await page.getByRole('button',{name:'Étapes',exact:true}).click();
+    await page.locator('.wb-step-editor').first().locator('summary').first().click();
+    await expect(page.locator('.wb-step-editor').first().locator('.wb-knowledge-selected a')).toHaveText('Ma nouvelle procédure');
+});
+
+test('knowledge permission errors preserve the existing draft and legacy instructions', async({page}) => {
+    await page.route('**/knowledge-fixture.php',route => route.fulfill({status:403,json:{error:'Droit GLPI insuffisant.'}}));
+    await page.goto('/tests/editor-fixture.php');
+    await page.getByRole('button',{name:'Étapes',exact:true}).click();
+    const step = page.locator('.wb-step-editor').first();
+    await step.locator('summary').first().click();
+    await step.getByRole('button',{name:'Créer une fiche',exact:true}).click();
+    await step.getByRole('button',{name:'Créer et associer la fiche',exact:true}).click();
+    await expect(step.getByText('Droit GLPI insuffisant.',{exact:true})).toBeVisible();
+    await expect(step.getByRole('button',{name:'Créer et associer la fiche',exact:true})).toBeEnabled();
+    await page.locator('[data-wb-editor]').evaluate(form => form.addEventListener('submit',e => e.preventDefault()));
+    await page.getByRole('button',{name:'Enregistrer le brouillon',exact:true}).click();
+    const model = JSON.parse(await page.locator('[name="definition"]').inputValue());
+    expect(model.steps[0].knowbaseitems_id).toEqual([]);
+    expect(model.steps[0].instructions).toContain('Adapter les instructions');
+});
+
+test('knowledge ignores stale searches when filters change', async({page}) => {
+    await page.route('**/lookup-fixture.php?**', async route => {
+        const q = new URL(route.request().url()).searchParams.get('q');
+        if (q === 'ancien') await new Promise(resolve => setTimeout(resolve,800));
+        await route.fulfill({json:{items:[{id:8,label:q==='ancien'?'Résultat périmé':'Résultat actuel',url:'/front/knowbaseitem.form.php?id=8'}],next:0}});
+    });
+    await page.goto('/tests/editor-fixture.php');
+    await page.getByRole('button',{name:'Étapes',exact:true}).click();
+    const step = page.locator('.wb-step-editor').first();
+    await step.locator('summary').first().click();
+    await step.getByRole('button',{name:'Choisir une fiche',exact:true}).click();
+    const search = step.getByLabel('Rechercher des fiches',{exact:true});
+    const oldRequest = page.waitForRequest(r => r.url().includes('q=ancien'));
+    await search.fill('ancien'); await oldRequest;
+    await search.fill('nouveau');
+    await expect(step.getByText('Résultat actuel',{exact:true})).toBeVisible();
+    await page.waitForTimeout(900);
+    await expect(step.getByText('Résultat périmé',{exact:true})).toHaveCount(0);
+});

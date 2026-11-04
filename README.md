@@ -24,7 +24,7 @@ Aucune modification du cœur GLPI n’est nécessaire. Le serveur n’a besoin n
 - Création de ticket par une page dédiée et association aux tickets existants.
 - États persistants, validation côté serveur, responsables, dates, commentaires et progression.
 - Prise en charge nominative : « Je prends en charge », nom du technicien visible sur l’étape et libération pour passer le relais.
-- Recherche d’articles de connaissance avec application des droits natifs à la sélection et à la consultation.
+- Sélecteur de fiches GLPI avec aperçus, filtres combinables, création de procédures structurées et accès direct depuis les étapes du ticket ; droits natifs vérifiés.
 - Brouillons, publications immuables, archivage, duplication, historique des versions et import/export JSON validé.
 - Droits de profils, restrictions par entité, utilisateur et groupe, droits du ticket et contrôles sur chaque endpoint.
 - Historique sans copie des anciennes et nouvelles valeurs des champs.

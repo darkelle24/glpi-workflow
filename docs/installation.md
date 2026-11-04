@@ -73,7 +73,7 @@ Les restrictions configurées dans les modèles s’ajoutent aux profils. Les re
 
 ## Premier lancement
 
-Importer Préparation ordinateur depuis la liste des modèles. Adapter les instructions et sélectionner les articles de connaissance de votre installation. Enregistrer, prévisualiser, publier, puis lancer depuis le menu ou depuis un ticket existant.
+Importer Préparation ordinateur depuis la liste des modèles. Sélectionner les fiches de connaissance de votre installation, ou créer une fiche structurée depuis chaque étape et la compléter dans GLPI. Enregistrer, prévisualiser, publier, puis lancer depuis le menu ou depuis un ticket existant.
 
 Les exemples n’effectuent aucune opération dans Microsoft 365, MAGIS ou UNI.T NG. Ils structurent et tracent les actions du technicien. Les affectations d’ordinateur et les modifications d’inventaire restent réalisées dans les écrans natifs GLPI.
 

@@ -110,7 +110,7 @@ Le premier enregistrement ou une validation directe identifie aussi son opérate
 
 ## Renseigner et terminer les étapes
 
-Déplier une étape pour consulter ses instructions, ses champs, sa documentation et ses responsables.
+Déplier une étape pour consulter ses champs, ses procédures de la base de connaissances et ses responsables.
 
 | Action | Résultat |
 | --- | --- |
@@ -166,7 +166,7 @@ Cliquer sur **Nouveau modèle**, choisir son entité et configurer les sept ongl
 | --- | --- |
 | **Général** | Nom, description, catégorie et icône. |
 | **Formulaire** | Informations à recueillir au lancement. |
-| **Étapes** | Actions, instructions, champs, responsables et procédures. |
+| **Étapes** | Actions, champs, responsables et fiches de connaissance. |
 | **Conditions** | Règles d’affichage, d’activation ou de blocage. |
 | **Permissions et affectations** | Personnes et groupes pouvant lancer, exécuter ou gérer le modèle. |
 | **Paramètres** | Modes de lancement, titre du ticket et contrôle de clôture. |
@@ -196,7 +196,7 @@ Pour une liste, saisir **un choix par ligne**. Une section n’est pas un champ 
 
 ### Construire les étapes
 
-Dans **Étapes**, ajouter un bloc pour chaque action à réaliser. Renseigner son titre, ses instructions, son obligation, ses responsables, ses dépendances et ses champs.
+Dans **Étapes**, ajouter un bloc pour chaque action à réaliser. Renseigner son titre, sa description, son obligation, ses responsables, ses dépendances et ses champs. Associer les procédures dans le bloc de base de connaissances.
 
 ![Liste des étapes dans l’éditeur](../public/images/guide/06-etapes.png)
 
@@ -205,6 +205,26 @@ Dans **Étapes**, ajouter un bloc pour chaque action à réaliser. Renseigner so
 Une étape peut être dupliquée, déplacée ou supprimée du brouillon. Avant de supprimer une étape utilisée par d’autres, retirer les règles et dépendances qui la référencent.
 
 **Exemple :** « Créer un compte Microsoft 365 » peut demander l’adresse créée, le type de licence, une date et une case de contrôle. Ce modèle reste une procédure suivie par le technicien : le plugin ne crée pas automatiquement le compte dans le service externe.
+
+### Associer une procédure de la base de connaissances
+
+Les procédures se rédigent dans la **base de connaissances GLPI**. Le champ de saisie « Instructions » n’est plus proposé dans l’éditeur.
+
+Dans chaque étape, ouvrir **Procédures — base de connaissances GLPI** :
+
+1. Cliquer sur **Choisir une fiche** pour parcourir les fiches accessibles, même sans mot-clé.
+2. Rechercher dans le titre et le contenu, ou uniquement dans le titre. Combiner les filtres **Type de fiche**, **Mes fiches uniquement** et **Modifiées depuis le**, puis trier par date de création.
+3. Consulter l’aperçu ou ouvrir la fiche dans GLPI, puis cliquer sur **Associer à l’étape**. Plusieurs fiches peuvent être associées ; **Retirer** enlève seulement le lien du brouillon.
+4. Pour une nouvelle procédure, cliquer sur **Créer une fiche**, vérifier son titre et sa visibilité, puis **Créer et associer la fiche**.
+5. Ouvrir **Compléter la fiche dans GLPI** et remplir les rubriques : objectif, prérequis, procédure détaillée, contrôles et résultat attendu, problème / retour arrière, références et pièces jointes.
+6. Enregistrer le brouillon du workflow, puis publier pour utiliser les associations lors des nouveaux lancements.
+
+La création enregistre immédiatement une vraie fiche GLPI. Elle reste dans la base de connaissances même si le brouillon du workflow n’est pas enregistré. La visibilité proposée cible l’entité sélectionnée dans le workflow, sans sous-entités. Le choix **Personnelle** permet de préparer le contenu avant de partager la fiche via GLPI. Le droit natif de création de connaissances et les droits de gestion du modèle sont nécessaires.
+
+Les anciens textes d’instructions restent conservés dans les définitions. Lors de la création d’une fiche depuis une ancienne étape, ils sont repris dans **Procédure détaillée** et retirés du brouillon seulement après création réussie. Les versions publiées restent figées. Les anciens textes libres ne sont plus affichés sur les tickets : préparer les fiches et une nouvelle version pour les futurs lancements. Les instances déjà lancées conservent leurs associations d’origine.
+
+Sur le ticket, le bloc **Comment réaliser cette étape ?** ouvre les fiches associées dans un autre onglet. La lecture reste soumise aux droits GLPI du technicien ; une fiche supprimée ou inaccessible ne révèle pas son contenu. Le contenu d’une fiche suit ses modifications dans GLPI et n’est pas figé avec la version du workflow.
+
 
 ### Définir le ticket créé au lancement
 
