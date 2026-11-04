@@ -35,6 +35,7 @@ final class View
         Access::need('view');
         Access::ticket($id);
         echo '<section class="wb" data-wb-root data-lookup="' . self::e(Http::url('lookup.php')) . '">';
+        echo '<a class="btn btn-outline-secondary mb-3" href="' . self::e(Http::url('guide.php')) . '">Guide utilisateur</a> ';
         if (Access::has('launch', CREATE)) {
             echo '<a class="btn btn-primary mb-3" href="' . self::e(Http::url('launch.php', ['tickets_id' => $id])) . '">Ajouter un workflow</a>';
         }

@@ -1,5 +1,27 @@
 # Rapport de validation — 4 novembre 2026
 
+## Mise à jour 0.1.2 — guide illustré intégré
+
+Contrôles exécutés le 4 novembre 2026 sur la livraison 0.1.2 :
+
+| Vérification | Résultat |
+| --- | --- |
+| Syntaxe PHP | 48 fichiers vérifiés |
+| Moteur et validations | 80 tests réussis |
+| Services et permissions, dont accès au guide | 39 tests réussis avec doublures GLPI et DB |
+| Rendu avec la bibliothèque livrée dans GLPI 12.0.0 | 10 contrôles réussis |
+| Rendu avec la bibliothèque livrée dans GLPI 12.0.1 | 10 contrôles réussis |
+| Installation et activation 0.1.2 | Réussite sur un GLPI 12.0.1 vierge isolé |
+| Parcours HTTP et navigateur du guide sur GLPI 12.0.1 | 7 contrôles réussis |
+| Captures | 10 PNG produits dans ce GLPI avec des données fictives |
+| Syntaxe JavaScript des outils de guide | Réussite |
+
+Le parcours natif vérifie le refus du téléchargement anonyme, les dix URL PNG et leur décodage dans le navigateur, l’identité octet pour octet entre Markdown téléchargé et source, les ancres françaises, le rejet d’un format tentant un accès arbitraire, les liens depuis la navigation et l’onglet ticket, et l’absence de débordement à 390 pixels après stabilisation de la mise en page. Les tests de rendu vérifient aussi le filtrage du HTML brut, des protocoles dangereux et des images distantes ou traversant les répertoires. Les captures ont été inspectées et recadrées pour éviter le recouvrement par l’en-tête fixe.
+
+Le navigateur utilisé est Chromium via Playwright. Le schéma reste à 3 ; aucun nouveau test de migration SQL n’est revendiqué pour cette mise à jour documentaire. Les résultats natifs de la version 0.1.1 ci-dessous restent des résultats historiques. Le déploiement TrueNAS de production n’a pas été modifié.
+
+Pour reproduire les captures et contrôles, consulter la [maintenance du guide](guide-maintenance.md). La CI du rendu est configurée ; son exécution distante n’a pas été déclenchée pendant cette livraison.
+
 ## Mise à jour 0.1.1 — prise en charge des étapes
 
 Contrôles exécutés le 4 novembre 2026 sur le code 0.1.1 :

@@ -26,6 +26,19 @@ jobs:
           path: build/glpi
           fetch-depth: 1
       - run: php tests/contracts.php build/glpi
+  guide:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom
+          coverage: none
+      # Isolated test dependency; production uses the library bundled with GLPI.
+      - run: mkdir -p build/guide-renderer
+      - run: composer require --working-dir=build/guide-renderer --no-interaction --no-progress --no-scripts league/commonmark:2.10.3
+      - run: php tests/guide.php build/guide-renderer
   ui:
     runs-on: ubuntu-latest
     steps:

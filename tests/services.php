@@ -144,4 +144,11 @@ check('summary identifies the operator and a colleague sees read-only step field
         if(str_contains($html,'type="checkbox"'))throw new RuntimeException('Other worker can edit claimed fields');
     }finally{Session::$user=7;rights();}
 });
+check('guide permissions allow plugin readers and reject unrelated profiles',function() {
+    WorkflowBuilder\Guide::requireAccess();
+    try{Session::$rights['plugin_workflowbuilder_view']=0;Session::$rights['plugin_workflowbuilder_template']=0;
+        denied(fn()=>WorkflowBuilder\Guide::requireAccess());
+        Session::$rights['plugin_workflowbuilder_template']=READ;WorkflowBuilder\Guide::requireAccess();
+    }finally{rights();}
+});
 echo "\n$passed service tests passed; $failed failed (GLPI and database test doubles)\n";exit($failed?1:0);

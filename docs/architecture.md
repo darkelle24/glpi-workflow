@@ -10,6 +10,10 @@ Les services Templates et Instances orchestrent les écritures. Access centralis
 
 L’éditeur JavaScript manipule seulement une définition structurée. Le serveur refuse les propriétés inconnues, les valeurs malformées, les conditions invalides et les cycles. Aucun interpréteur de code utilisateur n’est présent.
 
+## Guide intégré
+
+Le [guide utilisateur](user-guide.md) est l’unique source éditoriale. Guide lit uniquement ce chemin fixe, contrôle la taille et l’UTF-8, puis utilise la bibliothèque League CommonMark déjà livrée par GLPI. Aucun Composer supplémentaire n’est requis en production. Le HTML brut est supprimé, les protocoles des liens sont filtrés et seules les captures PNG du répertoire public/images/guide sont admises. Le rendu adapte leurs chemins au sous-répertoire de GLPI et ajoute les ancres du sommaire. La page front/guide.php exige le droit de lecture du plugin ou des modèles ; son téléchargement Markdown renvoie les octets de la même source.
+
 ## Tables
 
 Toutes les tables sont préfixées glpi_plugin_workflowbuilder_ et utilisent InnoDB / utf8mb4.

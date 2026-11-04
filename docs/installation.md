@@ -89,6 +89,10 @@ Les exemples n’effectuent aucune opération dans Microsoft 365, MAGIS ou UNI.T
 
 Le schéma courant est versionné 3. Une migration préserve les données du schéma de développement 1 et applique les conventions GLPI 12. La migration 2 vers 3 ajoute la prise en charge nominative, sans supprimer les valeurs ni les instances. L’installation et ces migrations sont rejouables. Ne pas diminuer la version du code face à un schéma plus récent.
 
+### Passage de 0.1.1 à 0.1.2
+
+La version 0.1.2 ajoute le guide illustré intégré et ajuste la présentation des cases à cocher. Remplacer les fichiers, y compris docs et public/images/guide, puis effectuer l’action de mise à jour proposée dans GLPI et réactiver si nécessaire. Le schéma reste en version 3 : aucune migration SQL supplémentaire depuis 0.1.1. Le Markdown consultable dans le dépôt est celui lu par le bouton Guide utilisateur ; conserver aussi ses captures lors du déploiement.
+
 ### Passage de 0.1.0 à 0.1.1
 
 Remplacer les fichiers par la nouvelle archive, puis déclencher Mettre à jour dans GLPI et réactiver le plugin. La migration du schéma 2 vers 3 est exécutée par cette opération, pas par la simple copie des fichiers. Les modèles JSON existants restent au format schema 1 et n’ont pas besoin d’être réimportés.

@@ -13,7 +13,7 @@
 .wb-fields { max-width:62rem; }.wb-field select[multiple] { min-height:8rem; }
 .wb-step,.wb-editor-card { border:1px solid var(--wb-border); border-radius:.5rem; padding:1rem; margin:1rem 0; background:var(--tblr-card-bg,#fff); }
 .wb summary { cursor:pointer; font-weight:600; padding:.3rem 0; }
-.wb-worker { display:block; color:var(--tblr-primary,#206bc4); font-size:.9rem; margin-top:.4rem; font-weight:600; }
+.wb-worker { display:block; color:var(--tblr-body-color,#253b53); font-size:.9rem; margin-top:.4rem; font-weight:600; }
 .wb-step-progress { border-left:5px solid #206bc4; }
 .wb-step-done { border-left:5px solid #2b8a3e; }.wb-step-blocked { border-left:5px solid #c92a2a; }.wb-step-na { opacity:.7; }
 .wb-badge { display:inline-block; border-radius:1rem; padding:.25rem .65rem; background:#e9eef5; color:#253b53; font-size:.8rem; font-weight:600; margin-left:.4rem; }
@@ -29,3 +29,16 @@
 .wb-instructions { white-space:normal; padding:.7rem; background:var(--tblr-bg-surface-secondary,#f4f7fa); }
 .wb label { max-width:100%; }.wb form { max-width:100%; }.wb td { vertical-align:top; }.wb .wb-editor-card[draggable=true] > summary { cursor:grab; }
 @media(max-width:650px){.wb{padding:.5rem}.wb-step,.wb-editor-card{padding:.65rem}.wb-tabs .btn{flex:1 1 42%}.wb-condition{padding:.4rem}.wb-toolbar{gap:.35rem}.wb-table{font-size:.9rem}}
+
+.wb-guide-actions { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem; margin:1rem 0; padding:1rem; border:1px solid var(--wb-border); border-radius:.5rem; }
+.wb-guide-actions p { margin:0; }
+.wb-guide { max-width:75rem; line-height:1.7; padding:1.5rem; background:var(--tblr-card-bg,#fff); border:1px solid var(--wb-border); border-radius:.6rem; }
+.wb-guide > h1:first-child { display:none; }
+.wb-guide h2 { font-size:1.45rem; margin:2.5rem 0 1rem; border-bottom:1px solid var(--wb-border); padding-bottom:.6rem; scroll-margin-top:6rem; }
+.wb-guide h3 { font-size:1.15rem; margin:1.5rem 0 .65rem; scroll-margin-top:6rem; }
+.wb-guide img { display:block; max-width:100%; height:auto; border:1px solid var(--wb-border); border-radius:.5rem; margin:1.2rem 0 .5rem; box-shadow:0 .2rem .8rem #172b4d12; }
+.wb-guide blockquote { border-left:4px solid var(--tblr-primary,#206bc4); background:var(--tblr-bg-surface-secondary,#f4f7fa); padding:.8rem 1rem; margin:1rem 0; }
+.wb-guide blockquote p:last-child { margin-bottom:0; }
+.wb-guide pre { padding:1rem; overflow:auto; border-radius:.4rem; }
+.wb-guide th { background:var(--tblr-bg-surface-secondary,#f4f7fa); }
+@media(max-width:650px){.wb-guide{padding:.8rem}.wb-guide-actions{padding:.7rem}.wb-guide h2{font-size:1.25rem}}

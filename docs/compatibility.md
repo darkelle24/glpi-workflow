@@ -42,6 +42,10 @@ Les étapes sont stockées par le plugin : les tâches natives ne couvrent pas l
 
 Le hook POST_PREPAREUPDATE peut annuler une mise à jour en mettant input à false. Il contrôle ici les statuts SOLVED et CLOSED sans dépendre des droits du plugin de l’appelant. Les écritures SQL directes, une suspension des hooks GLPI ou la désactivation du plugin échappent à ce mécanisme. Les autres plugins qui changeraient le statut après ce hook doivent faire l’objet d’une recette commune.
 
+## Rendu du guide
+
+Le rendu utilise les classes Environment, CommonMarkCoreExtension, GithubFlavoredMarkdownExtension et MarkdownConverter de League CommonMark, présentes dans les dépendances livrées avec les deux distributions GLPI testées. La configuration supprime le HTML brut et interdit les liens dangereux. DOMDocument, mbstring et libxml sont déjà des dépendances de l’environnement GLPI. Les chemins des captures passent par le routage public natif du plugin. Les tests du rendu ont été exécutés avec les bibliothèques des distributions 12.0.0 et 12.0.1 ; le parcours HTTP et mobile a été testé sur GLPI 12.0.1.
+
 ## Sources primaires
 
 - [Hooks GLPI 12.0.0](https://github.com/glpi-project/glpi/blob/12.0.0/src/Glpi/Plugin/Hooks.php)

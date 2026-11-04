@@ -1,6 +1,6 @@
 # État des fonctionnalités et limites
 
-## Implémenté dans 0.1.1
+## Implémenté dans 0.1.2
 
 Le code livré couvre un socle générique : administration, champs et étapes, conditions ET/OU, dépendances, prévisualisation, publication de versions figées, lancement, tickets existants et création dédiée, checklist, valeurs persistantes, progression, affectations, commentaires, historique, droits, import/export, trois exemples et tableau de bord simple.
 
@@ -9,6 +9,8 @@ Les recherches de connaissance et de documents utilisent des références native
 Le contrôle de résolution/clôture utilise le hook public POST_PREPAREUPDATE. Son résultat est validé avec le véritable Ticket::update sur GLPI 12.0.0 et 12.0.1, avant et après complétion ; le comportement réel de chaque API et plugin de votre installation doit être vérifié en recette.
 
 Les tests, leurs environnements et leurs résultats sont détaillés dans le [rapport](validation.md). La présence du code n’est pas présentée comme une certification en production.
+
+Le guide illustré est conservé dans un seul [fichier Markdown](user-guide.md), lu directement par la page Guide utilisateur dans GLPI. Le téléchargement fournit exactement ce fichier. Dix captures de démonstration sont incluses ; les liens du sommaire, le rendu mobile et les droits de lecture ont été testés.
 
 ## Couverture partielle ou choix de première version
 

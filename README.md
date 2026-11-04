@@ -2,7 +2,7 @@
 
 Workflow Builder permet de construire des procédures génériques depuis GLPI : formulaire de lancement, étapes avec champs, conditions visuelles, dépendances, documentation et historique. Les définitions sont enregistrées dans MariaDB. Chaque lancement conserve sa version publiée.
 
-Version courante : **0.1.1**. Nom technique et dossier d’installation : **workflowbuilder**. Cible déclarée : **GLPI 12.0.x**, PHP **8.3 minimum**, MariaDB avec InnoDB. Les points d’extension ont été contrôlés dans les sources officielles de GLPI **12.0.0 et 12.0.1**. La validation de votre déploiement Docker reste nécessaire ; consulter le [rapport de validation](docs/validation.md).
+Version courante : **0.1.2**. Nom technique et dossier d’installation : **workflowbuilder**. Cible déclarée : **GLPI 12.0.x**, PHP **8.3 minimum**, MariaDB avec InnoDB. Les points d’extension ont été contrôlés dans les sources officielles de GLPI **12.0.0 et 12.0.1**. La validation de votre déploiement Docker reste nécessaire ; consulter le [rapport de validation](docs/validation.md).
 
 ## Démarrage
 
@@ -42,6 +42,8 @@ La [liste précise des limites](docs/status.md) fait partie de la livraison. Les
 - [Compatibilité et points d’extension vérifiés](docs/compatibility.md)
 - [Tests exécutés et recette manuelle](docs/validation.md)
 - [Fonctionnalités et limites](docs/status.md)
+
+Le [guide illustré](docs/user-guide.md) est la source unique de la page **Guide utilisateur** accessible dans les pages du plugin et dans l’onglet Workflow des tickets. GLPI lit directement ce Markdown et affiche les dix captures livrées dans le plugin. Modifier ce fichier puis déployer les fichiers actualise le guide intégré ; aucune récupération distante depuis GitHub n’est nécessaire. Voir la [maintenance du guide](docs/guide-maintenance.md).
 
 ## Organisation
 

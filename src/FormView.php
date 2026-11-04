@@ -49,7 +49,7 @@ final class FormView
                 }
             } elseif ($type === 'checkbox') {
                 echo '<input type="hidden" name="' . View::e($name) . '" value="0">';
-                echo '<input type="checkbox"' . $attrs . ' value="1"' . ($value ? ' checked' : '') . '>';
+                echo '<input type="checkbox"' . str_replace('class="form-control"', 'class="form-check-input"', $attrs) . ' value="1"' . ($value ? ' checked' : '') . '>';
             } elseif (isset(Fields::REFERENCES[$type])) {
                 echo '<div class="wb-reference" data-reference-type="' . $type . '"' . ($ticket ? ' data-ticket="' . $ticket . '"' : '') . '>';
                 echo '<input type="hidden"' . $attrs . ' value="' . View::e($value) . '"><span data-reference-label>';
