@@ -44,4 +44,4 @@ La [CI](../.github/workflows/tests.yml) exécute aussi les tests de rendu avec u
 
 ## Livrer
 
-Exécuter [tools/package.ps1](../tools/package.ps1). L’archive doit contenir le guide, les captures et la page intégrée. La livraison 0.1.5 conserve le schéma SQL 4 ; lancer la mise à jour du plugin dans GLPI. Une installation antérieure à 0.1.4 applique également les migrations déjà fournies.
+Exécuter [tools/package.ps1](../tools/package.ps1). L’archive doit contenir le guide, les captures et la page intégrée. La livraison 0.3.0 utilise le schéma SQL 5 (ajout de la bibliothèque PDF) ; lancer la mise à jour du plugin dans GLPI. Une installation antérieure à 0.1.4 applique également les migrations déjà fournies.

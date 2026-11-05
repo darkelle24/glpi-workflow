@@ -53,6 +53,11 @@ final class View
         echo '<p>Version ' . (int) $version['number'] . ' · Lancé le ' . self::e($instance['date_creation']) . ' par ' . self::e(self::person('User', (int) $instance['users_id'])) . ' · Ticket <a href="' . self::e(\Ticket::getFormURLWithID($ticketId)) . '">#' . $ticketId . '</a></p>';
         echo '<p><a class="btn btn-outline-primary" href="' . self::e(Http::url('instance.php', ['id' => $id])) . '">Lien direct vers ce workflow</a> <a class="btn btn-outline-secondary" href="' . self::e(Http::ticketWorkflow($ticketId, $id)) . '">Ouvrir dans le ticket</a></p>';
         echo '<p>' . $p['done'] . ' / ' . $p['total'] . ' étapes obligatoires terminées — ' . $p['percent'] . ' % · ' . $p['remaining'] . ' restantes · ' . $p['blocked'] . ' bloquées · ' . $p['optional'] . ' facultatives</p><progress max="100" value="' . $p['percent'] . '" aria-label="Progression">' . $p['percent'] . '%</progress>';
+        if ($definition['pdf']['enabled'] ?? false) {
+            echo $p['status'] === 'completed'
+                ? '<p><a class="btn btn-primary" href="' . self::e(Http::url('pdf.php', ['id' => $id])) . '">Télécharger le PDF</a></p>'
+                : '<p class="text-muted">Le PDF sera disponible à la fin du workflow.</p>';
+        }
         echo '<p><strong>Responsables du workflow :</strong> ' . self::e(Assignees::names(Assignees::forInstance($instance))) . '</p>';
         echo '<details class="my-3"><summary>Informations du lancement</summary>';
         FormView::show($definition['fields'], $data['values'][''] ?? [], true, $ticketId, Fields::context($data['values'][''] ?? []));

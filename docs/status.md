@@ -1,5 +1,19 @@
 # État des fonctionnalités et limites
 
+## Ajouts de la version 0.3.0 — composition automatique et administration PDF
+
+- Choix du mode automatique par groupes ou du placement libre ; configurations conservées lors du changement de mode.
+- Titres, descriptions, logo, champs, textes préremplis, colonnes, thèmes et aperçu immédiat.
+- Bibliothèque de bases par entité, modification/désactivation administrative et copies indépendantes dans les workflows.
+- Pagination automatique des réponses longues et nouvel exemple importable ; schéma SQL 5 avec table pdfpresets.
+
+## Ajouts de la version 0.2.0 — modèles PDF
+
+- Éditeur PDF A4 facultatif avec pages blanches ou fonds PNG/JPEG intégrés, zones déplaçables et styles de texte.
+- Variables du lancement et des étapes, aperçu du brouillon, PDF final et récapitulatif complet optionnel.
+- Exemple Fiche de connexion salarié importable ; versions publiées et droits natifs du ticket conservés.
+- 10 pages, 200 zones, 2 Mio par image et 16 Mio par définition ; pas d’import de PDF existants ni de polices personnalisées.
+
 ## Ajouts de la version 0.1.5 — navigation et lancement complet
 
 Chaque instance possède un lien direct. Les actions lancées depuis l’onglet Workflow reviennent au ticket, au workflow et à l’étape concernés, y compris en cas de saisie refusée. Les identifiants des étapes sont distincts lorsque plusieurs workflows partagent le ticket.
@@ -16,9 +30,9 @@ Trois suivis internes par étape sont configurables et activés par défaut : di
 
 Les étapes disposent d’un sélecteur de fiches avec aperçus, recherche titre/contenu, filtres FAQ/interne, auteur connecté, modification depuis une date et tri par création. Une fiche structurée peut être créée et associée depuis l’étape, puis complétée dans GLPI. Le ticket propose un bouton direct vers chaque fiche. Les droits natifs s’appliquent aux recherches, aux titres rechargés, à la création et à la consultation. Les textes libres historiques restent conservés pour conversion ; le champ Instructions n’est plus éditable.
 
-## Socle conservé dans 0.1.5
+## Socle conservé dans 0.3.0
 
-Le code livré couvre un socle générique : administration, champs et étapes, conditions ET/OU, dépendances, prévisualisation, publication de versions figées, lancement, tickets existants et création dédiée, checklist, valeurs persistantes, progression, affectations, commentaires, historique, droits, import/export, trois exemples et tableau de bord simple.
+Le code livré couvre un socle générique : administration, champs et étapes, conditions ET/OU, dépendances, prévisualisation, publication de versions figées, lancement, tickets existants et création dédiée, checklist, valeurs persistantes, progression, affectations, commentaires, historique, droits, import/export, cinq exemples et tableau de bord simple.
 
 Les recherches de connaissance et de documents utilisent des références natives et revérifient leurs droits. Les mises à jour de l’instance ont un contrôle de révision, une transaction et une clé de lancement unique. Chaque étape peut être prise en charge nominativement ; son opérateur et sa date apparaissent dans le résumé. Un autre technicien doit attendre la libération ou une réaffectation administrative explicite pour la modifier.
 
@@ -41,7 +55,7 @@ Le guide illustré est conservé dans un seul [fichier Markdown](user-guide.md),
 - Pagination : affichage par 20, avec filtrage des droits avant affichage ; le chargement des grandes listes reste à optimiser pour un usage massif.
 - Historique : toutes les opérations de l’instance sont tracées ; pas de journal détaillé des différences éditoriales des brouillons.
 - Versionnement : historique publié et définitions conservées ; aucune migration d’instances existantes vers une autre version.
-- Schéma : installation versionnée et rejouable ; migrations 1 vers 2, 2 vers 3 et 3 vers 4 fournies. La migration de prise en charge préserve les données existantes.
+- Schéma : installation versionnée et rejouable ; migrations 1 vers 2, 2 vers 3 et 3 vers 4 fournies, création de la bibliothèque PDF pour 4 vers 5. La migration de prise en charge préserve les données existantes.
 - Langues : interface en français ; domaine GLPI présent pour les menus et droits. La traduction exhaustive des textes PHP et JavaScript reste à compléter.
 - Administration : désactivation/archivage et duplication ; suppression définitive d’un modèle non proposée pour préserver les versions utilisées.
 - Aucun mécanisme de décision ne remplace les actions réelles dans Microsoft 365, MAGIS, UNI.T NG ou l’inventaire.

@@ -35,7 +35,7 @@ final class Http
         if (Access::has('template', CREATE)) {
             echo '<a class="btn btn-outline-secondary" href="' . View::e(self::url('template.form.php')) . '">Nouveau modèle</a>';
         }
-        if (Access::has('admin', UPDATE)) { echo '<a class="btn btn-outline-secondary" href="' . View::e(self::url('diagnostics.php')) . '">Diagnostic</a>'; }
+        if (Access::has('admin', UPDATE)) { echo '<a class="btn btn-outline-secondary" href="' . View::e(self::url('pdf-presets.php')) . '">Administration PDF</a>'; echo '<a class="btn btn-outline-secondary" href="' . View::e(self::url('diagnostics.php')) . '">Diagnostic</a>'; }
         if (\User::isUserReauthenticationNeeded()) { echo '<a class="btn btn-outline-secondary" target="_blank" rel="noopener" href="' . View::e(self::url('reauth.php')) . '">Confirmer l’identité GLPI</a>'; }
         echo '<a class="btn btn-outline-secondary" href="' . View::e(self::url('guide.php')) . '">Guide utilisateur</a>';
         echo '</nav><h1>' . View::e($title) . '</h1>';

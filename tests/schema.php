@@ -14,8 +14,8 @@ try {
         $db->query('CREATE TABLE IF NOT EXISTS '.Store::table($table).' (id int unsigned NOT NULL AUTO_INCREMENT, '.$columns.', PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
     }
     $count=$db->query('SHOW TABLES')->num_rows;
-    if($count!==10)throw new RuntimeException('Expected 10 plugin tables');
-    echo "PASS schema creates 10 tables; repeat installation preserves schema\n";
+    if($count!==11)throw new RuntimeException('Expected 11 plugin tables');
+    echo "PASS schema creates 11 tables; repeat installation preserves schema\n";
     $db->query("INSERT INTO ".Store::table('templates')." (name,description,users_id,draft,date_creation,date_mod) VALUES ('Test','',1,'{}',NOW(),NOW())");
     $db->query("INSERT INTO ".Store::table('versions')." (templates_id,number,definition,checksum,users_id,date_creation) VALUES (1,1,'{}',REPEAT('a',64),1,NOW())");
     $db->query("INSERT INTO ".Store::table('instances')." (templates_id,versions_id,tickets_id,entities_id,users_id,request_key,status,date_creation,date_mod) VALUES (1,1,1,0,1,REPEAT('b',64),'running',NOW(),NOW())");
@@ -60,6 +60,16 @@ try {
     if($newInstance['request_key']!==$oldInstance['request_key']||$newInstance['status']!==$oldInstance['status']
         ||$newInstance['assigned_users']!==null||$newInstance['assigned_groups']!==null)throw new RuntimeException('Assignment migration changed existing workflows');
     echo "PASS migration 3 to 4 preserves instances and can be repeated\n";
+
+    $presets=Store::table('pdfpresets');
+    $legacy=$db->query('SELECT * FROM '.Store::table('instances').' WHERE id=1')->fetch_assoc();
+    $db->query('DROP TABLE '.$presets);
+    $ddl='CREATE TABLE IF NOT EXISTS '.$presets.' (id int unsigned NOT NULL AUTO_INCREMENT, '.Schema::definitions()['pdfpresets'].', PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
+    $db->query($ddl);
+    $db->query("INSERT INTO ".$presets." (name,entities_id,users_id,definition,date_creation,date_mod) VALUES ('Base',0,1,'{}',NOW(),NOW())");
+    $db->query($ddl);
+    if($db->query('SELECT COUNT(*) FROM '.$presets)->fetch_row()[0]!=1||$legacy!==$db->query('SELECT * FROM '.Store::table('instances').' WHERE id=1')->fetch_assoc())throw new RuntimeException('Preset upgrade is not repeatable or changed existing workflows');
+    echo "PASS schema 4 to 5 creates preset library, preserves instances and is repeatable\n";
 
     foreach(array_reverse(Store::TABLES) as $table)$db->query('DROP TABLE IF EXISTS '.Store::table($table));
     if($db->query('SHOW TABLES')->num_rows!==0)throw new RuntimeException('Uninstall did not drop tables');

@@ -2,7 +2,7 @@
 
 **Créer une procédure, la lancer sur un ticket et suivre le travail de chaque technicien.**
 
-Ce guide accompagne Workflow Builder 0.1.5 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
+Ce guide accompagne Workflow Builder 0.3.0 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
 
 > **Un seul guide, deux accès.** Ce fichier Markdown est la source du bouton **Guide utilisateur** dans GLPI et du guide consultable dans le dépôt. La page GLPI lit le fichier livré avec le plugin. Déployer sa mise à jour actualise aussi le guide affiché.
 >
@@ -18,6 +18,7 @@ Ce guide accompagne Workflow Builder 0.1.5 pour GLPI 12. Il s’adresse aux **te
 - [Comprendre les états et la progression](#comprendre-les-états-et-la-progression)
 - [Créer un modèle de workflow](#créer-un-modèle-de-workflow)
 - [Configurer les conditions et les dépendances](#configurer-les-conditions-et-les-dépendances)
+- [Configurer et télécharger le PDF final](#configurer-et-télécharger-le-pdf-final)
 - [Prévisualiser et publier](#prévisualiser-et-publier)
 - [Importer et exporter des modèles JSON](#importer-et-exporter-des-modèles-json)
 - [Utiliser les documents et les procédures](#utiliser-les-documents-et-les-procédures)
@@ -166,7 +167,7 @@ Si le modèle impose le contrôle de clôture, toutes les étapes obligatoires d
 
 Cette partie est destinée aux administrateurs disposant des droits de gestion des modèles.
 
-Cliquer sur **Nouveau modèle**, choisir son entité et configurer les sept onglets.
+Cliquer sur **Nouveau modèle**, choisir son entité et configurer les huit onglets.
 
 | Onglet | À quoi il sert |
 | --- | --- |
@@ -176,6 +177,7 @@ Cliquer sur **Nouveau modèle**, choisir son entité et configurer les sept ongl
 | **Conditions** | Règles d’affichage, d’activation ou de blocage. |
 | **Permissions et affectations** | Personnes et groupes pouvant lancer, exécuter ou gérer le modèle. |
 | **Paramètres** | Modes de lancement, titre du ticket et contrôle de clôture. |
+| **Document PDF** | Pages, fonds, zones de texte et récapitulatif du PDF final. |
 | **Prévisualisation** | Simulation des réponses et des étapes applicables, sans créer de ticket. |
 
 ### Construire le formulaire
@@ -310,6 +312,97 @@ Dans le bloc d’une étape, sélectionner ses étapes préalables, puis choisir
 
 Les dépendances circulaires sont refusées. Réouvrir une étape est également refusé si cela invalide une étape dépendante déjà engagée ; traiter les étapes concernées dans l’ordre inverse.
 
+## Configurer et télécharger le PDF final
+
+### Choisir le mode PDF
+
+Dans **Document PDF**, activer le PDF puis choisir l’un des deux modes :
+
+| Mode | Utilisation |
+| --- | --- |
+| **Composition automatique** | Renseigner les titres, descriptions, groupes et informations. Le moteur calcule les colonnes, hauteurs et changements de page. |
+| **Placement libre** | Placer des zones au millimètre sur des pages blanches ou des images de fond, comme dans les versions précédentes. |
+
+Changer de mode conserve les deux configurations. Seule la configuration du mode sélectionné est utilisée pour le PDF final. Les anciens modèles utilisent automatiquement **Placement libre**. Enregistrer et publier le workflow pour appliquer le choix aux nouveaux lancements.
+
+### Composer un PDF automatiquement
+
+1. Choisir **Composition automatique**. Dans **Modèle de base**, sélectionner **Fiche de connexion salarié**, **Document sobre**, ou un modèle préparé par votre administrateur, puis **Appliquer ce modèle**. Le remplacement de la composition est confirmé ; le placement libre est conservé.
+2. Renseigner **Titre du document**, **Description du document** et **Pied de page**. Un logo PNG/JPEG peut être ajouté ; il sera intégré au JSON et conservé dans la version du workflow.
+3. Ouvrir un groupe, modifier son titre et sa description, puis ajouter des informations. Pour chaque information : indiquer le libellé et sélectionner **Information du workflow**, ou laisser **Texte fixe / à associer au workflow** pour saisir un **Texte prérempli**.
+4. Choisir **Ligne entière**, **Moitié de ligne** ou **Tiers de ligne**. Les informations s’alignent dans cet ordre et passent à la ligne lorsque l’espace manque. Un champ non associé et sans texte affiche un tiret dans le PDF final.
+5. Déplacer ou dupliquer les groupes et informations avec les flèches ou le glisser-déposer. Le panneau de droite montre la composition au fil des modifications, avec les noms des champs entre crochets.
+6. Dans **Apparence et réglages avancés**, choisir une palette orange ou bleue, personnaliser les couleurs, la police et la taille du texte (8 à 14 points), ou désactiver la numérotation des groupes.
+7. Télécharger un aperçu PDF, enregistrer le brouillon puis publier. Le PDF final utilise les réponses enregistrées et calcule leur hauteur réelle. Les réponses longues continuent sur les pages suivantes avec le titre du groupe et les libellés ; les pieds de page sont numérotés.
+
+L’aperçu dans l’éditeur représente la composition et peut défiler ; il ne prédit pas exactement les coupures de page. L’aperçu PDF et le téléchargement final utilisent les métriques des polices PDF. Les variables de la section suivante peuvent être utilisées dans le titre, la description, le pied de page et les textes préremplis.
+
+Le fichier [fiche-connexion-automatique.json](../examples/fiche-connexion-automatique.json), également proposé comme **Fiche salarié — PDF automatique** à l’import, contient les groupes Identité, Connexion de session, Mail et téléphonie, UNI-T/MAGIS, CAF et Référents, déjà reliés aux champs de ses étapes.
+
+### Administrer les modèles de base préremplis
+
+Ouvrir **Administration PDF → Modèles de base** dans la navigation du plugin. Cet onglet exige le droit **Administrer les droits et remplacer les responsables — Modifier** du profil Workflow Builder.
+
+- Cliquer sur **Nouveau modèle de base**, saisir son nom dans la bibliothèque et préparer le titre, la description, le logo, les couleurs, les groupes, leurs libellés et les textes par défaut. Les deux bases intégrées peuvent servir de point de départ.
+- Cliquer sur **Enregistrer le modèle de base**. Il est enregistré dans l’entité active à sa création. Les utilisateurs qui peuvent lire les modèles de workflow et accéder à cette entité le retrouveront dans **Modèle de base**.
+- Pour modifier un modèle, le sélectionner dans la bibliothèque, adapter son contenu et enregistrer. Une révision protège contre l’écrasement d’une modification concurrente.
+- Décocher **Proposer ce modèle aux workflows** pour le retirer du sélecteur. Les workflows qui l’ont déjà utilisé conservent leur copie.
+
+Les modèles de base ne dépendent d’aucun formulaire particulier : préparer les libellés et les textes communs dans l’administration, puis associer les champs après application dans chaque workflow. Les variables générales (nom du workflow, ticket, version et dates) sont disponibles dans l’administration. Le PDF du workflow contient une copie complète : modifier ou désactiver un modèle de base n’altère ni les brouillons déjà configurés, ni les versions publiées, ni les workflows lancés. Appliquer à nouveau le modèle dans le brouillon pour reprendre ses changements, puis publier.
+
+### Construire un PDF en placement libre
+
+1. Ouvrir le modèle et l’onglet **Document PDF**, choisir **Placement libre**. Cocher **Activer le téléchargement PDF en fin de workflow**.
+2. Choisir un nom de fichier sans extension (lettres, chiffres, tirets ou soulignements). Le numéro du ticket est ajouté au téléchargement.
+3. Cliquer sur **Ajouter une page blanche**, ou **Importer des images comme pages**. Chaque image PNG/JPEG devient le fond d’une page A4. Plusieurs images peuvent être sélectionnées ensemble. Choisir portrait ou paysage dans l’inspecteur.
+4. Cliquer sur **Ajouter une zone**, puis sélectionner la zone sur la page ou dans **Zone à configurer**. Déplacer la zone à la souris. Au clavier : Entrée pour la sélectionner, flèches pour la déplacer de 1 mm, Maj + flèche pour 5 mm.
+5. Dans **Texte de la zone**, saisir du texte fixe et/ou insérer une réponse avec **Insérer une information**. Ce menu ajoute la variable à la fin du texte ; elle peut ensuite être déplacée dans le texte.
+6. Régler **Position X**, **Position Y**, **Largeur**, **Hauteur** en millimètres depuis le coin supérieur gauche. Choisir la police (sans serif, serif ou monospace), la taille en points, la couleur, le gras et l’alignement.
+7. Ajouter les autres zones et pages. Utiliser les boutons de duplication, de suppression et les flèches de page pour réorganiser le document. **Remplacer le fond par une image** conserve les zones ; **Retirer le fond** conserve une page blanche.
+8. Cliquer sur **Télécharger un aperçu PDF** pour contrôler la mise en page réelle. Cet aperçu contient des libellés de démonstration entre crochets, sans créer de ticket ni enregistrer le brouillon.
+9. **Enregistrer le brouillon**, puis **Publier une nouvelle version**. Les nouveaux lancements utilisent ce PDF. Les workflows déjà lancés gardent le modèle de leur version d’origine.
+
+Le repère à l’écran indique la position et la taille de chaque zone. Le PDF utilise les polices DejaVu fournies par GLPI, avec accents Unicode. L’affichage de l’éditeur utilise les polices du navigateur et ne reproduit pas exactement leurs métriques. Le PDF réduit la taille de police quand une réponse dépasse son rectangle : agrandir la zone pour garder un texte lisible et vérifier avec l’aperçu. Une image est centrée et ajustée sans déformation à la page A4 ; des marges peuvent rester si ses proportions diffèrent.
+
+### Lier les informations aux zones
+
+| Variable | Information |
+| --- | --- |
+| `{{workflow}}` | Nom du workflow. |
+| `{{ticket}}` | Numéro du ticket. |
+| `{{version}}` | Numéro de la version publiée du workflow. |
+| `{{date_creation}}` / `{{date_completion}}` | Dates de lancement et de fin. |
+| `{{form.prenom}}` | Réponse du champ initial dont l’identifiant stable est `prenom`. |
+| `{{steps.comptes.identifiant}}` | Réponse du champ `identifiant` dans l’étape `comptes`. |
+
+**Exemple de texte de zone :** `Identifiant : {{steps.comptes.identifiant}}`.
+
+Le sélecteur liste les champs réellement disponibles. Si un champ utilisé dans un PDF est supprimé, retirer ou remplacer sa variable avant d’enregistrer. Les champs masqués par leurs conditions et les étapes non applicables produisent une valeur vide. Les listes sont converties en texte, les booléens en Oui/Non, et les références GLPI en libellés selon les droits de lecture. Les zones contiennent du texte ; elles n’exécutent ni HTML ni code.
+
+### Inclure toutes les informations et télécharger
+
+L’option **Ajouter le récapitulatif complet après les pages personnalisées**, cochée par défaut, ajoute les réponses du lancement et des étapes, les paramètres initiaux du ticket, les états, les responsables, les opérateurs, les dates et les commentaires. Le récapitulatif occupe automatiquement autant de pages que nécessaire. Il peut aussi être utilisé seul, sans pages personnalisées. Cette option PDF est indépendante du récapitulatif envoyé dans les suivis du ticket.
+
+Quand le workflow atteint l’état **Terminé**, le bouton **Télécharger le PDF** apparaît dans l’onglet Workflow du ticket et sur la page de l’instance. La génération est faite à la demande avec les réponses enregistrées. Les étapes facultatives encore ouvertes peuvent donc rester sans réponse ; les compléter avant le téléchargement si elles doivent figurer dans la fiche. Une réouverture d’étape obligatoire retire l’accès au PDF jusqu’à la nouvelle fin du workflow.
+
+Le téléchargement exige les droits de lecture du workflow, du ticket et de son entité, y compris lorsque le ticket est clos. Le PDF est téléchargé localement et n’est pas automatiquement ajouté aux documents ou envoyé à un tiers.
+
+### Essayer la fiche de connexion salarié
+
+Dans **Importer un modèle ou un exemple**, sélectionner **Fiche de connexion salarié (PDF)**, ou importer le fichier [fiche-connexion-salarie.json](../examples/fiche-connexion-salarie.json).
+
+Le formulaire demande le prénom, le nom, le service, la fonction et la date d’arrivée. Trois étapes permettent de renseigner les comptes (identifiant, messagerie, portail et MFA), le poste et le téléphone, puis le contact support, les consignes et le test de connexion. Les deux pages personnalisées affichent les accès et les consignes ; le récapitulatif complet suit ces pages. Adapter les libellés et les fonds à votre organisation, enregistrer et publier, puis lancer un ticket de test.
+
+Les mots de passe, secrets et jetons ne sont pas pris en charge par les champs du projet. La fiche indique les identifiants et les liens ; transmettre les données confidentielles par votre canal sécurisé habituel.
+
+### Formats et limites
+
+- Placement libre : 10 pages personnalisées A4 et 200 zones maximum. Composition automatique : 30 groupes et 200 informations maximum ; pagination calculée selon les réponses. Le récapitulatif facultatif vient en supplément.
+- Fonds PNG ou JPEG uniquement : 2 Mio par image, 6000 pixels maximum par côté et 20 mégapixels au total par image. Les images sont intégrées au JSON, sans lien distant.
+- Définition JSON limitée à 16 Mio, images encodées comprises. Réduire les images si le fichier devient trop lourd.
+- Les limites PHP `upload_max_filesize` et `post_max_size`, celles du serveur HTTP et le paquet maximal MariaDB doivent permettre la taille choisie. En cas de refus, compresser les fonds ou adapter ces limites côté serveur.
+- L’import direct d’un PDF existant, les polices personnalisées et les champs PDF interactifs ne sont pas proposés. Pour utiliser un document existant comme fond, exporter ses pages en images PNG/JPEG, puis les importer.
+
 ## Prévisualiser et publier
 
 ### Tester avant publication
@@ -348,9 +441,9 @@ Après une première publication, la portée d’entité du modèle est figée. 
 
 ![Import d’un modèle JSON ou d’un exemple](../public/images/guide/09-import.png)
 
-*Trois exemples sont fournis : Création utilisateur, Départ utilisateur et Préparation ordinateur.*
+*Cinq exemples sont fournis : Création utilisateur, Départ utilisateur, Préparation ordinateur, Fiche de connexion salarié (PDF en placement libre) et Fiche salarié — PDF automatique.*
 
-Le fichier décrit les champs, étapes, règles, dépendances et paramètres du modèle. Le format accepté porte le numéro **schema 1** ; la taille maximale est de **512 Kio**.
+Le fichier décrit les champs, étapes, règles, dépendances et paramètres du modèle. Le format accepté porte le numéro **schema 1** ; la taille maximale est de **16 Mio, images PDF comprises**.
 
 Les références locales aux utilisateurs, groupes et articles de connaissance sont retirées à l’import. Les sélectionner dans le GLPI de destination avant publication.
 

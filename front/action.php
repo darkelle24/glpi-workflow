@@ -23,15 +23,15 @@ try {
             Access::need('template', CREATE);
             $example = Http::string($_POST, 'example');
             if ($example !== '') {
-                if (!in_array($example, ['creation-utilisateur', 'depart-utilisateur', 'preparation-ordinateur'], true)) {
+                if (!in_array($example, ['creation-utilisateur', 'depart-utilisateur', 'preparation-ordinateur', 'fiche-connexion-salarie', 'fiche-connexion-automatique'], true)) {
                     throw new ValidationException('Exemple inconnu.');
                 }
                 $json = file_get_contents(dirname(__DIR__) . '/examples/' . $example . '.json');
             } else {
                 $file = $_FILES['model'] ?? [];
-                if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || ($file['size'] ?? 0) > 524288
+                if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || ($file['size'] ?? 0) > Definition::MAX_BYTES
                     || !is_uploaded_file($file['tmp_name'] ?? '')) {
-                    throw new ValidationException('Choisir un fichier JSON valide de 512 Kio maximum.');
+                    throw new ValidationException('Choisir un fichier JSON valide de 16 Mio maximum (images PDF comprises).');
                 }
                 $json = file_get_contents($file['tmp_name']);
             }

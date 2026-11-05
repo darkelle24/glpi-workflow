@@ -19,6 +19,8 @@ jobs:
       - run: find . -name '*.php' -not -path './node_modules/*' -print0 | xargs -0 -n1 php -l
       - run: php tests/run.php
       - run: php tests/services.php
+      - run: php tests/pdf.php
+      - run: php tests/pdf-groups.php
       - uses: actions/checkout@v4
         with:
           repository: glpi-project/glpi

@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace WorkflowBuilder;
 final class Schema
 {
-    public const VERSION = 4;
+    public const VERSION = 5;
     public static function install(): void
     {
         global $DB;
@@ -49,6 +49,10 @@ final class Schema
     public static function definitions(): array
     {
         return [
+            'pdfpresets' => 'name varchar(255) NOT NULL, entities_id int unsigned NOT NULL DEFAULT 0,
+                users_id int unsigned NOT NULL, is_active tinyint NOT NULL DEFAULT 1,
+                definition longtext NOT NULL, revision int unsigned NOT NULL DEFAULT 1,
+                date_creation timestamp NOT NULL, date_mod timestamp NOT NULL, KEY entity (entities_id)',
             'templates' => 'name varchar(255) NOT NULL, category varchar(255) NOT NULL DEFAULT \'\',
                 description text NOT NULL, entities_id int unsigned NOT NULL DEFAULT 0,
                 is_recursive tinyint NOT NULL DEFAULT 0, users_id int unsigned NOT NULL,

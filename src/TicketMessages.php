@@ -85,6 +85,11 @@ final class TicketMessages
     public static function completed(array $data, ?string $previous): void
     {
         if (!($data['definition']['notify_summary'] ?? true) || $data['progress']['status'] !== 'completed' || $previous === 'completed') { return; }
+        self::post((int) $data['instance']['tickets_id'], self::summary($data)
+            . self::button(Http::url('instance.php', ['id' => (int) $data['instance']['id']])));
+    }
+    public static function summary(array $data): string
+    {
         $definition = $data['definition'];
         $instance = $data['instance'];
         $ticket = (int) $instance['tickets_id'];
@@ -115,7 +120,7 @@ final class TicketMessages
                 . View::e(View::participant((int) $event['users_id'])) . ' · ' . View::e($event['date_creation']) . ' :</strong> '
                 . nl2br(View::e($event['comment'])) . '</p>';
         }
-        self::post($ticket, $content . self::button(Http::url('instance.php', ['id' => (int) $instance['id']])) . '</div>');
+        return $content . '</div>';
     }
     public static function activated(array $data, array $previous): void
     {

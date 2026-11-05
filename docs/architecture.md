@@ -40,6 +40,7 @@ Toutes les tables sont préfixées glpi_plugin_workflowbuilder_ et utilisent Inn
 | stepinstances | États, responsables, dates et utilisateur de validation |
 | values | Valeurs typées JSON, indexées par instance, étape et identifiant de champ |
 | history | Acteur, action, ancien/nouvel état, noms des champs modifiés et commentaire |
+| pdfpresets | Modèles PDF de base par entité, contenu structuré, disponibilité et révision |
 
 La définition complète en base permet une lecture atomique de la version. Les tables de projection permettent les futurs outils de recherche et de reporting. Aucun workflow n’est conservé exclusivement dans un fichier : les JSON livrés sont des exemples et des échanges.
 
@@ -89,12 +90,25 @@ Les requêtes de données utilisent le DBAL GLPI. Les rares SQL explicites ne re
 
 Les journaux n’enregistrent pas les anciennes et nouvelles valeurs. Ils enregistrent les identifiants des champs modifiés. Les formulaires interdisent les noms de champs de mots de passe, secrets et jetons. Les champs libres et commentaires ne constituent pas un coffre-fort ; un utilisateur peut toujours y coller une information sensible. L’avertissement fonctionnel et la politique d’utilisation doivent être respectés.
 
-Le format d’échange possède son propre numéro schema 1, distinct du numéro de schéma SQL 4.
+Le format d’échange possède son propre numéro schema 1, distinct du numéro de schéma SQL 5.
 
-L’import est limité à 512 Kio et n’exécute aucun code. Les références locales de permissions, affectations et connaissance sont retirées à l’import pour être sélectionnées dans l’instance cible.
+L’import est limité à 16 Mio (images PDF intégrées comprises) et n’exécute aucun code. Les références locales de permissions, affectations et connaissance sont retirées à l’import pour être sélectionnées dans l’instance cible.
 
 ## Installation et évolutions
 
-Le schéma courant porte le numéro 4, enregistré dans la configuration du plugin après création des tables. Les DDL sont rejouables, car MariaDB effectue des commits implicites sur les DDL. La désactivation conserve les données. La désinstallation supprime uniquement les tables et droits du plugin, pas les tickets ni documents natifs.
+Le schéma courant porte le numéro 5, enregistré dans la configuration du plugin après création des tables. Les DDL sont rejouables, car MariaDB effectue des commits implicites sur les DDL. La désactivation conserve les données. La désinstallation supprime uniquement les tables et droits du plugin, pas les tickets ni documents natifs.
 
 La migration 1 vers 2 conserve les données du schéma de développement : définitions longues et colonnes temporelles TIMESTAMP conformes aux conventions GLPI 12. Elle est rejouable avant enregistrement du numéro final. Les futures versions devront ajouter des migrations numérotées avant de relever Schema::VERSION ; une simple création IF NOT EXISTS ne suffit pas à modifier une table existante. Les changements du format de définition devront conserver un lecteur des versions déjà publiées.
+
+## PDF de fin de workflow
+
+La clé optionnelle `pdf` (désactivée par défaut pour les anciens modèles) est normalisée par `PdfTemplate` dans `Definition`. Le modèle est conservé dans les colonnes LONGTEXT de brouillon et de version existantes, sans modification des tables de workflow existantes. Pages, fonds PNG/JPEG en data URI et zones suivent le même cycle publication/import/export que la définition. La taille JSON totale est bornée également lors des enregistrements directs. Le serveur vérifie les types, dimensions, couleurs, polices, coordonnées, variables et contenus des images ; aucune URL ni aucun chemin de fichier n’est accepté.
+
+`PdfExport` utilise TCPDF fourni par GLPI. Les zones sont écrites en texte brut dans leurs rectangles ; le récapitulatif utilise le rendu HTML échappé partagé avec `TicketMessages::summary`. `front/pdf.php` impose POST + jeton et droits de modèle pour l’aperçu ; le téléchargement GET recharge `Instances::data`, applique les droits du workflow/ticket/entité et exige une instance terminée dont la version active le PDF. Les réponses masquées ou non applicables sont omises. Le PDF est envoyé avec `no-store, private`, sans stockage ni suivi contenant son contenu.
+### Composition automatique et modèles administrables (0.3.0)
+
+`pdf.mode` vaut `free` pour les anciennes définitions. Le mode `automatic` utilise `PdfAutomatic` : contenu structuré, groupes ordonnés et informations de largeur 4/6/12 sur une grille de douze unités. Les textes sont écrits en texte brut avec TCPDF. Le moteur mesure les mots avec la police PDF, gère les chaînes sans espaces et répartit les lignes longues sur plusieurs pages ; le titre du groupe accompagne la première information et les continuations répètent le groupe et les libellés.
+
+Le schéma SQL 5 crée la table `pdfpresets` par les instructions `CREATE TABLE IF NOT EXISTS` de `Schema::install`. Cette création est rejouable ; les dix tables antérieures et leurs instances restent intactes. `Store::TABLES` inclut la table pour le diagnostic et la désinstallation. Aucun script de modification des anciennes tables n’est requis pour 4 vers 5.
+
+`PdfPresets` impose le droit admin UPDATE pour enregistrer, vérifie l’entité et verrouille la ligne avec sa révision optimiste. Le catalogue exige le droit template READ et filtre les entités accessibles ainsi que les modèles désactivés. Le contenu de base ne référence que des variables générales ; l’association aux champs propres au workflow se fait après copie. Le JSON publié conserve toute la composition et son logo et ne référence pas la table de bases. `front/pdf-presets.php` protège les aperçus et enregistrements par POST et jeton, sans enregistrement lors d’un aperçu.

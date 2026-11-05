@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/_init.php';
-use WorkflowBuilder\{Access, Definition, Http, View, Store, Templates, ValidationException};
+use WorkflowBuilder\{Access, Definition, Http, View, Store, Templates, PdfPresets, ValidationException};
 Http::start('Éditeur de workflow');
 try {
     Access::need('template');
@@ -30,7 +30,7 @@ try {
     if ($template) {
         try { Access::template($template, true); } catch (ValidationException) { $editable = false; }
     }
-    echo '<form method="post" data-wb-editor data-knowledge-create="' . View::e(Http::url('knowledge.php')) . '" data-definition="' . View::e(Store::json($definition)) . '" data-preview="' . View::e(Http::url('preview.php')) . '" data-readonly="' . ($editable ? '0' : '1') . '" action="' . View::e(Http::url('template.form.php', $id ? ['id' => $id] : [])) . '">';
+    echo '<form method="post" data-wb-editor data-pdf-presets="' . View::e(Store::json(PdfPresets::catalog())) . '" data-pdf-preview="' . View::e(Http::url('pdf.php')) . '" data-knowledge-create="' . View::e(Http::url('knowledge.php')) . '" data-definition="' . View::e(Store::json($definition)) . '" data-preview="' . View::e(Http::url('preview.php')) . '" data-readonly="' . ($editable ? '0' : '1') . '" action="' . View::e(Http::url('template.form.php', $id ? ['id' => $id] : [])) . '">';
     Http::hidden(['id' => $id, 'revision' => $revision]);
     echo '<input type="hidden" name="definition"><div class="wb-scope"><label>Entité<select name="entities_id" class="form-select">';
     $entities = array_map('intval', $_SESSION['glpiactiveentities'] ?? [$entity]);

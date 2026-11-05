@@ -87,7 +87,7 @@ Les exemples n’effectuent aucune opération dans Microsoft 365, MAGIS ou UNI.T
 6. Réactiver, reconnecter les utilisateurs et exécuter la recette courte.
 7. Vérifier les journaux et les instances déjà lancées.
 
-Le schéma courant est versionné 4. Une migration préserve les données du schéma de développement 1 et applique les conventions GLPI 12. La migration 2 vers 3 ajoute la prise en charge nominative, sans supprimer les valeurs ni les instances. L’installation et ces migrations sont rejouables. Ne pas diminuer la version du code face à un schéma plus récent.
+Le schéma courant est versionné 5 ; il inclut la bibliothèque PDF administrable. Une migration préserve les données du schéma de développement 1 et applique les conventions GLPI 12. La migration 2 vers 3 ajoute la prise en charge nominative, sans supprimer les valeurs ni les instances. L’installation et ces migrations sont rejouables. Ne pas diminuer la version du code face à un schéma plus récent.
 
 ### Passage de 0.1.4 à 0.1.5
 
@@ -144,3 +144,14 @@ En cas de problème :
 - erreur technique : consulter les journaux PHP/SQL dans le volume GLPI, souvent sous /var/glpi/files/_log selon la configuration.
 
 Ne pas exposer de mots de passe, jetons ni données personnelles en transmettant des journaux.
+
+### Passage de 0.1.5 à 0.2.0
+
+Déployer les fichiers et lancer la mise à jour du plugin dans GLPI. Le schéma SQL reste à 4. Les anciennes définitions restent compatibles (schema 1) et désactivent le PDF par défaut. TCPDF et les polices DejaVu de l’installation GLPI 12 sont utilisés ; aucune installation Composer dans le plugin n’est requise. Vérifier l’aperçu PDF sur votre GLPI avant publication.
+
+Pour des modèles avec images, adapter si nécessaire `post_max_size`, `upload_max_filesize`, la limite de requête du serveur HTTP et `max_allowed_packet` MariaDB. Le JSON est limité à 16 Mio après encodage des fonds ; laisser une marge pour l’enveloppe du formulaire et les échappements SQL. Les plafonds par image sont 2 Mio, 6000 pixels par côté et 20 mégapixels. Une définition volumineuse est conservée dans chaque version publiée : dimensionner les sauvegardes en conséquence.
+### Passage de 0.2.0 à 0.3.0
+
+Déployer les fichiers puis lancer la mise à jour du plugin dans GLPI : le schéma SQL passe de 4 à 5 et ajoute la table `glpi_plugin_workflowbuilder_pdfpresets`. Cette création peut être rejouée et ne modifie aucune instance existante. Les anciens PDF gardent leur mode de placement libre. Le format d’échange reste schema 1.
+
+Le lien **Administration PDF** est réservé aux profils disposant du droit d’administration Workflow Builder en modification. Y enregistrer les modèles de base dans l’entité active, puis les sélectionner dans l’onglet Document PDF d’un workflow. Les bases sont des points de départ copiés dans le workflow ; leur modification n’affecte pas les versions déjà publiées. Les deux bases intégrées sont proposées sans configuration préalable.

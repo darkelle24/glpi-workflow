@@ -2,14 +2,14 @@
 
 Workflow Builder permet de construire des procédures génériques depuis GLPI : formulaire de lancement, étapes avec champs, conditions visuelles, dépendances, documentation et historique. Les définitions sont enregistrées dans MariaDB. Chaque lancement conserve sa version publiée.
 
-Version courante : **0.1.5**. Nom technique et dossier d’installation : **workflowbuilder**. Cible déclarée : **GLPI 12.0.x**, PHP **8.3 minimum**, MariaDB avec InnoDB. Les points d’extension ont été contrôlés dans les sources officielles de GLPI **12.0.0 et 12.0.1**. La validation de votre déploiement Docker reste nécessaire ; consulter le [rapport de validation](docs/validation.md).
+Version courante : **0.3.0**. Nom technique et dossier d’installation : **workflowbuilder**. Cible déclarée : **GLPI 12.0.x**, PHP **8.3 minimum**, MariaDB avec InnoDB. Les points d’extension ont été contrôlés dans les sources officielles de GLPI **12.0.0 et 12.0.1**. La validation de votre déploiement Docker reste nécessaire ; consulter le [rapport de validation](docs/validation.md).
 
 ## Démarrage
 
 1. Copier le contenu de ce dépôt dans le dossier workflowbuilder du répertoire des plugins, ou monter ce dossier vers **/var/glpi/marketplace/workflowbuilder** dans le conteneur existant.
 2. Dans GLPI, ouvrir la gestion des plugins, installer Workflow Builder puis l’activer.
 3. Configurer les droits dans l’onglet **Workflow Builder** des profils GLPI.
-4. Ouvrir **Assistance → Workflows**. Créer un modèle ou importer l’un des trois exemples.
+4. Ouvrir **Assistance → Workflows**. Créer un modèle ou importer l’un des cinq exemples.
 5. Ajouter les champs, étapes, conditions, responsables et articles de connaissance. Enregistrer le brouillon, tester la prévisualisation, puis publier.
 6. Utiliser **Lancer un workflow** pour créer un ticket, ou **Ajouter un workflow** dans l’onglet Workflow d’un ticket existant.
 
@@ -17,7 +17,7 @@ Aucune modification du cœur GLPI n’est nécessaire. Le serveur n’a besoin n
 
 ## Fonctionnalités du socle
 
-- Éditeur à sept onglets : général, formulaire, étapes, conditions, permissions, paramètres, prévisualisation.
+- Éditeur à huit onglets : général, formulaire, étapes, conditions, permissions, paramètres, document PDF, prévisualisation.
 - Ajout, duplication, suppression et réorganisation des champs et étapes.
 - Champs texte, texte long, nombre, dates, case à cocher, listes, radio, choix multiples, oui/non, email, URL, utilisateurs, groupes, entités, ordinateurs et documents de ticket.
 - Conditions ET/OU, visibilité des champs et étapes, activation et blocage ; rejet des dépendances circulaires.
@@ -26,6 +26,8 @@ Aucune modification du cœur GLPI n’est nécessaire. Le serveur n’a besoin n
 - Suivis internes automatiques par étape, récapitulatif final configurable activé par défaut, équipe choisie au lancement et liens directs ; les actions de l’onglet Workflow restent dans le ticket.
 - Prise en charge nominative : « Je prends en charge », nom du technicien visible sur l’étape et libération pour passer le relais.
 - Sélecteur de fiches GLPI avec aperçus, filtres combinables, création de procédures structurées et accès direct depuis les étapes du ticket ; droits natifs vérifiés.
+- Deux modes PDF : composition automatique par groupes avec aperçu et bibliothèque administrable de modèles préremplis, ou placement libre conservé.
+- Modèle PDF facultatif : pages A4 blanches ou images PNG/JPEG, zones déplaçables, réponses du lancement et des étapes, polices, taille, couleur, aperçu et téléchargement final avec récapitulatif complet optionnel.
 - Brouillons, publications immuables, archivage, duplication, historique des versions et import/export JSON validé.
 - Droits de profils, restrictions par entité, utilisateur et groupe, droits du ticket et contrôles sur chaque endpoint.
 - Historique sans copie des anciennes et nouvelles valeurs des champs.
@@ -55,7 +57,7 @@ src/                        moteur, validations, services, droits et rendu
 inc/                        adaptateurs des menus et onglets GLPI
 front/                      pages et endpoints protégés
 public/js/ / public/css/     éditeur et interface d’exécution
-examples/                   trois définitions importables
+examples/                   cinq définitions importables
 locales/                    domaine de traduction GLPI
 tests/                      tests moteur, services, contrats, SQL et navigateur
 deploy/                     exemple de montage Docker
@@ -68,6 +70,8 @@ docs/                       documentation
 ~~~sh
 php tests/run.php
 php tests/services.php
+php tests/pdf-groups.php # composition automatique et modèles de base
+php tests/pdf.php # validations et droits ; fournir un vendor TCPDF isolé pour le rendu réel
 php tests/contracts.php /chemin/vers/les/sources/glpi
 npm ci
 npm run test:conditions

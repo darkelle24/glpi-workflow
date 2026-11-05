@@ -20,7 +20,7 @@ function plugin_init_workflowbuilder(): void
 }
 function plugin_version_workflowbuilder(): array
 {
-    return ['name' => 'Workflow Builder', 'version' => '0.1.5',
+    return ['name' => 'Workflow Builder', 'version' => '0.3.0',
         'author' => 'UDAF24', 'license' => 'GPLv3+', 'homepage' => 'https://github.com/darkelle24/glpi-workflow',
         'requirements' => ['glpi' => ['min' => '12.0.0', 'max' => '12.1.0'], 'php' => ['min' => '8.3']]];
 }

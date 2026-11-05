@@ -1,5 +1,64 @@
 # Rapport de validation — 5 novembre 2026
 
+## Mise à jour 0.3.0 — composition automatique et administration PDF
+
+Contrôles locaux avec PHP 8.5.12, Chromium/Playwright 1.62.1 et des dépendances isolées TCPDF 7.0.0 et CommonMark 2.10.3 :
+
+| Vérification | Résultat |
+| --- | --- |
+| Moteur et cinq exemples JSON | 82 tests réussis |
+| Services existants avec doublures GLPI | 68 tests réussis |
+| PDF libre, droits et rendu réel | 19 contrôles réussis |
+| PDF automatique, bases, entités, révisions et rendu réel | 14 contrôles réussis |
+| Éditeur, deux modes PDF et administration dans Chromium | 22 tests réussis |
+| Guide intégré | 10 contrôles réussis |
+| Conditions JavaScript | 18 cas réussis |
+| Syntaxe PHP | 66 fichiers vérifiés |
+
+Les parcours navigateur vérifient le maintien des pages libres lors des changements de mode, les associations aux champs, l’aperçu immédiat, la sélection des bases intégrées, l’ordre et la duplication des groupes, les palettes, le logo, les textes préremplis de l’administration, les coordonnées libres existantes, les erreurs d’aperçu et la lecture seule. Le petit écran et les erreurs JavaScript sont contrôlés dans les nouveaux parcours.
+
+La fiche automatique courte a été générée en PDF, rasterisée avec Ghostscript et inspectée : ses six groupes et ses contacts tiennent sur une page A4. Un cas contenant une réponse de plusieurs milliers de caractères et une chaîne sans espaces a été généré sur plusieurs pages. La fin de cette réponse et le dernier contact ont été retrouvés par extraction texte ; les pages de continuation répètent les titres et les libellés. L’interface du workflow et celle de l’administration ont également été inspectées visuellement sur des données fictives.
+
+Les services vérifient le droit admin UPDATE, les restrictions d’entité, le catalogue réservé aux lecteurs des modèles de workflow, le refus des références à un formulaire particulier dans une base, les conflits de révision et la conservation des copies publiées lorsqu’une base est modifiée, désactivée ou réactivée.
+
+Le test SQL existant a été adapté à onze tables et inclut un contrôle de création/rejeu de la bibliothèque PDF avec conservation des instances. Ce contrôle SQL n’a pas été exécuté localement faute de serveur MariaDB de test configuré pour cette session ; il reste dans le job MariaDB de la CI. Le schéma passe à 5 et exige la mise à jour du plugin dans GLPI. Aucune instance GLPI ni base de production n’a été modifiée ; une recette après déploiement reste nécessaire sur votre installation.
+
+~~~sh
+php tests/pdf-groups.php
+# Ajouter un vendor TCPDF isolé et ses polices pour le contrôle de rendu :
+php tests/pdf-groups.php /chemin/vers/pdf-renderer/vendor
+~~~
+
+## Mise à jour 0.2.0 — modèles PDF et fiche de connexion
+
+Vérifications locales sur Windows, avec PHP 8.5.12, Chromium et des dépendances temporaires isolées. Le rendu réel utilise TCPDF 7.0.0 (bibliothèque requise par GLPI 12), ses dépendances et les polices officielles DejaVu/core ; le serveur GLPI de production n’a pas été modifié.
+
+| Vérification | Résultat |
+| --- | --- |
+| Moteur, validation et exemples JSON | 81 tests réussis |
+| Services et permissions avec doublures GLPI | 68 tests réussis |
+| PDF : validations, droits, versions, champs masqués et rendu réel | 19 contrôles réussis |
+| Éditeur et formulaires dans Chromium, dont cinq parcours PDF | 17 tests réussis |
+| Conditions JavaScript | 18 cas réussis |
+| Guide intégré avec CommonMark 2.10.3 | 10 contrôles réussis |
+| Syntaxe PHP | 61 fichiers sans erreur |
+
+Les parcours PDF vérifient les styles, l’insertion de variables, les coordonnées, les déplacements souris/clavier, l’import de plusieurs images et le refus des formats incompatibles, les pages et zones dupliquées/supprimées, l’orientation, le petit écran, l’aperçu téléchargé avec jeton CSRF, les erreurs serveur et la lecture seule. Les erreurs JavaScript du parcours PDF font échouer le test.
+
+Le rendu TCPDF vérifie des accents, une image de fond, des consignes longues, des pages A4 en paysage et un récapitulatif seul. Les cinq pages produites par le cas long ont été rasterisées avec Ghostscript et inspectées visuellement. L’état graphique du fond est isolé afin que les titres et pieds de page placés hors de l’image restent visibles. Le texte a également été relu depuis le PDF.
+
+Les tests de droits vérifient le refus avant fin du workflow, le droit de lecture du plugin et du ticket, l’indisponibilité après réouverture, ainsi que le maintien du modèle PDF publié après modification/republication du brouillon. Les limites d’image, les variables inconnues, les zones hors page et la limite JSON totale sont contrôlées côté serveur.
+
+Commandes supplémentaires :
+
+~~~sh
+php tests/pdf.php
+# Pour les deux contrôles de rendu : vendor de dépendances TCPDF isolées avec polices préparées.
+php tests/pdf.php /chemin/vers/pdf-renderer/vendor
+~~~
+
+La CI exécute les validations PDF et les droits sans dépendance supplémentaire ; les contrôles de rendu réel ci-dessus sont une validation locale séparée. Le schéma SQL reste à 4. Les nouveaux boutons et téléchargements doivent encore être recettés sur votre installation GLPI après déploiement ; les tests de services emploient des doublures et les tests navigateur une page autonome.
+
 ## Mise à jour 0.1.5 — navigation ticket, paramètres de création et récapitulatif final
 
 Contrôles exécutés sur les sources modifiées, avec PHP 8.5.12, Chromium et une installation GLPI 12 locale reliée à une base MariaDB explicitement réservée aux tests :

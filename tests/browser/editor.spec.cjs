@@ -1,7 +1,7 @@
 const {test,expect} = require('@playwright/test');
 test('create fields and steps, preserve IDs, reorder and serialize',async({page})=>{
     await page.goto('/tests/editor-fixture.php');
-    await expect(page.locator('.wb-tabs button')).toHaveCount(7);
+    await expect(page.locator('.wb-tabs button')).toHaveCount(8);
     await page.getByRole('button',{name:'Formulaire',exact:true}).click();
     await page.getByRole('button',{name:'Ajouter un champ',exact:true}).click();
     const field=page.locator('.wb-pane:not([hidden]) > div > details').last();

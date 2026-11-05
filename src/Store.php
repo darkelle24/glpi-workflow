@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace WorkflowBuilder;
 final class Store
 {
-    public const TABLES = ['templates', 'versions', 'fields', 'steps', 'rules', 'dependencies', 'instances', 'stepinstances', 'values', 'history'];
+    public const TABLES = ['templates', 'versions', 'fields', 'steps', 'rules', 'dependencies', 'instances', 'stepinstances', 'values', 'history', 'pdfpresets'];
     public static function table(string $name): string
     {
         if (!in_array($name, self::TABLES, true)) {

@@ -1,0 +1,457 @@
+{
+    "schema": 1,
+    "name": "Accueil salarié — fiche automatique",
+    "description": "Une fiche de connexion composée automatiquement à partir de groupes d’informations. Les accès sont renseignés pendant les étapes.",
+    "category": "Arrivée salarié",
+    "icon": "ti ti-checklist",
+    "launch_groups": [],
+    "execute_groups": [],
+    "manage_groups": [],
+    "launch_users": [],
+    "execute_users": [],
+    "manage_users": [],
+    "ticket_title": "Arrivée de {{prenom}} {{nom}}",
+    "ticket_description": "{{summary}}",
+    "allow_create": true,
+    "allow_attach": true,
+    "require_before_close": true,
+    "notify_summary": true,
+    "fields": [
+        {
+            "id": "prenom",
+            "label": "Prénom",
+            "type": "text",
+            "required": true,
+            "description": "",
+            "condition": null,
+            "choices": [],
+            "maxlength": 255
+        },
+        {
+            "id": "nom",
+            "label": "Nom",
+            "type": "text",
+            "required": true,
+            "description": "",
+            "condition": null,
+            "choices": [],
+            "maxlength": 255
+        },
+        {
+            "id": "service",
+            "label": "Service",
+            "type": "text",
+            "required": true,
+            "description": "",
+            "condition": null,
+            "choices": [],
+            "maxlength": 255
+        },
+        {
+            "id": "fonction",
+            "label": "Fonction",
+            "type": "text",
+            "required": true,
+            "description": "",
+            "condition": null,
+            "choices": [],
+            "maxlength": 255
+        },
+        {
+            "id": "arrivee",
+            "label": "Date d’arrivée",
+            "type": "date",
+            "required": true,
+            "description": "",
+            "condition": null,
+            "choices": [],
+            "maxlength": 255
+        },
+        {
+            "id": "code_delegue",
+            "label": "Code délégué",
+            "type": "text",
+            "required": false,
+            "description": "",
+            "condition": null,
+            "choices": [],
+            "maxlength": 255
+        }
+    ],
+    "steps": [
+        {
+            "id": "comptes",
+            "title": "Préparer les comptes",
+            "fields": [
+                {
+                    "id": "identifiant",
+                    "label": "Identifiant de session",
+                    "type": "text",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "email",
+                    "label": "Adresse de messagerie",
+                    "type": "email",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "portail",
+                    "label": "Portail de connexion",
+                    "type": "url",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "mfa",
+                    "label": "Authentification multifacteur configurée",
+                    "type": "checkbox",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "uni_magis",
+                    "label": "Identifiant UNI-T / MAGIS",
+                    "type": "text",
+                    "required": false,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "caf",
+                    "label": "Identifiant CAF partenaire",
+                    "type": "text",
+                    "required": false,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                }
+            ],
+            "description": "",
+            "instructions": "",
+            "required": true,
+            "notify_available": true,
+            "notify_taken": true,
+            "notify_done": true,
+            "users_id": 0,
+            "groups_id": 0,
+            "condition": null,
+            "depends_on": [],
+            "dependency_mode": "start",
+            "initial_state": "available",
+            "knowbaseitems_id": []
+        },
+        {
+            "id": "equipement",
+            "title": "Préparer le poste",
+            "depends_on": [
+                "comptes"
+            ],
+            "fields": [
+                {
+                    "id": "poste",
+                    "label": "Nom du poste",
+                    "type": "text",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "telephone",
+                    "label": "Téléphone professionnel",
+                    "type": "text",
+                    "required": false,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "interne",
+                    "label": "Numéro interne",
+                    "type": "text",
+                    "required": false,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "fixe",
+                    "label": "Numéro fixe",
+                    "type": "text",
+                    "required": false,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                }
+            ],
+            "description": "",
+            "instructions": "",
+            "required": true,
+            "notify_available": true,
+            "notify_taken": true,
+            "notify_done": true,
+            "users_id": 0,
+            "groups_id": 0,
+            "condition": null,
+            "dependency_mode": "start",
+            "initial_state": "available",
+            "knowbaseitems_id": []
+        },
+        {
+            "id": "remise",
+            "title": "Vérifier la connexion et remettre la fiche",
+            "depends_on": [
+                "equipement"
+            ],
+            "fields": [
+                {
+                    "id": "support",
+                    "label": "Contact du support",
+                    "type": "text",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "consignes",
+                    "label": "Consignes de première connexion",
+                    "type": "textarea",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 10000
+                },
+                {
+                    "id": "test",
+                    "label": "Connexion testée avec le salarié",
+                    "type": "checkbox",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "contact_administratif",
+                    "label": "Secrétaire",
+                    "type": "text",
+                    "required": false,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "comptable",
+                    "label": "Comptable",
+                    "type": "text",
+                    "required": false,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "referent_bancaire",
+                    "label": "Référent bancaire",
+                    "type": "text",
+                    "required": false,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "referent_immo",
+                    "label": "Référent immobilier",
+                    "type": "text",
+                    "required": false,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                }
+            ],
+            "description": "",
+            "instructions": "",
+            "required": true,
+            "notify_available": true,
+            "notify_taken": true,
+            "notify_done": true,
+            "users_id": 0,
+            "groups_id": 0,
+            "condition": null,
+            "dependency_mode": "start",
+            "initial_state": "available",
+            "knowbaseitems_id": []
+        }
+    ],
+    "rules": [],
+    "pdf": {
+        "enabled": true,
+        "filename": "fiche-salarie-automatique",
+        "include_summary": false,
+        "pages": [],
+        "mode": "automatic",
+        "automatic": {
+            "title": "Fiche de connexion — Nouveau salarié",
+            "description": "Informations d’accès aux outils et services numériques",
+            "footer": "Document interne · Ticket #{{ticket}}",
+            "logo": "",
+            "font": "dejavusans",
+            "font_size": 10,
+            "accent": "#ed8745",
+            "band": "#fbd0ad",
+            "paper": "#fffaf0",
+            "text_color": "#493c30",
+            "numbered": true,
+            "groups": [
+                {
+                    "title": "Identité du salarié",
+                    "description": "",
+                    "items": [
+                        {
+                            "label": "Nom et prénom",
+                            "width": 4,
+                            "source": "",
+                            "text": "{{form.nom}} {{form.prenom}}"
+                        },
+                        {
+                            "label": "Service",
+                            "width": 4,
+                            "source": "form.service",
+                            "text": ""
+                        },
+                        {
+                            "label": "Code délégué",
+                            "width": 4,
+                            "source": "form.code_delegue",
+                            "text": ""
+                        }
+                    ]
+                },
+                {
+                    "title": "Connexion de session",
+                    "description": "Identifiant utilisé pour ouvrir la session sur le poste informatique.",
+                    "items": [
+                        {
+                            "label": "Nom d’utilisateur",
+                            "width": 12,
+                            "source": "steps.comptes.identifiant",
+                            "text": ""
+                        }
+                    ]
+                },
+                {
+                    "title": "Mail et téléphonie",
+                    "description": "Coordonnées professionnelles attribuées au salarié.",
+                    "items": [
+                        {
+                            "label": "Adresse mail professionnelle",
+                            "width": 12,
+                            "source": "steps.comptes.email",
+                            "text": ""
+                        },
+                        {
+                            "label": "Numéro interne",
+                            "width": 4,
+                            "source": "steps.equipement.interne",
+                            "text": ""
+                        },
+                        {
+                            "label": "Numéro de portable",
+                            "width": 4,
+                            "source": "steps.equipement.telephone",
+                            "text": ""
+                        },
+                        {
+                            "label": "Numéro fixe",
+                            "width": 4,
+                            "source": "steps.equipement.fixe",
+                            "text": ""
+                        }
+                    ]
+                },
+                {
+                    "title": "Identifiants UNI-T et MAGIS",
+                    "description": "",
+                    "items": [
+                        {
+                            "label": "Nom d’utilisateur UNI-T / MAGIS",
+                            "width": 12,
+                            "source": "steps.comptes.uni_magis",
+                            "text": ""
+                        }
+                    ]
+                },
+                {
+                    "title": "Identifiants CAF partenaire",
+                    "description": "",
+                    "items": [
+                        {
+                            "label": "Nom d’utilisateur CAF",
+                            "width": 12,
+                            "source": "steps.comptes.caf",
+                            "text": ""
+                        }
+                    ]
+                },
+                {
+                    "title": "Référents / contacts",
+                    "description": "",
+                    "items": [
+                        {
+                            "label": "Secrétaire",
+                            "width": 6,
+                            "source": "steps.remise.contact_administratif",
+                            "text": ""
+                        },
+                        {
+                            "label": "Comptable",
+                            "width": 6,
+                            "source": "steps.remise.comptable",
+                            "text": ""
+                        },
+                        {
+                            "label": "Référent bancaire / Cellule de gestion",
+                            "width": 6,
+                            "source": "steps.remise.referent_bancaire",
+                            "text": ""
+                        },
+                        {
+                            "label": "Référent immobilier",
+                            "width": 6,
+                            "source": "steps.remise.referent_immo",
+                            "text": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

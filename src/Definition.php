@@ -4,6 +4,7 @@ namespace WorkflowBuilder;
 
 final class Definition
 {
+    public const MAX_BYTES = 16777216;
     public static function empty(): array
     {
         return ['schema' => 1, 'name' => 'Nouveau workflow', 'description' => '', 'category' => '',
@@ -11,13 +12,13 @@ final class Definition
             'launch_users' => [], 'execute_users' => [], 'manage_users' => [],
             'ticket_title' => '{{workflow}}', 'ticket_description' => '{{summary}}',
             'allow_create' => true, 'allow_attach' => true, 'require_before_close' => true, 'notify_summary' => true,
-            'fields' => [], 'steps' => [], 'rules' => []];
+            'fields' => [], 'steps' => [], 'rules' => [], 'pdf' => PdfTemplate::empty()];
     }
 
     public static function decode(string $json): array
     {
-        if (strlen($json) > 524288) {
-            throw new ValidationException('Définition trop volumineuse (512 Kio maximum).');
+        if (strlen($json) > self::MAX_BYTES) {
+            throw new ValidationException('Définition trop volumineuse (16 Mio maximum, images PDF comprises).');
         }
         try {
             $data = json_decode($json, true, 32, JSON_THROW_ON_ERROR);
@@ -138,6 +139,10 @@ final class Definition
             if (array_diff($matches[1], $allowed)) {
                 throw new ValidationException('Variable de ticket inconnue.');
             }
+        }
+        $data['pdf'] = PdfTemplate::validate($data['pdf'], $data);
+        if (strlen(Store::json($data)) > self::MAX_BYTES) {
+            throw new ValidationException('Définition trop volumineuse (16 Mio maximum, images PDF comprises).');
         }
         return $data;
     }

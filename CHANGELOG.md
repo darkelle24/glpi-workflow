@@ -1,5 +1,23 @@
 # Historique des versions
 
+## 0.3.0 — 5 novembre 2026
+
+- Choix entre composition automatique par groupes et placement libre ; les deux configurations sont conservées dans le workflow.
+- Interface de composition avec titre, description, logo, groupes réorganisables, champs du workflow ou textes préremplis, largeurs pleine ligne/moitié/tiers, palettes et aperçu immédiat.
+- Mise en page PDF automatique avec hauteurs adaptées au texte, changements de page, répétition des en-têtes, continuation des réponses longues et pied de page.
+- Onglet Administration PDF pour créer et modifier les modèles de base par entité, les désactiver et les réutiliser par copie indépendante dans les workflows ; contrôle des droits et des révisions concurrentes.
+- Deux bases intégrées (fiche salarié et document sobre), nouvel exemple de workflow automatique, guide et tests actualisés. Les PDF et versions existants restent en placement libre.
+- Schéma SQL 5 : ajout rejouable de la table pdfpresets, sans modification des instances existantes. Format JSON schema 1 conservé.
+
+## 0.2.0 — 5 novembre 2026
+
+- Onglet Document PDF facultatif dans les workflows : pages A4 blanches ou images PNG/JPEG intégrées, orientation, réorganisation et duplication des pages.
+- Zones déplaçables à la souris et au clavier, coordonnées et dimensions en millimètres, texte et variables de lancement ou d’étapes, trois familles de polices, taille, couleur, gras et alignement.
+- Aperçu PDF du brouillon et téléchargement après la fin du workflow avec TCPDF fourni par GLPI ; récapitulatif complet optionnel des réponses, états, opérateurs, dates et commentaires.
+- Modèles PDF figés dans les versions publiées et inclus dans l’import/export JSON ; contrôles des droits du ticket, des variables, des images et des dimensions.
+- Exemple importable Fiche de connexion salarié, guide et tests PDF/navigateur. Les anciens modèles gardent le PDF désactivé.
+- Limite JSON portée à 16 Mio images comprises, 10 pages et 200 zones ; images de 2 Mio maximum. Schéma SQL 4 et format JSON schema 1 conservés.
+
 ## 0.1.5 — 5 novembre 2026
 
 - Lien direct par workflow et retour dans l’onglet Workflow du ticket après chaque action, avec ciblage de l’instance et de l’étape.

@@ -1,0 +1,472 @@
+{
+    "schema": 1,
+    "name": "Accueil salarié — fiche de connexion",
+    "description": "Préparer les accès du salarié puis télécharger sa fiche de connexion. Aucun mot de passe n’est enregistré dans ce workflow.",
+    "category": "Arrivée salarié",
+    "icon": "ti ti-checklist",
+    "launch_groups": [],
+    "execute_groups": [],
+    "manage_groups": [],
+    "launch_users": [],
+    "execute_users": [],
+    "manage_users": [],
+    "ticket_title": "Arrivée de {{prenom}} {{nom}}",
+    "ticket_description": "{{summary}}",
+    "allow_create": true,
+    "allow_attach": true,
+    "require_before_close": true,
+    "notify_summary": true,
+    "fields": [
+        {
+            "id": "prenom",
+            "label": "Prénom",
+            "type": "text",
+            "required": true,
+            "description": "",
+            "condition": null,
+            "choices": [],
+            "maxlength": 255
+        },
+        {
+            "id": "nom",
+            "label": "Nom",
+            "type": "text",
+            "required": true,
+            "description": "",
+            "condition": null,
+            "choices": [],
+            "maxlength": 255
+        },
+        {
+            "id": "service",
+            "label": "Service",
+            "type": "text",
+            "required": true,
+            "description": "",
+            "condition": null,
+            "choices": [],
+            "maxlength": 255
+        },
+        {
+            "id": "fonction",
+            "label": "Fonction",
+            "type": "text",
+            "required": true,
+            "description": "",
+            "condition": null,
+            "choices": [],
+            "maxlength": 255
+        },
+        {
+            "id": "arrivee",
+            "label": "Date d’arrivée",
+            "type": "date",
+            "required": true,
+            "description": "",
+            "condition": null,
+            "choices": [],
+            "maxlength": 255
+        }
+    ],
+    "steps": [
+        {
+            "id": "comptes",
+            "title": "Préparer les comptes",
+            "fields": [
+                {
+                    "id": "identifiant",
+                    "label": "Identifiant de session",
+                    "type": "text",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "email",
+                    "label": "Adresse de messagerie",
+                    "type": "email",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "portail",
+                    "label": "Portail de connexion",
+                    "type": "url",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "mfa",
+                    "label": "Authentification multifacteur configurée",
+                    "type": "checkbox",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                }
+            ],
+            "description": "",
+            "instructions": "",
+            "required": true,
+            "notify_available": true,
+            "notify_taken": true,
+            "notify_done": true,
+            "users_id": 0,
+            "groups_id": 0,
+            "condition": null,
+            "depends_on": [],
+            "dependency_mode": "start",
+            "initial_state": "available",
+            "knowbaseitems_id": []
+        },
+        {
+            "id": "equipement",
+            "title": "Préparer le poste",
+            "depends_on": [
+                "comptes"
+            ],
+            "fields": [
+                {
+                    "id": "poste",
+                    "label": "Nom du poste",
+                    "type": "text",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "telephone",
+                    "label": "Téléphone professionnel",
+                    "type": "text",
+                    "required": false,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                }
+            ],
+            "description": "",
+            "instructions": "",
+            "required": true,
+            "notify_available": true,
+            "notify_taken": true,
+            "notify_done": true,
+            "users_id": 0,
+            "groups_id": 0,
+            "condition": null,
+            "dependency_mode": "start",
+            "initial_state": "available",
+            "knowbaseitems_id": []
+        },
+        {
+            "id": "remise",
+            "title": "Vérifier la connexion et remettre la fiche",
+            "depends_on": [
+                "equipement"
+            ],
+            "fields": [
+                {
+                    "id": "support",
+                    "label": "Contact du support",
+                    "type": "text",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                },
+                {
+                    "id": "consignes",
+                    "label": "Consignes de première connexion",
+                    "type": "textarea",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 10000
+                },
+                {
+                    "id": "test",
+                    "label": "Connexion testée avec le salarié",
+                    "type": "checkbox",
+                    "required": true,
+                    "description": "",
+                    "condition": null,
+                    "choices": [],
+                    "maxlength": 255
+                }
+            ],
+            "description": "",
+            "instructions": "",
+            "required": true,
+            "notify_available": true,
+            "notify_taken": true,
+            "notify_done": true,
+            "users_id": 0,
+            "groups_id": 0,
+            "condition": null,
+            "dependency_mode": "start",
+            "initial_state": "available",
+            "knowbaseitems_id": []
+        }
+    ],
+    "rules": [],
+    "pdf": {
+        "enabled": true,
+        "filename": "fiche-connexion-salarie",
+        "include_summary": true,
+        "pages": [
+            {
+                "orientation": "portrait",
+                "background": "",
+                "boxes": [
+                    {
+                        "text": "BIENVENUE",
+                        "x": 18,
+                        "y": 18,
+                        "width": 175,
+                        "height": 16,
+                        "font_size": 26,
+                        "bold": true,
+                        "color": "#206bc4",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Votre fiche de connexion",
+                        "x": 18,
+                        "y": 36,
+                        "width": 175,
+                        "height": 14,
+                        "font_size": 18,
+                        "bold": true,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "{{form.prenom}} {{form.nom}}",
+                        "x": 18,
+                        "y": 58,
+                        "width": 175,
+                        "height": 16,
+                        "font_size": 22,
+                        "bold": true,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Service : {{form.service}} | Fonction : {{form.fonction}}",
+                        "x": 18,
+                        "y": 79,
+                        "width": 175,
+                        "height": 16,
+                        "font_size": 12,
+                        "bold": false,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Date d’arrivée : {{form.arrivee}}",
+                        "x": 18,
+                        "y": 98,
+                        "width": 175,
+                        "height": 12,
+                        "font_size": 12,
+                        "bold": false,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "VOS ACCÈS",
+                        "x": 18,
+                        "y": 119,
+                        "width": 175,
+                        "height": 12,
+                        "font_size": 14,
+                        "bold": true,
+                        "color": "#206bc4",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Identifiant : {{steps.comptes.identifiant}}",
+                        "x": 18,
+                        "y": 136,
+                        "width": 175,
+                        "height": 12,
+                        "font_size": 12,
+                        "bold": false,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Messagerie : {{steps.comptes.email}}",
+                        "x": 18,
+                        "y": 151,
+                        "width": 175,
+                        "height": 12,
+                        "font_size": 12,
+                        "bold": false,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Portail : {{steps.comptes.portail}}",
+                        "x": 18,
+                        "y": 166,
+                        "width": 175,
+                        "height": 18,
+                        "font_size": 12,
+                        "bold": false,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Poste : {{steps.equipement.poste}}",
+                        "x": 18,
+                        "y": 187,
+                        "width": 175,
+                        "height": 12,
+                        "font_size": 12,
+                        "bold": false,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Téléphone : {{steps.equipement.telephone}}",
+                        "x": 18,
+                        "y": 202,
+                        "width": 175,
+                        "height": 12,
+                        "font_size": 12,
+                        "bold": false,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Besoin d’aide ? {{steps.remise.support}}",
+                        "x": 18,
+                        "y": 226,
+                        "width": 175,
+                        "height": 20,
+                        "font_size": 12,
+                        "bold": true,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Ticket #{{ticket}} · {{workflow}} · Version {{version}}",
+                        "x": 18,
+                        "y": 265,
+                        "width": 175,
+                        "height": 12,
+                        "font_size": 8,
+                        "bold": false,
+                        "color": "#667085",
+                        "font": "dejavusans",
+                        "align": "L"
+                    }
+                ]
+            },
+            {
+                "orientation": "portrait",
+                "background": "",
+                "boxes": [
+                    {
+                        "text": "PREMIÈRE CONNEXION",
+                        "x": 18,
+                        "y": 20,
+                        "width": 175,
+                        "height": 16,
+                        "font_size": 22,
+                        "bold": true,
+                        "color": "#206bc4",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "{{steps.remise.consignes}}",
+                        "x": 18,
+                        "y": 51,
+                        "width": 175,
+                        "height": 130,
+                        "font_size": 12,
+                        "bold": false,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Authentification multifacteur configurée : {{steps.comptes.mfa}}",
+                        "x": 18,
+                        "y": 194,
+                        "width": 175,
+                        "height": 18,
+                        "font_size": 12,
+                        "bold": false,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Connexion testée avec le salarié : {{steps.remise.test}}",
+                        "x": 18,
+                        "y": 218,
+                        "width": 175,
+                        "height": 18,
+                        "font_size": 12,
+                        "bold": false,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Les mots de passe sont transmis par le canal sécurisé de votre organisation.",
+                        "x": 18,
+                        "y": 245,
+                        "width": 175,
+                        "height": 24,
+                        "font_size": 11,
+                        "bold": true,
+                        "color": "#202b3a",
+                        "font": "dejavusans",
+                        "align": "L"
+                    },
+                    {
+                        "text": "Fiche générée le {{date_completion}} · Ticket #{{ticket}}",
+                        "x": 18,
+                        "y": 275,
+                        "width": 175,
+                        "height": 10,
+                        "font_size": 8,
+                        "bold": false,
+                        "color": "#667085",
+                        "font": "dejavusans",
+                        "align": "L"
+                    }
+                ]
+            }
+        ]
+    }
+}
