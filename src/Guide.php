@@ -7,9 +7,30 @@ use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\GithubFlavoredMarkdownExtension;
 use League\CommonMark\MarkdownConverter;
 
-/** Read the one repository guide; only its presentation and local image URLs change in GLPI. */
+/** Read the bundled guides; only their presentation and known local URLs change in GLPI. */
 final class Guide
 {
+    public const PAGES = [
+        'user' => ['file' => 'user-guide.md', 'title' => 'Guide utilisateur'],
+        'pdf' => ['file' => 'pdf-guide.md', 'title' => 'Tutoriel PDF'],
+    ];
+    public const EXAMPLES = ['fiche-connexion-automatique', 'fiche-connexion-salarie'];
+
+    public static function page(string $key): array
+    {
+        return self::PAGES[$key] ?? throw new ValidationException('Guide inconnu.');
+    }
+
+    public static function example(string $name): string
+    {
+        if (!in_array($name, self::EXAMPLES, true)) { throw new ValidationException('Exemple PDF inconnu.'); }
+        $path = dirname(__DIR__) . '/examples/' . $name . '.json';
+        if (!is_file($path) || filesize($path) > Definition::MAX_BYTES) { throw new \RuntimeException('Bundled example missing or too large'); }
+        $json = file_get_contents($path);
+        if ($json === false) { throw new \RuntimeException('Bundled example unavailable'); }
+        Definition::decode($json);
+        return $json;
+    }
     public static function requireAccess(): void
     {
         if (!Access::has('view') && !Access::has('template')) {
@@ -17,9 +38,9 @@ final class Guide
         }
     }
 
-    public static function source(): string
+    public static function source(string $key = 'user'): string
     {
-        $path = dirname(__DIR__) . '/docs/user-guide.md';
+        $path = dirname(__DIR__) . '/docs/' . self::page($key)['file'];
         if (!is_file($path) || filesize($path) > 1048576) {
             throw new \RuntimeException('User guide missing or too large');
         }
@@ -81,6 +102,25 @@ final class Guide
             if ($link->getAttribute('class') === 'wb-guide-image') { continue; }
             $href = $link->getAttribute('href');
             if (str_starts_with($href, '#')) { continue; }
+            // Resolve only bundled documents and examples, never an arbitrary relative path.
+            $parts = explode('#', $href, 2);
+            $local = str_starts_with($parts[0], './') ? substr($parts[0], 2) : $parts[0];
+            foreach (self::PAGES as $key => $page) {
+                if ($local === $page['file']) {
+                    $link->setAttribute('href', rtrim($rootDoc, '/') . '/plugins/workflowbuilder/front/guide.php?guide=' . $key . (isset($parts[1]) ? '#' . $parts[1] : ''));
+                    continue 2;
+                }
+            }
+            foreach (self::EXAMPLES as $example) {
+                if ($local === '../examples/' . $example . '.json') {
+                    $link->setAttribute('href', rtrim($rootDoc, '/') . '/plugins/workflowbuilder/front/example.php?name=' . $example);
+                    continue 2;
+                }
+            }
+            if (preg_match('~^\.\./public/images/guide/([a-z0-9][a-z0-9-]*\.png)$~D', $local, $match)) {
+                $link->setAttribute('href', rtrim($rootDoc, '/') . '/plugins/workflowbuilder/images/guide/' . $match[1]);
+                continue;
+            }
             if (!preg_match('~^https?://~i', $href)) { $link->removeAttribute('href'); continue; }
             $link->setAttribute('rel', 'noopener noreferrer');
         }

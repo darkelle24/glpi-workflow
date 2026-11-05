@@ -2,9 +2,9 @@
 
 **Créer une procédure, la lancer sur un ticket et suivre le travail de chaque technicien.**
 
-Ce guide accompagne Workflow Builder 0.3.0 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
+Ce guide accompagne Workflow Builder 0.4.0 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
 
-> **Un seul guide, deux accès.** Ce fichier Markdown est la source du bouton **Guide utilisateur** dans GLPI et du guide consultable dans le dépôt. La page GLPI lit le fichier livré avec le plugin. Déployer sa mise à jour actualise aussi le guide affiché.
+> **Les mêmes guides dans GLPI et dans le dépôt.** Ce fichier Markdown est la source du bouton **Guide utilisateur** dans GLPI et du guide consultable dans le dépôt. La page GLPI lit ce fichier livré avec le plugin ; le tutoriel PDF dispose de sa propre source, accessible depuis cette page et la navigation. Déployer sa mise à jour actualise aussi le guide affiché.
 >
 > Dans GLPI, cliquer sur une capture pour l’ouvrir en grand dans un autre onglet. Les captures proviennent d’une instance GLPI 12 de démonstration. Les noms, données et tickets sont fictifs ; les menus disponibles chez vous dépendent de vos droits.
 
@@ -313,6 +313,8 @@ Dans le bloc d’une étape, sélectionner ses étapes préalables, puis choisir
 Les dépendances circulaires sont refusées. Réouvrir une étape est également refusé si cela invalide une étape dépendante déjà engagée ; traiter les étapes concernées dans l’ordre inverse.
 
 ## Configurer et télécharger le PDF final
+
+Pour une première configuration, consulter le [tutoriel PDF détaillé et illustré](pdf-guide.md) : deux JSON prêts à importer, parcours automatique et libre, modèles administrables, captures et dépannage. Ce tutoriel est aussi accessible dans GLPI par le bouton **Tutoriel PDF**.
 
 ### Choisir le mode PDF
 

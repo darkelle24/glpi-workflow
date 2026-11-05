@@ -51,6 +51,7 @@ final class View
         $ticketId = (int) $instance['tickets_id'];
         echo '<article id="wb-instance-' . $id . '" class="wb-instance card mb-4"><div class="card-body"><div class="wb-toolbar"><h2>' . self::e($definition['name']) . '</h2>' . self::badge($p['status']) . '</div><p>' . nl2br(self::e($definition['description'])) . '</p>';
         echo '<p>Version ' . (int) $version['number'] . ' · Lancé le ' . self::e($instance['date_creation']) . ' par ' . self::e(self::person('User', (int) $instance['users_id'])) . ' · Ticket <a href="' . self::e(\Ticket::getFormURLWithID($ticketId)) . '">#' . $ticketId . '</a></p>';
+        echo '<p><a class="btn btn-primary" data-wb-ticket-link href="' . self::e(\Ticket::getFormURLWithID($ticketId)) . '">Ouvrir le ticket #' . $ticketId . '</a></p>';
         echo '<p><a class="btn btn-outline-primary" href="' . self::e(Http::url('instance.php', ['id' => $id])) . '">Lien direct vers ce workflow</a> <a class="btn btn-outline-secondary" href="' . self::e(Http::ticketWorkflow($ticketId, $id)) . '">Ouvrir dans le ticket</a></p>';
         echo '<p>' . $p['done'] . ' / ' . $p['total'] . ' étapes obligatoires terminées — ' . $p['percent'] . ' % · ' . $p['remaining'] . ' restantes · ' . $p['blocked'] . ' bloquées · ' . $p['optional'] . ' facultatives</p><progress max="100" value="' . $p['percent'] . '" aria-label="Progression">' . $p['percent'] . '%</progress>';
         if ($definition['pdf']['enabled'] ?? false) {

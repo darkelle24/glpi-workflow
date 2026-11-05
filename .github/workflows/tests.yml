@@ -56,7 +56,12 @@ jobs:
       - run: npm ci
       - run: npm run test:conditions
       - run: npx playwright install --with-deps chromium
+      - run: mkdir -p build/pdf-guide-renderer
+      - run: composer require --working-dir=build/pdf-guide-renderer --no-interaction --no-progress --no-scripts league/commonmark:2.10.3 symfony/http-foundation:^7.4
       - run: npm run test:ui
+        env:
+          WORKFLOWBUILDER_ALLOW_PDF_GUIDE_DEMO: '1'
+          WB_PDF_GUIDE_VENDOR: ${{ github.workspace }}/build/pdf-guide-renderer/vendor
 
   mariadb:
     runs-on: ubuntu-latest

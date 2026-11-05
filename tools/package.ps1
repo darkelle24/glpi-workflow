@@ -12,7 +12,7 @@ foreach ($entry in $include) {
     if (-not (Test-Path -LiteralPath $source)) { throw "Required package entry is missing: $entry" }
     Copy-Item -LiteralPath $source -Destination $pluginRoot -Recurse
 }
-$archive = Join-Path $outputRoot 'workflowbuilder-0.3.0.zip'
+$archive = Join-Path $outputRoot 'workflowbuilder-0.4.0.zip'
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $stream = [IO.File]::Open($archive, [IO.FileMode]::Create)

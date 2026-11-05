@@ -53,6 +53,7 @@ final class Session
     public static function haveAccessToEntity($id,$recursive=false):bool{return (int)$id===0;}
     public static function getCurrentTime(): ?string { return date('Y-m-d H:i:s'); }
     public static function getLoginUserID():int{return self::$user;}
+    public static function checkLoginUser():void{if(self::$user<=0)throw new \WorkflowBuilder\ValidationException('Session requise.');}
     public static function addMessageAfterRedirect($message,$unused=false,$type=0):void{self::$messages[]=$message;}
 }
 function getAncestorsOf($table,$id):array{return [];}
@@ -96,7 +97,7 @@ class Reference
         $this->fields=['id'=>$id,'name'=>'Reference','is_active'=>1,'is_deleted'=>0];return true;
     }
 }
-class User extends Reference {} class Group extends Reference {} class Entity extends Reference {} class Computer extends Reference {}
+class User extends Reference {public static function isUserReauthenticationNeeded():bool{return false;}} class Group extends Reference {} class Entity extends Reference {} class Computer extends Reference {}
 class KnowbaseItem extends Reference {}
 class Document extends Reference
 {

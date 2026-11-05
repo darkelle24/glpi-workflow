@@ -1,5 +1,23 @@
 # Rapport de validation — 5 novembre 2026
 
+## Mise à jour 0.4.0 — tutoriel illustré, exemples et accès au ticket
+
+| Vérification locale | Résultat |
+| --- | --- |
+| Moteur et cinq définitions JSON | 82 tests réussis |
+| Services, droits et bouton direct vers le ticket | 69 tests réussis |
+| Rendu des deux guides, illustrations et liens autorisés | 14 contrôles réussis |
+| Chromium : éditeur, tutoriel web, téléchargements et navigation | 25 tests réussis |
+| Syntaxe PHP | 68 fichiers sans erreur |
+
+Les huit illustrations du tutoriel ont été créées à partir des composants réels du plugin, dans une démonstration autonome explicitement activée sur localhost avec des réponses fictives. Deux illustrations sont issues des PDF réellement générés avec TCPDF 7.0.0 puis rasterisés avec Ghostscript. Le tutoriel signale la nature de ces captures ; aucune installation GLPI de production n’a servi à leur création.
+
+Le navigateur suit le lien du guide utilisateur vers le tutoriel PDF, charge et décode ses huit images, contrôle le téléchargement Markdown identique à sa source et télécharge les exemples JSON. Les deux modes des exemples sont relus. Les identifiants de guides et d’exemples non autorisés, les traversées de chemins et les profils sans droit sont refusés. Le tutoriel tient dans une largeur de 390 pixels.
+
+Le parcours d’instance contrôle le bouton Ouvrir le ticket, son identifiant exact et la conservation du lien vers l’onglet Workflow. Les contrôleurs réels des guides et des téléchargements sont utilisés avec CommonMark 2.10.3, HttpFoundation 7.4 et les doublures GLPI de test. Une recette sur votre GLPI reste distincte de ces contrôles locaux.
+
+Les sources Markdown, toutes les captures, les résultats PDF illustrés et les deux exemples ont été inspectés. Le schéma reste à 5 ; aucune nouvelle modification SQL n’est nécessaire depuis 0.3.0 et aucun contrôle MariaDB supplémentaire n’est revendiqué pour cette livraison.
+
 ## Mise à jour 0.3.0 — composition automatique et administration PDF
 
 Contrôles locaux avec PHP 8.5.12, Chromium/Playwright 1.62.1 et des dépendances isolées TCPDF 7.0.0 et CommonMark 2.10.3 :

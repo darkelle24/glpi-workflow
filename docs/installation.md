@@ -155,3 +155,8 @@ Pour des modèles avec images, adapter si nécessaire `post_max_size`, `upload_m
 Déployer les fichiers puis lancer la mise à jour du plugin dans GLPI : le schéma SQL passe de 4 à 5 et ajoute la table `glpi_plugin_workflowbuilder_pdfpresets`. Cette création peut être rejouée et ne modifie aucune instance existante. Les anciens PDF gardent leur mode de placement libre. Le format d’échange reste schema 1.
 
 Le lien **Administration PDF** est réservé aux profils disposant du droit d’administration Workflow Builder en modification. Y enregistrer les modèles de base dans l’entité active, puis les sélectionner dans l’onglet Document PDF d’un workflow. Les bases sont des points de départ copiés dans le workflow ; leur modification n’affecte pas les versions déjà publiées. Les deux bases intégrées sont proposées sans configuration préalable.
+### Passage de 0.3.0 à 0.4.0
+
+Déployer les fichiers, y compris le nouveau tutoriel et toutes les images de documentation, puis effectuer la mise à jour du plugin dans GLPI. Le schéma SQL reste à 5 : aucune nouvelle modification de table n’est nécessaire depuis 0.3.0. Les installations antérieures appliquent aussi la création de bibliothèque PDF déjà fournie en 0.3.0.
+
+Vérifier les entrées **Guide utilisateur** et **Tutoriel PDF**, les deux téléchargements JSON proposés dans le tutoriel et le bouton **Ouvrir le ticket** d’un workflow lancé. Les guides sont servis depuis les fichiers déployés, sans chargement distant depuis GitHub.

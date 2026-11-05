@@ -5,7 +5,7 @@ require dirname(__DIR__) . '/bootstrap.php';
 use WorkflowBuilder\{Definition, Store, View, Http};
 session_start();
 $CFG_GLPI = ['root_doc'=>''];
-$definition = Definition::decode(file_get_contents(dirname(__DIR__).'/examples/' . (isset($_GET['pdf']) ? 'fiche-connexion-salarie' : 'preparation-ordinateur') . '.json'));
+$definition = Definition::decode(file_get_contents(dirname(__DIR__).'/examples/' . (isset($_GET['auto_example']) ? 'fiche-connexion-automatique' : (isset($_GET['pdf']) ? 'fiche-connexion-salarie' : 'preparation-ordinateur')) . '.json'));
 if(isset($_GET['auto'])) { $definition['pdf']['mode']='automatic'; $definition['pdf']['automatic']=\WorkflowBuilder\PdfAutomatic::defaults()[0]['automatic']; }
 ?><!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Test éditeur Workflow Builder</title><link rel="stylesheet" href="../public/css/workflowbuilder.css">

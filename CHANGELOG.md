@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.4.0 — 5 novembre 2026
+
+- Tutoriel PDF séparé et détaillé avec huit illustrations : composition automatique, associations, modèles administrables, placement libre et résultats PDF réels sur données fictives.
+- Accès Tutoriel PDF dans GLPI, lien depuis le guide utilisateur et navigation entre les deux guides ; rendu des liens internes et téléchargement Markdown par source autorisée.
+- Téléchargement protégé des deux exemples JSON depuis le tutoriel intégré ; fond décoratif PNG inclus dans l’exemple en placement libre et disponible séparément.
+- Bouton principal Ouvrir le ticket sur les workflows lancés, en conservant le lien ciblant leur onglet Workflow.
+- Scripts reproductibles de démonstration et de captures, tests des guides, des exemples, des droits et de la navigation web. Schéma SQL 5 et format JSON schema 1 conservés.
+
 ## 0.3.0 — 5 novembre 2026
 
 - Choix entre composition automatique par groupes et placement libre ; les deux configurations sont conservées dans le workflow.

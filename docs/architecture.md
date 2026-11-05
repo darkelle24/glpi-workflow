@@ -22,7 +22,7 @@ Le contexte from_ticket est un indicateur de retour, jamais une URL fournie par 
 
 ## Guide intégré
 
-Le [guide utilisateur](user-guide.md) est l’unique source éditoriale. Guide lit uniquement ce chemin fixe, contrôle la taille et l’UTF-8, puis utilise la bibliothèque League CommonMark déjà livrée par GLPI. Aucun Composer supplémentaire n’est requis en production. Le HTML brut est supprimé, les protocoles des liens sont filtrés et seules les captures PNG du répertoire public/images/guide sont admises. Le rendu adapte leurs chemins au sous-répertoire de GLPI et ajoute les ancres du sommaire. La page front/guide.php exige le droit de lecture du plugin ou des modèles ; son téléchargement Markdown renvoie les octets de la même source.
+Le [guide utilisateur](user-guide.md) et le [tutoriel PDF](pdf-guide.md) ont chacun une source Markdown. Guide ne lit que les deux chemins de sa liste autorisée, contrôle leur taille et leur UTF-8, puis utilise la bibliothèque League CommonMark déjà livrée par GLPI. Aucun Composer supplémentaire n’est requis en production. Le HTML brut est supprimé, les protocoles des liens sont filtrés et seules les captures PNG du répertoire public/images/guide sont admises. Le rendu adapte leurs chemins au sous-répertoire de GLPI et ajoute les ancres du sommaire. La page front/guide.php exige le droit de lecture du plugin ou des modèles ; son téléchargement Markdown renvoie les octets de la même source.
 
 ## Tables
 
@@ -112,3 +112,10 @@ La clé optionnelle `pdf` (désactivée par défaut pour les anciens modèles) e
 Le schéma SQL 5 crée la table `pdfpresets` par les instructions `CREATE TABLE IF NOT EXISTS` de `Schema::install`. Cette création est rejouable ; les dix tables antérieures et leurs instances restent intactes. `Store::TABLES` inclut la table pour le diagnostic et la désinstallation. Aucun script de modification des anciennes tables n’est requis pour 4 vers 5.
 
 `PdfPresets` impose le droit admin UPDATE pour enregistrer, vérifie l’entité et verrouille la ligne avec sa révision optimiste. Le catalogue exige le droit template READ et filtre les entités accessibles ainsi que les modèles désactivés. Le contenu de base ne référence que des variables générales ; l’association aux champs propres au workflow se fait après copie. Le JSON publié conserve toute la composition et son logo et ne référence pas la table de bases. `front/pdf-presets.php` protège les aperçus et enregistrements par POST et jeton, sans enregistrement lors d’un aperçu.
+### Guides et exemples téléchargeables (0.4.0)
+
+`Guide::PAGES` associe les identifiants `user` et `pdf` à leurs fichiers et titres. Le contrôleur `front/guide.php` impose les droits de lecture du plugin et accepte uniquement ces guides et les formats HTML/Markdown. Le rendu traduit les liens relatifs vers les deux guides, les deux exemples PDF connus et les PNG du répertoire des captures en liens locaux GLPI ; les autres chemins relatifs sont retirés.
+
+`front/example.php` utilise la même protection d’accès. `Guide::example` ne lit que les deux exemples PDF autorisés, valide leur définition puis conserve les octets du JSON livré pour le téléchargement. Les réponses sont privées et non mises en cache. Aucun paramètre HTTP ne devient un chemin de fichier arbitraire.
+
+Le bouton `data-wb-ticket-link` du rendu d’instance est construit avec l’identifiant de ticket chargé après `Access::instance` et l’URL native `Ticket::getFormURLWithID`. Il ne reçoit aucune URL de redirection fournie par le client et ne remplace pas le lien vers l’onglet Workflow.

@@ -1,8 +1,8 @@
 # Maintenance du guide illustré
 
-## Une source unique
+## Une source par guide
 
-Le contenu se modifie dans [user-guide.md](user-guide.md). Le dépôt l’affiche comme un Markdown ordinaire. Dans GLPI, **Guide utilisateur** lit ce même fichier installé et le convertit au moment de la consultation. **Télécharger le Markdown** renvoie le fichier sans transformation.
+Le guide général se modifie dans [user-guide.md](user-guide.md), le tutoriel PDF dans [pdf-guide.md](pdf-guide.md). Le dépôt l’affiche comme un Markdown ordinaire. Dans GLPI, **Guide utilisateur** lit ce même fichier installé et le convertit au moment de la consultation. **Télécharger le Markdown** renvoie le fichier sans transformation.
 
 Les captures sont dans [public/images/guide](../public/images/guide). Conserver les liens relatifs `../public/images/guide/nom.png` dans le Markdown : ils fonctionnent dans le dépôt et sont adaptés au chemin public de GLPI par le rendu. Le guide ne charge pas de ressources distantes. Pour modifier une image, garder un nom composé de lettres minuscules, chiffres et tirets, avec l’extension PNG.
 
@@ -44,4 +44,25 @@ La [CI](../.github/workflows/tests.yml) exécute aussi les tests de rendu avec u
 
 ## Livrer
 
-Exécuter [tools/package.ps1](../tools/package.ps1). L’archive doit contenir le guide, les captures et la page intégrée. La livraison 0.3.0 utilise le schéma SQL 5 (ajout de la bibliothèque PDF) ; lancer la mise à jour du plugin dans GLPI. Une installation antérieure à 0.1.4 applique également les migrations déjà fournies.
+Exécuter [tools/package.ps1](../tools/package.ps1). L’archive doit contenir le guide, les captures et la page intégrée. La livraison 0.4.0 utilise le schéma SQL 5 (ajout de la bibliothèque PDF) ; lancer la mise à jour du plugin dans GLPI. Une installation antérieure à 0.1.4 applique également les migrations déjà fournies.
+
+## Reproduire les illustrations du tutoriel PDF
+
+Les huit images `pdf-01-…` à `pdf-08-…` montrent les composants réels du plugin dans une démonstration autonome sur des données fictives. Elles ne sont pas présentées comme une capture d’une installation GLPI native. Le fond `pdf-demo-background.png` est livré séparément et intégré à l’exemple libre.
+
+Préparer un répertoire de dépendances **de test** contenant CommonMark 2.10.3, Symfony HttpFoundation 7.4, TCPDF 7.0.0 et ses polices. Le plugin en production utilise les bibliothèques fournies par GLPI et n’a pas besoin de ce répertoire.
+
+~~~powershell
+$env:WORKFLOWBUILDER_ALLOW_PDF_GUIDE_DEMO = '1'
+$env:WB_PDF_GUIDE_VENDOR = 'C:/tests/pdf-renderer/vendor'
+php -S 127.0.0.1:8764 -t . tests/pdf-guide-demo.php
+# Dans un second terminal :
+$env:WORKFLOWBUILDER_ALLOW_PDF_GUIDE_DEMO = '1'
+$env:WB_PDF_GUIDE_BASE_URL = 'http://127.0.0.1:8764'
+$env:WB_GHOSTSCRIPT_PATH = 'C:/Program Files/PDF24/gs/bin/gswin64c.exe'
+node tools/capture-pdf-guide.cjs
+~~~
+
+Les PDF de contrôle sont écrits dans le dossier build ignoré par Git ; les huit PNG finaux sont écrits dans les images du guide. Inspecter les captures et les rendus, puis lancer les tests du guide et les parcours navigateur. Le routeur ne sert la démonstration que sur localhost avec le drapeau explicite ; ses écritures métier restent dans des doublures en mémoire, sans base GLPI réelle.
+
+Le job UI de la CI prépare seulement CommonMark et HttpFoundation pour contrôler les vrais contrôleurs des guides et des téléchargements, avec les doubles GLPI. Les contrôles TCPDF et les captures de PDF nécessitent les dépendances supplémentaires et les polices préparées localement.

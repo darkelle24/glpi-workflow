@@ -353,4 +353,9 @@ check('multiple choice fields render checkboxes and validate all selected choice
     denied(fn()=>WorkflowBuilder\Fields::formValues($fields,['tools'=>['forged']]));
 });
 
+check('standalone workflow exposes a direct button to its exact native ticket',function()use($instance){
+    rights();$ticket=(int)Store::one('instances',$instance)['tickets_id'];
+    ob_start();\WorkflowBuilder\View::instance($instance);$html=ob_get_clean();
+    eq(true,str_contains($html,'data-wb-ticket-link href="'.\WorkflowBuilder\View::e(Ticket::getFormURLWithID($ticket)).'">Ouvrir le ticket #'.$ticket));
+});
 echo "\n$passed service tests passed; $failed failed (GLPI and database test doubles)\n";exit($failed?1:0);

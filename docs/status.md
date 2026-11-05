@@ -1,5 +1,11 @@
 # État des fonctionnalités et limites
 
+## Ajouts de la version 0.4.0 — tutoriel PDF et navigation
+
+- Tutoriel détaillé séparé, huit illustrations et deux exemples JSON téléchargeables dans GLPI.
+- Liens entre les guides du dépôt et leurs pages intégrées, avec sources et exemples autorisés explicitement.
+- Bouton principal vers le ticket depuis chaque workflow lancé ; schéma SQL 5 conservé.
+
 ## Ajouts de la version 0.3.0 — composition automatique et administration PDF
 
 - Choix du mode automatique par groupes ou du placement libre ; configurations conservées lors du changement de mode.
@@ -30,7 +36,7 @@ Trois suivis internes par étape sont configurables et activés par défaut : di
 
 Les étapes disposent d’un sélecteur de fiches avec aperçus, recherche titre/contenu, filtres FAQ/interne, auteur connecté, modification depuis une date et tri par création. Une fiche structurée peut être créée et associée depuis l’étape, puis complétée dans GLPI. Le ticket propose un bouton direct vers chaque fiche. Les droits natifs s’appliquent aux recherches, aux titres rechargés, à la création et à la consultation. Les textes libres historiques restent conservés pour conversion ; le champ Instructions n’est plus éditable.
 
-## Socle conservé dans 0.3.0
+## Socle conservé dans 0.4.0
 
 Le code livré couvre un socle générique : administration, champs et étapes, conditions ET/OU, dépendances, prévisualisation, publication de versions figées, lancement, tickets existants et création dédiée, checklist, valeurs persistantes, progression, affectations, commentaires, historique, droits, import/export, cinq exemples et tableau de bord simple.
 

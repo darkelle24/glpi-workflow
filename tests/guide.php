@@ -58,4 +58,28 @@ guideTest('all ten illustrated screens exist as genuine PNG files',function()use
     }
     guideAssert($dom->getElementsByTagName('img')->length===10);
 });
+guideTest('PDF tutorial has its own unchanged Markdown source and eight valid illustrations',function(){
+    $source=Guide::source('pdf');guideAssert($source===file_get_contents(dirname(__DIR__).'/docs/pdf-guide.md'));
+    preg_match_all('~!\[[^\]]*\]\((\.\./public/images/guide/[a-z0-9-]+\.png)\)~u',$source,$m);
+    guideAssert(count($m[1])===8,'Expected eight PDF tutorial illustrations');
+    foreach($m[1]as$file){$info=getimagesize(dirname(__DIR__).'/docs/'.$file);guideAssert($info&&$info[2]===IMAGETYPE_PNG&&$info[0]>=600,'Invalid PDF tutorial image: '.$file);}
+    $dom=guideDom(Guide::render($source,'/test-glpi'));$ids=[];foreach((new DOMXPath($dom))->query('//*[@id]')as$node)$ids[]=$node->getAttribute('id');
+    foreach($dom->getElementsByTagName('a')as$link){$href=$link->getAttribute('href');if(str_starts_with($href,'#'))guideAssert(in_array(rawurldecode(substr($href,1)),$ids,true),'Broken PDF tutorial anchor: '.$href);}
+});
+guideTest('known guide example and background links work below a GLPI subdirectory',function(){
+    $html=Guide::render('[PDF](pdf-guide.md#choisir-la-bonne-méthode) [User](user-guide.md) [JSON](../examples/fiche-connexion-salarie.json) [Fond](../public/images/guide/pdf-demo-background.png)','/glpi');
+    guideAssert(str_contains(rawurldecode($html),'/glpi/plugins/workflowbuilder/front/guide.php?guide=pdf#choisir-la-bonne-méthode'));
+    guideAssert(str_contains($html,'/glpi/plugins/workflowbuilder/front/guide.php?guide=user'));
+    guideAssert(str_contains($html,'/glpi/plugins/workflowbuilder/front/example.php?name=fiche-connexion-salarie'));
+    guideAssert(str_contains($html,'/glpi/plugins/workflowbuilder/images/guide/pdf-demo-background.png'));
+});
+guideTest('unknown guides examples and relative traversal links are rejected',function(){
+    foreach(['../config','pdf-guide.md','/etc/passwd']as$key){try{Guide::source($key);throw new RuntimeException('Arbitrary guide accepted');}catch(\WorkflowBuilder\ValidationException){}}
+    foreach(['../AGENTS','creation-utilisateur','fiche-connexion-salarie.json']as$key){try{Guide::example($key);throw new RuntimeException('Arbitrary example accepted');}catch(\WorkflowBuilder\ValidationException){}}
+    $dom=guideDom(Guide::render('[a](../config/config_db.php) [b](../examples/../../AGENTS.md)'));
+    foreach($dom->getElementsByTagName('a')as$a)guideAssert(!$a->hasAttribute('href'));
+});
+guideTest('both downloadable examples match the repository and use different PDF modes',function(){
+    foreach(['fiche-connexion-automatique'=>'automatic','fiche-connexion-salarie'=>'free']as$name=>$mode){$json=Guide::example($name);guideAssert($json===file_get_contents(dirname(__DIR__).'/examples/'.$name.'.json'));$d=\WorkflowBuilder\Definition::decode($json);guideAssert($d['pdf']['mode']===$mode);if($mode==='free')guideAssert(str_starts_with($d['pdf']['pages'][0]['background'],'data:image/png;base64,'));}
+});
 echo "\n$passed guide checks passed; $failed failed\n";exit($failed?1:0);
