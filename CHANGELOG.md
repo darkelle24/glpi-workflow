@@ -1,6 +1,6 @@
 # Historique des versions
 
-## En cours — 5 novembre 2026
+## 0.1.5 — 5 novembre 2026
 
 - Lien direct par workflow et retour dans l’onglet Workflow du ticket après chaque action, avec ciblage de l’instance et de l’étape.
 - Création du ticket avec utilisateurs et groupes multiples pour les demandeurs, attribués et observateurs, type, sévérité, impact et échéance de résolution ; respect des droits et règles GLPI.

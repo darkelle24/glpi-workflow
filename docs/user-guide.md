@@ -2,7 +2,7 @@
 
 **Créer une procédure, la lancer sur un ticket et suivre le travail de chaque technicien.**
 
-Ce guide accompagne Workflow Builder 0.1.4 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
+Ce guide accompagne Workflow Builder 0.1.5 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
 
 > **Un seul guide, deux accès.** Ce fichier Markdown est la source du bouton **Guide utilisateur** dans GLPI et du guide consultable dans le dépôt. La page GLPI lit le fichier livré avec le plugin. Déployer sa mise à jour actualise aussi le guide affiché.
 >

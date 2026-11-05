@@ -89,6 +89,10 @@ Les exemples n’effectuent aucune opération dans Microsoft 365, MAGIS ou UNI.T
 
 Le schéma courant est versionné 4. Une migration préserve les données du schéma de développement 1 et applique les conventions GLPI 12. La migration 2 vers 3 ajoute la prise en charge nominative, sans supprimer les valeurs ni les instances. L’installation et ces migrations sont rejouables. Ne pas diminuer la version du code face à un schéma plus récent.
 
+### Passage de 0.1.4 à 0.1.5
+
+Remplacer les fichiers du plugin, puis lancer sa mise à jour et le réactiver dans GLPI si nécessaire. Le schéma SQL reste à 4 : aucune nouvelle migration de données n’est requise depuis 0.1.4. Les versions historiques des workflows sont conservées ; leur option de récapitulatif final utilise la valeur activée par défaut lorsqu’elle était absente. Pour modifier cette option sur les prochains lancements, enregistrer puis publier le modèle.
+
 ### Passage de 0.1.3 à 0.1.4
 
 Remplacer les fichiers puis exécuter **Mettre à jour** dans GLPI et réactiver le plugin. Cette opération applique la migration du schéma 3 vers 4 : deux colonnes conservent les utilisateurs et groupes du workflow, sans modifier les données ou responsables des instances existantes. Le format JSON reste schema 1.

@@ -1,6 +1,6 @@
 # Rapport de validation — 5 novembre 2026
 
-## Navigation ticket, paramètres de création et récapitulatif final
+## Mise à jour 0.1.5 — navigation ticket, paramètres de création et récapitulatif final
 
 Contrôles exécutés sur les sources modifiées, avec PHP 8.5.12, Chromium et une installation GLPI 12 locale reliée à une base MariaDB explicitement réservée aux tests :
 

@@ -2,7 +2,7 @@
 
 Workflow Builder permet de construire des procédures génériques depuis GLPI : formulaire de lancement, étapes avec champs, conditions visuelles, dépendances, documentation et historique. Les définitions sont enregistrées dans MariaDB. Chaque lancement conserve sa version publiée.
 
-Version courante : **0.1.4**. Nom technique et dossier d’installation : **workflowbuilder**. Cible déclarée : **GLPI 12.0.x**, PHP **8.3 minimum**, MariaDB avec InnoDB. Les points d’extension ont été contrôlés dans les sources officielles de GLPI **12.0.0 et 12.0.1**. La validation de votre déploiement Docker reste nécessaire ; consulter le [rapport de validation](docs/validation.md).
+Version courante : **0.1.5**. Nom technique et dossier d’installation : **workflowbuilder**. Cible déclarée : **GLPI 12.0.x**, PHP **8.3 minimum**, MariaDB avec InnoDB. Les points d’extension ont été contrôlés dans les sources officielles de GLPI **12.0.0 et 12.0.1**. La validation de votre déploiement Docker reste nécessaire ; consulter le [rapport de validation](docs/validation.md).
 
 ## Démarrage
 
