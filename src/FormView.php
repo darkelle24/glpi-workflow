@@ -28,7 +28,15 @@ final class FormView
             $type = $field['type'];
             if ($type === 'textarea') {
                 echo '<textarea' . $attrs . ' maxlength="' . $field['maxlength'] . '">' . View::e($value) . '</textarea>';
-            } elseif (in_array($type, ['select', 'radio', 'multiselect', 'boolean'], true)) {
+            } elseif ($type === 'multiselect') {
+                echo '<input type="hidden" name="' . View::e($name) . '" value="">';
+                echo '<fieldset id="' . $id . '" class="wb-multiselect" aria-label="' . View::e($field['label']) . '">';
+                foreach ($field['choices'] as $choice) {
+                    echo '<label><input type="checkbox" class="form-check-input" name="' . View::e($name . '[]') . '" value="' . View::e($choice) . '"'
+                        . (in_array($choice, (array) $value, true) ? ' checked' : '') . '> ' . View::e($choice) . '</label>';
+                }
+                echo '</fieldset>';
+            } elseif (in_array($type, ['select', 'radio', 'boolean'], true)) {
                 if ($type === 'radio') {
                     echo '<div id="' . $id . '"><label><input type="radio" name="' . View::e($name) . '" value=""' . ($value === null ? ' checked' : '') . '> Aucun</label> ';
                     foreach ($field['choices'] as $choice) {

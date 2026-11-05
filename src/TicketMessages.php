@@ -82,6 +82,41 @@ final class TicketMessages
         $content .= self::progress($data['progress']) . self::button($url) . '</div>';
         self::post($ticket, $content);
     }
+    public static function completed(array $data, ?string $previous): void
+    {
+        if (!($data['definition']['notify_summary'] ?? true) || $data['progress']['status'] !== 'completed' || $previous === 'completed') { return; }
+        $definition = $data['definition'];
+        $instance = $data['instance'];
+        $ticket = (int) $instance['tickets_id'];
+        $content = '<div style="border-left:4px solid #2b8a3e;padding:16px"><h2>Workflow terminé — récapitulatif</h2><h3>'
+            . View::e($definition['name']) . '</h3><p>Version ' . (int) $data['version']['number']
+            . ' · Lancé le ' . View::e($instance['date_creation']) . ' par ' . View::e(View::participant((int) $instance['users_id']))
+            . ' · Terminé le ' . View::e($instance['date_completion'] ?? Store::now()) . '</p>'
+            . '<p><strong>Responsables du workflow :</strong> ' . View::e(Assignees::names(Assignees::forInstance($instance))) . '</p>'
+            . self::progress($data['progress']) . '<h3>Informations du lancement</h3>'
+            . self::values($definition['fields'], $data['values'][''] ?? [], $ticket, Fields::context($data['values'][''] ?? []));
+        if (isset($data['values']['_ticket']['options'])) { $content .= TicketOptions::summary($data['values']['_ticket']['options']); }
+        $rows = array_column($data['steps'], null, 'step_key');
+        foreach ($definition['steps'] as $step) {
+            $row = $rows[$step['id']];
+            $content .= '<h3>' . View::e($step['title']) . '</h3><p>' . View::e(View::STATES[$data['states'][$step['id']]])
+                . ($step['required'] ? ' · Obligatoire' : ' · Facultative') . '</p>'
+                . '<p>Pris en charge par : ' . View::e(View::participant((int) ($row['started_by'] ?? 0)))
+                . ' · Début : ' . View::e($row['started_at'] ?? '—') . ' · Fin : ' . View::e($row['completed_at'] ?? '—')
+                . ' · Validée par : ' . View::e(View::participant((int) ($row['completed_by'] ?? 0))) . '</p>';
+            if ($data['states'][$step['id']] !== 'na') {
+                $content .= self::values($step['fields'], $data['values'][$step['id']] ?? [], $ticket, Fields::context($data['values'][''] ?? []));
+            }
+        }
+        $comments = Store::rows('history', ['instances_id' => (int) $instance['id']], ['ORDER' => ['id']]);
+        foreach ($comments as $event) {
+            if (trim($event['comment'] ?? '') === '') { continue; }
+            $content .= '<p><strong>Commentaire — ' . View::e($event['step_key'] ?? 'Workflow') . ' · '
+                . View::e(View::participant((int) $event['users_id'])) . ' · ' . View::e($event['date_creation']) . ' :</strong> '
+                . nl2br(View::e($event['comment'])) . '</p>';
+        }
+        self::post($ticket, $content . self::button(Http::url('instance.php', ['id' => (int) $instance['id']])) . '</div>');
+    }
     public static function activated(array $data, array $previous): void
     {
         $rows = array_column($data['steps'], null, 'step_key');

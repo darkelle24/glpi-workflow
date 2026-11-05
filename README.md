@@ -21,9 +21,9 @@ Aucune modification du cœur GLPI n’est nécessaire. Le serveur n’a besoin n
 - Ajout, duplication, suppression et réorganisation des champs et étapes.
 - Champs texte, texte long, nombre, dates, case à cocher, listes, radio, choix multiples, oui/non, email, URL, utilisateurs, groupes, entités, ordinateurs et documents de ticket.
 - Conditions ET/OU, visibilité des champs et étapes, activation et blocage ; rejet des dépendances circulaires.
-- Création de ticket par une page dédiée et association aux tickets existants.
+- Création de ticket avec demandeurs, intervenants attribués, observateurs, utilisateurs et groupes multiples, type, urgence, impact et échéance ; association aux tickets existants.
 - États persistants, validation côté serveur, responsables, dates, commentaires et progression.
-- Suivis internes automatiques par étape, équipe choisie au lancement et présentation du ticket avec bouton d’accès au workflow.
+- Suivis internes automatiques par étape, récapitulatif final configurable activé par défaut, équipe choisie au lancement et liens directs ; les actions de l’onglet Workflow restent dans le ticket.
 - Prise en charge nominative : « Je prends en charge », nom du technicien visible sur l’étape et libération pour passer le relais.
 - Sélecteur de fiches GLPI avec aperçus, filtres combinables, création de procédures structurées et accès direct depuis les étapes du ticket ; droits natifs vérifiés.
 - Brouillons, publications immuables, archivage, duplication, historique des versions et import/export JSON validé.

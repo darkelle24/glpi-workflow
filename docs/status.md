@@ -1,5 +1,13 @@
 # État des fonctionnalités et limites
 
+## Ajouts en cours — navigation et lancement complet
+
+Chaque instance possède un lien direct. Les actions lancées depuis l’onglet Workflow reviennent au ticket, au workflow et à l’étape concernés, y compris en cas de saisie refusée. Les identifiants des étapes sont distincts lorsque plusieurs workflows partagent le ticket.
+
+Le lancement d’un nouveau ticket propose ses demandeurs, personnes et groupes attribués, observateurs, type Incident/Demande, urgence, impact et échéance de résolution. Chaque rôle accepte plusieurs utilisateurs et groupes. Les droits natifs d’attribution GLPI s’appliquent ; la priorité est calculée par GLPI. Ces paramètres ne modifient pas un ticket existant lors d’une association.
+
+Les champs Choix multiples sont présentés comme des listes de cases à cocher. Une option de modèle activée par défaut envoie un récapitulatif interne à la fin des étapes obligatoires applicables : réponses du lancement, paramètres de création, réponses et états de toutes les étapes, opérateurs, dates et commentaires. Les paramètres de création choisis restent conservés dans les valeurs de l’instance, même si le ticket est modifié ensuite. Le schéma SQL reste à 4.
+
 ## Ajouts de la version 0.1.4 — messages et équipe
 
 Trois suivis internes par étape sont configurables et activés par défaut : disponibilité, prise en charge et fin. Ils incluent un lien vers le workflow, les intervenants et la progression ; la fin reprend les réponses visibles et le commentaire. Le lancement permet de sélectionner une équipe de plusieurs utilisateurs et groupes pour les étapes sans responsable explicite. L’ouverture du ticket affiche une présentation du workflow et un bouton d’accès. Le schéma SQL 4 conserve l’équipe ; la migration préserve les instances existantes.

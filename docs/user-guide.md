@@ -67,6 +67,10 @@ Un **workflow lancé**, aussi appelé instance, applique une **version publiée*
 
 Le plugin crée le ticket avec les mécanismes natifs de GLPI, puis y associe la procédure. Son titre et sa description peuvent être construits à partir des réponses du formulaire.
 
+Dans **Paramètres du ticket à créer**, choisir le type **Incident** ou **Demande**, la **Sévérité (urgence)**, l’**Impact** et la **Date de fin souhaitée**, enregistrée comme échéance de résolution GLPI. GLPI calcule la priorité à partir de l’urgence et de l’impact et applique ses règles métier.
+
+Les rôles **Demandeurs**, **Attribués à** et **Observateurs (suivi)** acceptent chacun plusieurs utilisateurs et groupes : rechercher un nom, ajouter les résultats, puis retirer une sélection avec sa croix si nécessaire. Sans demandeur sélectionné, la personne qui lance devient demandeur. Le rôle Attribués à exige les droits natifs d’attribution GLPI. L’**Affectation du workflow** choisit séparément l’équipe des étapes sans responsable explicite. Les paramètres de création du ticket ne sont pas proposés lors d’une association à un ticket existant.
+
 ![Formulaire de lancement d’une préparation d’ordinateur](../public/images/guide/02-lancement.png)
 
 *Dans cet exemple, le choix « Réinstaller le système » détermine si l’étape d’installation sera applicable.*
@@ -79,6 +83,8 @@ Le plugin crée le ticket avec les mécanismes natifs de GLPI, puis y associe la
 4. Choisir le modèle, renseigner le formulaire et valider l’association.
 
 Vous devez disposer des droits de lecture et de modification du ticket, ainsi que des droits du plugin. Réouvrir le ticket dans GLPI s’il est déjà résolu ou clos.
+
+Chaque workflow possède un **Lien direct vers ce workflow**, que vous pouvez copier pour le partager avec une personne autorisée. **Ouvrir dans le ticket** cible son onglet Workflow. Depuis cet onglet, les boutons de prise en charge, d’enregistrement, de validation, de commentaire et de réaffectation ramènent au même ticket et à la même étape. Un ticket peut contenir plusieurs workflows : chaque lien cible sa propre instance.
 
 ![Suivi d’un workflow dans l’onglet du ticket](../public/images/guide/03-suivi-ticket.png)
 
@@ -258,6 +264,16 @@ Dans **Paramètres**, autoriser la création d’un ticket, l’association à u
 Le titre peut utiliser **{{workflow}}** pour le nom du modèle et **{{identifiant_du_champ}}** pour une réponse du formulaire. L’identifiant stable est visible dans le bloc du champ. La variable **{{summary}}** fournit un résumé des réponses pour la description.
 
 Activer le contrôle de clôture si les étapes obligatoires doivent être terminées avant la résolution du ticket. Les variables remplacent du texte ; elles n’exécutent pas de code.
+
+### Choix multiples et récapitulatif final
+
+Un champ **Choix multiples** affiche une liste de cases à cocher : sélectionner une ou plusieurs réponses. Les champs obligatoires exigent au moins une réponse ; les conditions peuvent vérifier qu’un choix figure dans cette liste.
+
+Dans l’onglet **Paramètres** du modèle, **Envoyer un récapitulatif complet dans le ticket à la fin du workflow** est coché par défaut. Le suivi interne rassemble les réponses visibles du lancement, les paramètres choisis pour la création du ticket, les réponses de chaque étape, leurs états, opérateurs et dates, ainsi que les commentaires de l’historique. Les étapes non applicables n’exposent aucune ancienne réponse masquée.
+
+Le suivi est envoyé lorsque toutes les étapes obligatoires applicables sont terminées ; les étapes facultatives encore ouvertes sont indiquées comme telles. Il reste indépendant des trois options de messages par étape. Les commentaires et enregistrements suivants ne le dupliquent pas. Une réouverture suivie d’une nouvelle fin produit un nouveau récapitulatif. Un modèle sans étape obligatoire applicable peut envoyer ce récapitulatif dès son lancement.
+
+Comme les autres paramètres du modèle, cette option s’applique aux versions publiées après enregistrement et publication. Les versions historiques qui n’ont pas cette option utilisent la valeur par défaut activée.
 
 ## Configurer les conditions et les dépendances
 

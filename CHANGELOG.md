@@ -1,5 +1,13 @@
 # Historique des versions
 
+## En cours — 5 novembre 2026
+
+- Lien direct par workflow et retour dans l’onglet Workflow du ticket après chaque action, avec ciblage de l’instance et de l’étape.
+- Création du ticket avec utilisateurs et groupes multiples pour les demandeurs, attribués et observateurs, type, sévérité, impact et échéance de résolution ; respect des droits et règles GLPI.
+- Choix multiples affichés sous forme de listes de cases à cocher.
+- Option de récapitulatif final activée par défaut : données du lancement et des étapes, états, opérateurs, dates et commentaires, dans un suivi interne transactionnel.
+- Conservation des paramètres initiaux de création du ticket dans les valeurs de l’instance ; aucun changement de schéma SQL.
+
 ## 0.1.4 — 4 novembre 2026
 
 - Trois options de suivi interne par étape, activées par défaut : disponibilité, prise en charge et fin.

@@ -185,3 +185,49 @@ test('launch team accepts multiple users and groups and submits removable select
     await page.setViewportSize({width:390,height:844});
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
+
+test('ticket creation form selects native parameters and multiple actors for each role', async({page}) => {
+    await page.route('**/lookup-fixture.php?**',route => route.fulfill({json:{items:[{id:7,label:'Alice'},{id:8,label:'Bob'}],next:0}}));
+    await page.goto('/tests/launch-fixture.php');
+    await page.getByLabel('Type',{exact:true}).selectOption('1');
+    await page.getByLabel('Sévérité (urgence)',{exact:true}).selectOption('5');
+    await page.getByLabel('Impact',{exact:true}).selectOption('4');
+    await page.getByLabel('Date de fin souhaitée (échéance de résolution)',{exact:true}).fill('2026-12-20T17:30');
+    for (const [role,label] of [['requester','Demandeurs'],['assign','Attribués à'],['observer','Observateurs (suivi)']]) {
+        for (const [kind,word] of [['users','utilisateurs'],['groups','groupes']]) {
+            const input = page.getByRole('searchbox',{name:'Rechercher '+label+' — '+word,exact:true});
+            await input.fill('al');await page.getByRole('button',{name:'Alice (#7)',exact:true}).click();
+            await input.fill('bo');await page.getByRole('button',{name:'Bob (#8)',exact:true}).click();
+            expect(await page.locator('[name="ticket['+role+'_'+kind+'][]"]').evaluateAll(nodes => nodes.map(n => n.value))).toEqual(['7','8']);
+        }
+    }
+    const data = await page.locator('form').evaluate(form => Object.fromEntries(new FormData(form)));
+    expect(data).toMatchObject({'ticket[type]':'1','ticket[urgency]':'5','ticket[impact]':'4','ticket[time_to_resolve]':'2026-12-20T17:30'});
+    await page.setViewportSize({width:390,height:844});
+    expect(await page.evaluate(() => document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('multiple choice checkboxes drive conditions and submit all or no choices', async({page}) => {
+    await page.goto('/tests/launch-fixture.php');
+    const field = page.getByRole('group',{name:'Outils nécessaires',exact:true});
+    await expect(field.getByLabel('Ordinateur',{exact:true})).toBeChecked();
+    await expect(page.getByLabel('Numéro de téléphone',{exact:true})).toBeHidden();
+    await field.getByLabel('Téléphone',{exact:true}).check();
+    await field.getByLabel('Badge',{exact:true}).check();
+    await expect(page.getByLabel('Numéro de téléphone',{exact:true})).toBeVisible();
+    expect(await page.locator('form').evaluate(form => new FormData(form).getAll('values[tools][]'))).toEqual(['Ordinateur','Téléphone','Badge']);
+    for(const choice of ['Ordinateur','Téléphone','Badge']) await field.getByLabel(choice,{exact:true}).uncheck();
+    await expect(page.getByLabel('Numéro de téléphone',{exact:true})).toBeHidden();
+    expect(await page.locator('form').evaluate(form => new FormData(form).getAll('values[tools][]'))).toEqual([]);
+    expect(await page.locator('form').evaluate(form => new FormData(form).get('values[tools]'))).toBe('');
+});
+
+test('final summary defaults checked and keeps its disabled setting when saved', async({page}) => {
+    await page.goto('/tests/editor-fixture.php');
+    await page.getByRole('button',{name:'Paramètres',exact:true}).click();
+    const option=page.getByLabel('Envoyer un récapitulatif complet dans le ticket à la fin du workflow',{exact:true});
+    await expect(option).toBeChecked();await option.uncheck();
+    await page.locator('[data-wb-editor]').evaluate(form => form.addEventListener('submit',e => e.preventDefault()));
+    await page.getByRole('button',{name:'Enregistrer le brouillon',exact:true}).click();
+    expect(JSON.parse(await page.locator('[name="definition"]').inputValue()).notify_summary).toBe(false);
+});

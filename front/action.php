@@ -48,10 +48,13 @@ try {
             $copy = Templates::save(0, $definition, (int) ($_SESSION['glpiactive_entity'] ?? 0), false, 0);
             Http::redirect(Http::url('template.form.php', ['id' => $copy]));
         case 'step':
+            $fromTicket = Http::integer($_POST, 'from_ticket');
             Instances::act($id, Http::string($_POST, 'step'), Http::string($_POST, 'action'),
                 Http::values($_POST), Http::integer($_POST, 'revision'), Http::string($_POST, 'comment'),
                 Http::integer($_POST, 'users_id'), Http::integer($_POST, 'groups_id'));
-            Http::redirect(Http::url('instance.php', ['id' => $id]));
+            $instance = Store::one('instances', $id);
+            $step = Http::string($_POST, 'step');
+            Http::redirect($fromTicket ? Http::ticketWorkflow((int) $instance['tickets_id'], $id, $step) : Http::url('instance.php', ['id' => $id]) . '#wb-step-' . rawurlencode($step));
         case 'rights':
             if (!Access::has('admin', UPDATE) && !Access::canBootstrapRights()) { throw new ValidationException('Administration des droits interdite.'); }
             $profile = new Profile();
@@ -79,6 +82,18 @@ try {
             throw new ValidationException('Action inconnue.');
     }
 } catch (Throwable $error) {
+    if ($error instanceof ValidationException && ($operation ?? '') === 'step' && ($_POST['from_ticket'] ?? '') === '1' && !empty($id)) {
+        try {
+            $returnInstance = Store::one('instances', $id);
+            Access::instance($returnInstance);
+        } catch (Throwable) { $returnInstance = null; }
+        if ($returnInstance) {
+            $step = is_string($_POST['step'] ?? null) ? $_POST['step'] : '';
+            if (is_array($_POST['values'] ?? null)) { $_SESSION['wb_failed'][$id][$step] = $_POST['values']; }
+            Session::addMessageAfterRedirect(View::e($error->getMessage()), false, ERROR);
+            Http::redirect(Http::ticketWorkflow((int) $returnInstance['tickets_id'], $id, $step));
+        }
+    }
     Http::start('Action non effectuée');
     Http::error($error);
     echo '<p>Les données n’ont pas été enregistrées. Revenir à la page précédente pour corriger la saisie, ou recharger si un autre utilisateur a modifié le workflow.</p>';

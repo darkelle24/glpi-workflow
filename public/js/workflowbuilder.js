@@ -82,7 +82,7 @@
         if (!inputs.length) return null;
         if (f.type === 'checkbox') return inputs.find(i => i.type === 'checkbox').checked;
         if (f.type === 'radio') return (inputs.find(i => i.checked) || {}).value || null;
-        if (f.type === 'multiselect') return Array.from(inputs[0].selectedOptions, o => o.value);
+        if (f.type === 'multiselect') return inputs[0].tagName === 'SELECT' ? Array.from(inputs[0].selectedOptions, o => o.value) : inputs.filter(i => i.checked).map(i => i.value);
         const value = inputs[0].value;
         if (f.type === 'boolean') return value === '' ? null : value === '1';
         if (f.type === 'number') return value === '' ? null : Number(value);
@@ -552,6 +552,7 @@
                 control(pane,'Autoriser la création de ticket',model.allow_create,v=>{model.allow_create=v;},'checkbox');
                 control(pane,'Autoriser l’association à un ticket existant',model.allow_attach,v=>{model.allow_attach=v;},'checkbox');
                 control(pane,'Exiger les étapes obligatoires avant résolution et clôture',model.require_before_close,v=>{model.require_before_close=v;},'checkbox');
+                control(pane,'Envoyer un récapitulatif complet dans le ticket à la fin du workflow',model.notify_summary !== false,v=>{model.notify_summary=v;},'checkbox');
                 control(pane,'Titre du ticket',model.ticket_title,v=>{model.ticket_title=v;});
                 control(pane,'Description du ticket',model.ticket_description,v=>{model.ticket_description=v;},'textarea');
                 pane.append(el('p','Variables : {{workflow}}, {{summary}} et {{identifiant_du_champ}}. Les identifiants stables sont visibles dans chaque bloc de champ. Aucun code n’est exécuté.'));
@@ -598,11 +599,13 @@
             inputs.replaceChildren();
             ['users','groups'].forEach(key => team[key].forEach(function (id) {
                 const input = el('input'); input.type = 'hidden';
-                input.name = 'assigned_' + key + '[]'; input.value = id; inputs.append(input);
+                input.name = (box.dataset.inputName || 'assigned_%s[]').replace('%s', key); input.value = id; inputs.append(input);
             }));
         }
-        picker(ui,'Utilisateurs du workflow','user',team.users, ids => {team.users = ids; sync();},true,labels.users);
-        picker(ui,'Groupes du workflow','group',team.groups, ids => {team.groups = ids; sync();},true,labels.groups);
+        const isWorkflow = !box.dataset.inputName || box.dataset.inputName === 'assigned_%s[]';
+        const title = box.querySelector('legend').textContent;
+        picker(ui,isWorkflow ? 'Utilisateurs du workflow' : title + ' — utilisateurs','user',team.users, ids => {team.users = ids; sync();},true,labels.users);
+        picker(ui,isWorkflow ? 'Groupes du workflow' : title + ' — groupes','group',team.groups, ids => {team.groups = ids; sync();},true,labels.groups);
         sync();
     }
 
@@ -617,7 +620,7 @@
         if(target && !confirm(target.dataset.confirm))event.preventDefault();
     });
     function openLinkedStep() {
-        if (!location.hash.startsWith('#wb-step-')) return;
+        if (!/^#wb-(step-|instance-)/.test(location.hash)) return;
         const step = document.getElementById(location.hash.slice(1));
         if (step?.matches('details.wb-step')) step.open = true;
     }
@@ -628,7 +631,7 @@
         let pending=false;
         new MutationObserver(function () {
             if(pending)return;pending=true;
-            queueMicrotask(function () {pending=false;init(document);});
+            queueMicrotask(function () {pending=false;init(document);openLinkedStep();});
         }).observe(document.body,{childList:true,subtree:true});
     }
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();

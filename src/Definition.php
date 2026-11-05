@@ -10,7 +10,7 @@ final class Definition
             'icon' => 'ti ti-checklist', 'launch_groups' => [], 'execute_groups' => [], 'manage_groups' => [],
             'launch_users' => [], 'execute_users' => [], 'manage_users' => [],
             'ticket_title' => '{{workflow}}', 'ticket_description' => '{{summary}}',
-            'allow_create' => true, 'allow_attach' => true, 'require_before_close' => true,
+            'allow_create' => true, 'allow_attach' => true, 'require_before_close' => true, 'notify_summary' => true,
             'fields' => [], 'steps' => [], 'rules' => []];
     }
 
@@ -43,7 +43,7 @@ final class Definition
         if (!preg_match('/^ti ti-[a-z0-9-]+$/D', $data['icon'])) {
             throw new ValidationException('Icône Tabler invalide.');
         }
-        foreach (['allow_create', 'allow_attach', 'require_before_close'] as $key) {
+        foreach (['allow_create', 'allow_attach', 'require_before_close', 'notify_summary'] as $key) {
             $data[$key] = self::boolean($data[$key]);
         }
         foreach (['launch_groups', 'execute_groups', 'manage_groups', 'launch_users', 'execute_users', 'manage_users'] as $key) {

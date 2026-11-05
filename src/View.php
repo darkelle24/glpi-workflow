@@ -37,24 +37,26 @@ final class View
         echo '<section class="wb" data-wb-root data-lookup="' . self::e(Http::url('lookup.php')) . '">';
         echo '<a class="btn btn-outline-secondary mb-3" href="' . self::e(Http::url('guide.php')) . '">Guide utilisateur</a> ';
         if (Access::has('launch', CREATE)) {
-            echo '<a class="btn btn-primary mb-3" href="' . self::e(Http::url('launch.php', ['tickets_id' => $id])) . '">Ajouter un workflow</a>';
+            echo '<a class="btn btn-primary mb-3" href="' . self::e(Http::url('launch.php', ['tickets_id' => $id, 'from_ticket' => 1])) . '">Ajouter un workflow</a>';
         }
         $rows = Store::rows('instances', ['tickets_id' => $id], ['ORDER' => ['id DESC']]);
         if (!$rows) { echo '<p>Aucun workflow associé à ce ticket.</p>'; }
-        foreach ($rows as $row) { self::instance((int) $row['id']); }
+        foreach ($rows as $row) { self::instance((int) $row['id'], true); }
         echo '</section>';
     }
-    public static function instance(int $id): void
+    public static function instance(int $id, bool $inTicket = false): void
     {
         $data = Instances::data($id);
         ['instance' => $instance, 'definition' => $definition, 'version' => $version, 'progress' => $p] = $data;
         $ticketId = (int) $instance['tickets_id'];
-        echo '<article class="wb-instance card mb-4"><div class="card-body"><div class="wb-toolbar"><h2>' . self::e($definition['name']) . '</h2>' . self::badge($p['status']) . '</div><p>' . nl2br(self::e($definition['description'])) . '</p>';
+        echo '<article id="wb-instance-' . $id . '" class="wb-instance card mb-4"><div class="card-body"><div class="wb-toolbar"><h2>' . self::e($definition['name']) . '</h2>' . self::badge($p['status']) . '</div><p>' . nl2br(self::e($definition['description'])) . '</p>';
         echo '<p>Version ' . (int) $version['number'] . ' · Lancé le ' . self::e($instance['date_creation']) . ' par ' . self::e(self::person('User', (int) $instance['users_id'])) . ' · Ticket <a href="' . self::e(\Ticket::getFormURLWithID($ticketId)) . '">#' . $ticketId . '</a></p>';
+        echo '<p><a class="btn btn-outline-primary" href="' . self::e(Http::url('instance.php', ['id' => $id])) . '">Lien direct vers ce workflow</a> <a class="btn btn-outline-secondary" href="' . self::e(Http::ticketWorkflow($ticketId, $id)) . '">Ouvrir dans le ticket</a></p>';
         echo '<p>' . $p['done'] . ' / ' . $p['total'] . ' étapes obligatoires terminées — ' . $p['percent'] . ' % · ' . $p['remaining'] . ' restantes · ' . $p['blocked'] . ' bloquées · ' . $p['optional'] . ' facultatives</p><progress max="100" value="' . $p['percent'] . '" aria-label="Progression">' . $p['percent'] . '%</progress>';
         echo '<p><strong>Responsables du workflow :</strong> ' . self::e(Assignees::names(Assignees::forInstance($instance))) . '</p>';
         echo '<details class="my-3"><summary>Informations du lancement</summary>';
         FormView::show($definition['fields'], $data['values'][''] ?? [], true, $ticketId, Fields::context($data['values'][''] ?? []));
+        if (isset($data['values']['_ticket']['options'])) { echo TicketOptions::summary($data['values']['_ticket']['options']); }
         echo '</details><p class="text-muted">Ne saisir aucun mot de passe, secret ou jeton.</p>';
         $rows = array_column($data['steps'], null, 'step_key');
         foreach ($definition['steps'] as $step) {
@@ -62,7 +64,8 @@ final class View
             $row = $rows[$key];
             $state = $data['states'][$key];
             $operator = (int) ($row['started_by'] ?? 0);
-            echo '<details id="wb-step-' . self::e($key) . '" class="wb-step wb-step-' . self::e($state) . '"' . (in_array($state, ['available', 'progress', 'blocked'], true) ? ' open' : '') . '><summary>' . self::e($step['title']) . ' ' . self::badge($state) . ($step['required'] ? '' : ' · Facultative');
+            $stepAnchor = $inTicket ? 'wb-instance-' . $id . '-step-' . $key : 'wb-step-' . $key;
+            echo '<details id="' . self::e($stepAnchor) . '" class="wb-step wb-step-' . self::e($state) . '"' . (in_array($state, ['available', 'progress', 'blocked'], true) ? ' open' : '') . '><summary>' . self::e($step['title']) . ' ' . self::badge($state) . ($step['required'] ? '' : ' · Facultative');
             if ($operator && in_array($state, ['progress', 'blocked', 'available'], true)) {
                 echo '<span class="wb-worker">Pris en charge par ' . self::e(self::participant($operator))
                     . ' · depuis ' . self::e($row['started_at'] ?? '—') . '</span>';
@@ -100,7 +103,7 @@ final class View
                 FormView::show($step['fields'], $data['values'][$key] ?? [], true, $ticketId, Fields::context($data['values'][''] ?? []));
             } else {
                 echo '<form method="post" action="' . self::e(Http::url('action.php')) . '" data-wb-runtime data-form-values="' . self::e(Store::json($data['values'][''] ?? [])) . '">';
-                Http::hidden(['operation' => 'step', 'id' => $id, 'step' => $key, 'revision' => $instance['revision']]);
+                Http::hidden(['operation' => 'step', 'id' => $id, 'step' => $key, 'revision' => $instance['revision'], 'from_ticket' => (int) $inTicket]);
                 $values = $data['values'][$key] ?? [];
                 if (isset($_SESSION['wb_failed'][$id][$key])) {
                     $values = $_SESSION['wb_failed'][$id][$key];
@@ -115,7 +118,7 @@ final class View
             }
             if (Access::has('admin', UPDATE)) {
                 echo '<details><summary>Réaffecter cette étape</summary><form method="post" action="' . self::e(Http::url('action.php')) . '">';
-                Http::hidden(['operation' => 'step', 'action' => 'assign', 'id' => $id, 'step' => $key, 'revision' => $instance['revision']]);
+                Http::hidden(['operation' => 'step', 'action' => 'assign', 'id' => $id, 'step' => $key, 'revision' => $instance['revision'], 'from_ticket' => (int) $inTicket]);
                 echo '<label>Utilisateur (ID, 0 = aucun)<input type="number" min="0" name="users_id" value="' . (int) $row['users_id'] . '" class="form-control"></label><label>Groupe (ID, 0 = aucun)<input type="number" min="0" name="groups_id" value="' . (int) $row['groups_id'] . '" class="form-control"></label><label>Motif<input name="comment" required maxlength="2000" class="form-control"></label><button class="btn btn-outline-secondary">Réaffecter</button></form></details>';
             }
             echo '</details>';

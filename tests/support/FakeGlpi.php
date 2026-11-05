@@ -70,6 +70,7 @@ final class Ticket extends CommonITILObject
         if(!$row||!Session::haveRight('native_ticket',$right)||!Session::haveAccessToEntity($row['entities_id']))return false;
         $this->fields=$row;return true;
     }
+    public function canAssign():bool{return Session::haveRight('native_assign', UPDATE);}
     public function add(array $input):int {
         global $DB;
         $DB->insert('glpi_tickets',$input+['is_deleted'=>0]);

@@ -25,8 +25,27 @@ $d['steps']=[['id'=>'check','title'=>'Contrôler le poste','fields'=>[
     ['id'=>'finish','title'=>'Remise du poste','depends_on'=>['check']]];
 $t=Templates::save(0,$d,0,false,0);Templates::publish($t,1);
 $key=bin2hex(random_bytes(32));$me=(int)Session::getLoginUserID();
-$id=Instances::launch($t,0,0,['request'=>'Données <script>alert(1)</script>'],$key,0,['users'=>[$me]]);
+$groups=[];
+foreach(['Support','Suivi'] as $label){
+    $group=new Group();$groups[]=(int)$group->add(['name'=>'Recette workflow '.$label.' '.bin2hex(random_bytes(4)),
+        'entities_id'=>0,'is_recursive'=>0,'is_assign'=>1,'is_requester'=>1,'is_watcher'=>1]);
+}
+verify('native test groups created', !in_array(0,$groups,true));
+$deadline=date('Y-m-d\TH:i',time()+14*86400);
+$options=['type'=>1,'urgency'=>5,'impact'=>4,'time_to_resolve'=>$deadline,
+    'requester_users'=>[$me],'requester_groups'=>[$groups[0]],'assign_users'=>[$me],'assign_groups'=>$groups,
+    'observer_users'=>[$me],'observer_groups'=>[$groups[1]]];
+$id=Instances::launch($t,0,0,['request'=>'Données <script>alert(1)</script>'],$key,0,['users'=>[$me]],$options);
 $data=Instances::data($id);$ticket=(int)$data['instance']['tickets_id'];$native=new Ticket();$native->getFromDB($ticket);
+verify('native ticket type, urgency, impact and deadline are preserved', (int)$native->fields['type']===1 && (int)$native->fields['urgency']===5 && (int)$native->fields['impact']===4 && $native->fields['time_to_resolve']===str_replace('T',' ',$deadline).':00');
+foreach(['requester'=>CommonITILActor::REQUESTER,'assign'=>CommonITILActor::ASSIGN,'observer'=>CommonITILActor::OBSERVER] as $role=>$type){
+    $users=iterator_to_array($DB->request(['FROM'=>'glpi_tickets_users','WHERE'=>['tickets_id'=>$ticket,'type'=>$type]]),false);
+    $assignedGroups=iterator_to_array($DB->request(['FROM'=>'glpi_groups_tickets','WHERE'=>['tickets_id'=>$ticket,'type'=>$type]]),false);
+    $actualUsers=array_map('intval',array_column($users,'users_id'));sort($actualUsers);
+    $actualGroups=array_map('intval',array_column($assignedGroups,'groups_id'));sort($actualGroups);
+    $expectedGroups=$options[$role.'_groups'];sort($expectedGroups);
+    verify('native actors saved for '.$role,$actualUsers===[$me] && $actualGroups===$expectedGroups);
+}
 verify('workflow assignee persists through native database', Assignees::forInstance($data['instance'])===['users'=>[$me],'groups'=>[]]);
 verify('opening contains workflow banner, escaped request and an authenticated workflow button',
     str_contains($native->fields['content'],'WORKFLOW') && str_contains($native->fields['content'],'request_key='.$key)
@@ -41,7 +60,8 @@ Instances::act($id,'check','complete',['ok'=>'1','details'=>'Poste testé <scrip
 $done=followups($ticket);verify('native completion records final answers and percentage',count($done)===4&&str_contains($done[2]['content'],'50 %')&&str_contains($done[2]['content'],'Poste testé')&&str_contains($done[2]['content'],'Terminée par')&&!str_contains($done[2]['content'],'<script>'));
 verify('dependency activation appears after the completion message',str_contains($done[3]['content'],'Étape disponible')&&str_contains($done[3]['content'],'Remise du poste'));
 Instances::act($id,'finish','complete',[],4);
-$final=followups($ticket);verify('direct completion generates a claim and 100 percent completion',count($final)===6&&str_contains($final[5]['content'],'100 %'));
+$final=followups($ticket);verify('direct completion generates a claim and 100 percent completion',count($final)===7&&str_contains($final[5]['content'],'100 %'));
+verify('native final summary includes launch answers and every step', str_contains($final[6]['content'],'Workflow terminé — récapitulatif') && str_contains($final[6]['content'],'Informations du lancement') && str_contains($final[6]['content'],'Poste testé') && str_contains($final[6]['content'],'Remise du poste'));
 verify('all automatic followups remain internal',!array_filter($final,static fn($r)=>(int)$r['is_private']!==1));
 $native->getFromDB($ticket);verify('automatic followups do not reopen or resolve the ticket',!in_array((int)$native->fields['status'],[CommonITILObject::SOLVED,CommonITILObject::CLOSED],true));
 // Prepare deterministic objects for the browser integration, without depending on previous test IDs.

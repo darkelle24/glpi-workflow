@@ -8,6 +8,11 @@ final class Http
         global $CFG_GLPI;
         return $CFG_GLPI['root_doc'] . '/plugins/workflowbuilder/front/' . $page . ($params ? '?' . http_build_query($params) : '');
     }
+    public static function ticketWorkflow(int $ticket, int $instance = 0, string $step = ''): string
+    {
+        $url = \Ticket::getFormURLWithID($ticket) . '&forcetab=' . rawurlencode('PluginWorkflowbuilderTicket$1');
+        return $url . ($instance ? '#wb-instance-' . $instance . ($step !== '' ? '-step-' . rawurlencode($step) : '') : '');
+    }
     public static function token(): string
     {
         return $_SESSION['workflowbuilder_csrf'] ??= bin2hex(random_bytes(32));

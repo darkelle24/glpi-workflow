@@ -1,5 +1,28 @@
-# Rapport de validation — 4 novembre 2026
+# Rapport de validation — 5 novembre 2026
 
+## Navigation ticket, paramètres de création et récapitulatif final
+
+Contrôles exécutés sur les sources modifiées, avec PHP 8.5.12, Chromium et une installation GLPI 12 locale reliée à une base MariaDB explicitement réservée aux tests :
+
+| Vérification | Résultat |
+| --- | --- |
+| Moteur et validation des définitions | 80 tests réussis |
+| Services et permissions avec doublures GLPI | 68 tests réussis |
+| Éditeur, intervenants du ticket et choix multiples dans Chromium | 12 tests réussis |
+| Création, acteurs et suivis dans GLPI natif | 18 contrôles réussis |
+| Parcours complet dans le navigateur GLPI | 10 contrôles réussis |
+| Conditions JavaScript | 18 cas réussis |
+| Rendu du guide intégré | 10 contrôles réussis |
+| Syntaxe PHP | 57 fichiers sans erreur |
+| Contrats des extensions GLPI et diff Git | Réussite |
+
+La recette native vérifie les demandeurs, attribués et observateurs dans les tables d’acteurs réelles de GLPI, y compris plusieurs groupes attribués. Le type, l’urgence, l’impact et l’échéance sont relus sur le ticket créé. Le récapitulatif final est un suivi interne contenant les réponses du lancement et des deux étapes.
+
+Le navigateur crée un ticket, prend et termine une première étape, suit le lien de lancement, ouvre le workflow dans le ticket, prend la seconde étape, déclenche volontairement un refus de validation puis la termine. Les trois actions reviennent dans l’onglet Workflow du même ticket avec la bonne ancre ; l’étape terminée reste ouverte. La présence du récapitulatif complet dans le fil du ticket, le petit écran et l’absence d’erreurs JavaScript sont vérifiés. Le contrôle mobile attend la fin de la remise en page responsive de GLPI.
+
+Les tests de services vérifient également les valeurs invalides avant création, le droit natif d’attribution, la conservation des paramètres initiaux, les instances multiples dans un ticket, les cases à choix multiples et leur désélection complète, l’option de récapitulatif héritée ou désactivée, l’absence de doublons, la réouverture et l’annulation transactionnelle si le suivi final échoue.
+
+Schéma SQL inchangé : version 4. Aucune modification de GLPI de production.
 ## Mise à jour 0.1.4 — suivis de ticket et équipe du workflow
 
 Contrôles exécutés le 4 novembre 2026 sur un GLPI local et une base MariaDB de test dédiée :

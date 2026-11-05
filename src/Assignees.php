@@ -40,16 +40,16 @@ final class Assignees
         foreach ($team['groups'] ?? [] as $id) { $names[] = 'Groupe : ' . View::person('Group', (int) $id); }
         return $names ? implode(' · ', $names) : 'Selon les responsables des étapes et les permissions du modèle';
     }
-    public static function show(array $team): void
+    public static function show(array $team, string $inputName = 'assigned_%s[]', string $title = 'Affectation du workflow'): void
     {
         $labels = ['users' => [], 'groups' => []];
         foreach (['users' => 'User', 'groups' => 'Group'] as $key => $class) {
             foreach ($team[$key] as $id) { $labels[$key][$id] = View::person($class, $id); }
         }
-        echo '<fieldset class="wb-assignees card p-3 my-3" data-wb-assignees data-assignees="' . View::e(Store::json($team)) . '" data-assignee-labels="' . View::e(Store::json($labels)) . '"><legend>Affectation du workflow</legend>';
-        echo '<p>Choisir des utilisateurs et/ou des groupes pour les étapes sans responsable explicite. Les permissions du modèle et les droits du ticket restent nécessaires.</p><div data-assignees-ui></div><div data-assignees-inputs>';
+        echo '<fieldset class="wb-assignees card p-3 my-3" data-wb-assignees data-input-name="' . View::e($inputName) . '" data-assignees="' . View::e(Store::json($team)) . '" data-assignee-labels="' . View::e(Store::json($labels)) . '"><legend>' . View::e($title) . '</legend>';
+        if ($inputName === 'assigned_%s[]') { echo '<p>Choisir des utilisateurs et/ou des groupes pour les étapes sans responsable explicite. Les permissions du modèle et les droits du ticket restent nécessaires.</p>'; } echo '<div data-assignees-ui></div><div data-assignees-inputs>';
         foreach (['users', 'groups'] as $key) {
-            foreach ($team[$key] as $id) { echo '<input type="hidden" name="assigned_' . $key . '[]" value="' . (int) $id . '">'; }
+            foreach ($team[$key] as $id) { echo '<input type="hidden" name="' . View::e(sprintf($inputName, $key)) . '" value="' . (int) $id . '">'; }
         }
         echo '</div><noscript>Activer JavaScript pour sélectionner les responsables.</noscript></fieldset>';
     }

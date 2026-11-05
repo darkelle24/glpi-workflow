@@ -16,6 +16,7 @@ function rights():void {
     Session::$rights=array_fill_keys(array_keys(Access::RIGHTS),READ|UPDATE|CREATE);
     Session::$rights['native_ticket']=READ|UPDATE|CREATE;
     Session::$rights['native_followup']=CREATE;
+    Session::$rights['native_assign']=UPDATE;
     $_SESSION['glpigroups']=[12];
 }
 function definition():array {
@@ -269,5 +270,87 @@ check('attaching a workflow writes its opening as an internal native followup',f
     if(!str_contains($m[1]['content'],'Informations du lancement')||$m[1]['is_private']!==1)throw new RuntimeException('Missing attachment opening');
 });
 
+
+check('native ticket parameters and all actor roles survive workflow launch',function(){
+    global $DB;
+    $d=definition();$t=Templates::save(0,$d,0,false,0);Templates::publish($t,1);
+    $options=['type'=>'1','urgency'=>'5','impact'=>'4','time_to_resolve'=>'2026-12-20T17:30',
+        'requester_users'=>[7,8],'requester_groups'=>[12],'assign_users'=>[8],'assign_groups'=>[12,13],
+        'observer_users'=>[9,10],'observer_groups'=>[14]];
+    $id=Instances::launch($t,0,0,['request'=>'A'],bin2hex(random_bytes(32)),0,[],$options);
+    $data=Instances::data($id);$ticket=$DB->tables['glpi_tickets'][$data['instance']['tickets_id']];
+    eq(1,$ticket['type']);eq(5,$ticket['urgency']);eq(4,$ticket['impact']);eq('2026-12-20 17:30:00',$ticket['time_to_resolve']);
+    foreach(['requester','assign','observer'] as $role)foreach(['users','groups'] as $kind)eq($options[$role.'_'.$kind],$ticket['_'.$kind.'_id_'.$role]);
+    eq(WorkflowBuilder\TicketOptions::normalize($options),$data['values']['_ticket']['options']);
+});
+check('bad native ticket parameters are refused before creating tickets',function(){
+    global $DB;
+    $d=definition();$t=Templates::save(0,$d,0,false,0);Templates::publish($t,1);$before=$DB->tables;
+    foreach([['type'=>3],['urgency'=>6],['impact'=>0],['time_to_resolve'=>'2026-02-30T12:00'],['observer_users'=>[404]],['assign_groups'=>'12'],['status'=>6]] as $options){
+        denied(fn()=>Instances::launch($t,0,0,['request'=>'A'],bin2hex(random_bytes(32)),0,[],$options));eq($before,$DB->tables);
+    }
+    denied(fn()=>WorkflowBuilder\TicketOptions::fromInput(['ticket'=>'invalid']));
+});
+check('ticket assignment uses native permission and cannot be granted by workflow admin',function(){
+    $d=definition();$t=Templates::save(0,$d,0,false,0);Templates::publish($t,1);Session::$rights['native_assign']=0;
+    try { denied(fn()=>Instances::launch($t,0,0,['request'=>'A'],bin2hex(random_bytes(32)),0,[],['assign_users'=>[8]])); } finally { rights(); }
+});
+check('attaching ignores creation settings and leaves existing ticket actors unchanged',function(){
+    global $DB;
+    $id=messageFixture();$i=Store::one('instances',$id);$before=$DB->tables['glpi_tickets'][$i['tickets_id']];
+    Instances::launch((int)$i['templates_id'],(int)$i['tickets_id'],0,['request'=>'B'],bin2hex(random_bytes(32)),0,[],['type'=>1,'assign_users'=>[8]]);
+    eq($before,$DB->tables['glpi_tickets'][$i['tickets_id']]);
+});
+check('summary defaults on for legacy definitions and strictly validates its checkbox',function(){
+    $d=definition();unset($d['notify_summary']);eq(true,Definition::validate($d)['notify_summary']);
+    $d['notify_summary']='invalid';denied(fn()=>Definition::validate($d));
+});
+function summaryFixture(bool $notify=true, bool $noSteps=false):int {
+    $d=definition();$d['notify_summary']=$notify;
+    foreach($d['steps'] as &$step){$step['notify_available']=$step['notify_taken']=$step['notify_done']=false;}unset($step);
+    if($noSteps)foreach($d['steps'] as &$step){$step['required']=false;}unset($step);
+    $t=Templates::save(0,$d,0,false,0);Templates::publish($t,1);
+    return Instances::launch($t,0,0,['request'=>'Demande <script>'],bin2hex(random_bytes(32)),0,[],['urgency'=>4]);
+}
+check('one final summary includes initial and all step answers, ticket settings and comments',function(){
+    $id=summaryFixture();Instances::act($id,'check','complete',['ok'=>'1'],revision($id),'<b>Vérification</b>');eq([],messages($id));
+    Instances::act($id,'finish','complete',[],revision($id));eq(1,count(messages($id)));$html=messages($id)[0]['content'];
+    foreach(['Workflow terminé — récapitulatif','Informations du lancement','Vérifier','Vérifié','Oui','Finaliser','100 %','&lt;script&gt;','&lt;b&gt;Vérification','Paramètres du ticket au lancement','4 / 5'] as $part){if(!str_contains($html,$part))throw new RuntimeException('Summary misses '.$part);}
+    Instances::act($id,'finish','comment',[],revision($id),'Après fin');eq(1,count(messages($id)));
+    denied(fn()=>Instances::act($id,'finish','complete',[],revision($id)));eq(1,count(messages($id)));
+});
+check('disabled summary stays disabled and workflows complete immediately without required steps',function(){
+    $id=summaryFixture(false);Instances::act($id,'check','complete',['ok'=>'1'],revision($id));Instances::act($id,'finish','complete',[],revision($id));eq([],messages($id));
+    $immediate=summaryFixture(true,true);eq(1,count(messages($immediate)));eq('completed',Instances::data($immediate)['instance']['status']);
+});
+check('failed final summary rolls back completion and can be retried without duplicates',function(){
+    $id=summaryFixture();Instances::act($id,'check','complete',['ok'=>'1'],revision($id));$before=Instances::data($id);$history=Store::rows('history',['instances_id'=>$id]);
+    ITILFollowup::$failNext=true;denied(fn()=>Instances::act($id,'finish','complete',[],revision($id)));
+    eq($before,Instances::data($id));eq($history,Store::rows('history',['instances_id'=>$id]));eq([],messages($id));
+    Instances::act($id,'finish','complete',[],revision($id));eq(1,count(messages($id)));
+});
+check('a reopened workflow sends a fresh summary on its next completion',function(){
+    $id=summaryFixture();Instances::act($id,'check','complete',['ok'=>'1'],revision($id));Instances::act($id,'finish','complete',[],revision($id));
+    Instances::act($id,'finish','reopen',[],revision($id),'Corriger');Instances::act($id,'finish','complete',[],revision($id));eq(2,count(messages($id)));
+});
+check('ticket workflow actions retain ticket context and distinct anchors for multiple workflows',function(){
+    $id=messageFixture();$i=Store::one('instances',$id);
+    $second=Instances::launch((int)$i['templates_id'],(int)$i['tickets_id'],0,['request'=>'B'],bin2hex(random_bytes(32)));
+    ob_start();WorkflowBuilder\View::ticket((int)$i['tickets_id']);$html=ob_get_clean();
+    foreach([$id,$second] as $key){if(!str_contains($html,'id="wb-instance-'.$key.'-step-check"'))throw new RuntimeException('Missing unique anchor');}
+    if(!str_contains($html,'name="from_ticket" value="1"')||!str_contains($html,'Lien direct vers ce workflow'))throw new RuntimeException('Lost ticket context');
+    eq('/front/ticket.form.php?id='.$i['tickets_id'].'&forcetab=PluginWorkflowbuilderTicket%241#wb-instance-'.$id.'-step-check',WorkflowBuilder\Http::ticketWorkflow((int)$i['tickets_id'],$id,'check'));
+    ob_start();WorkflowBuilder\View::instance($id);$standalone=ob_get_clean();
+    if(!str_contains($standalone,'name="from_ticket" value="0"'))throw new RuntimeException('Wrong standalone context');
+});
+check('multiple choice fields render checkboxes and validate all selected choices',function(){
+    $fields=WorkflowBuilder\Fields::definitions([['id'=>'tools','label'=>'Outils','type'=>'multiselect','choices'=>['A','B','<C>'],'default'=>['A']]],[]);
+    ob_start();WorkflowBuilder\FormView::show($fields,['tools'=>['B','<C>']]);$html=ob_get_clean();
+    eq(3,substr_count($html,'type="checkbox"'));eq(2,substr_count($html,' checked'));
+    if(!str_contains($html,'&lt;C&gt;')||!str_contains($html,'name="values[tools]" value=""'))throw new RuntimeException('Unsafe choices or missing empty marker');
+    eq(['tools'=>['B','<C>']],WorkflowBuilder\Fields::formValues($fields,['tools'=>['B','<C>']]));
+    eq(['tools'=>null],WorkflowBuilder\Fields::formValues($fields,['tools'=>'']));
+    denied(fn()=>WorkflowBuilder\Fields::formValues($fields,['tools'=>['forged']]));
+});
 
 echo "\n$passed service tests passed; $failed failed (GLPI and database test doubles)\n";exit($failed?1:0);

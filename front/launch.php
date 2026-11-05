@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/_init.php';
-use WorkflowBuilder\{Access, Assignees, Http, View, Store, Templates, Instances, ValidationException};
+use WorkflowBuilder\{Access, Assignees, Http, View, Store, Templates, Instances, TicketOptions, ValidationException};
 Http::start('Lancer un workflow');
 try {
     Access::need('launch', CREATE);
@@ -11,11 +11,15 @@ try {
     if ($ticketId) { $entity = (int) Access::ticket($ticketId, true)->fields['entities_id']; }
     $templateId = Http::integer($_POST + $_GET, 'template');
     $assignees = Assignees::fromInput($_POST);
+    $ticketOptions = TicketOptions::normalize([]);
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             Http::post();
-            $instance = Instances::launch($templateId, $ticketId, $entity, Http::values($_POST), Http::string($_POST, 'request_key'), Http::integer($_POST, 'version'), $assignees);
-            Http::redirect(Http::url('instance.php', ['id' => $instance]));
+            $fromTicket = Http::integer($_POST, 'from_ticket');
+            if (!$ticketId) { $ticketOptions = TicketOptions::fromInput($_POST); }
+            $instance = Instances::launch($templateId, $ticketId, $entity, Http::values($_POST), Http::string($_POST, 'request_key'), Http::integer($_POST, 'version'), $assignees, $ticketOptions);
+            $created = Store::one('instances', $instance);
+            Http::redirect($fromTicket ? Http::ticketWorkflow((int) $created['tickets_id'], $instance) : Http::url('instance.php', ['id' => $instance]));
         } catch (Throwable $error) { Http::error($error); }
     }
     if (!$templateId) {
@@ -26,7 +30,7 @@ try {
                 Access::launch($template, $definition, $entity);
                 if (!($ticketId ? $definition['allow_attach'] : $definition['allow_create'])) { continue; }
             } catch (ValidationException) { continue; }
-            echo '<a class="card p-3" href="' . View::e(Http::url('launch.php', ['template' => $template['id'], 'tickets_id' => $ticketId, 'entities_id' => $entity])) . '"><h2>' . View::e($definition['name']) . '</h2><p>' . View::e($definition['description']) . '</p><small>Version ' . (int) $version['number'] . ' · ' . count($definition['steps']) . ' étapes</small></a>';
+            echo '<a class="card p-3" href="' . View::e(Http::url('launch.php', ['template' => $template['id'], 'tickets_id' => $ticketId, 'entities_id' => $entity, 'from_ticket' => Http::integer($_POST + $_GET, 'from_ticket')])) . '"><h2>' . View::e($definition['name']) . '</h2><p>' . View::e($definition['description']) . '</p><small>Version ' . (int) $version['number'] . ' · ' . count($definition['steps']) . ' étapes</small></a>';
         }
         echo '</div>';
     } else {
@@ -37,6 +41,8 @@ try {
         echo '<form method="post" data-wb-runtime data-initial-form data-form-values="{}">';
         Http::hidden(['template' => $templateId, 'version' => $version['id'], 'tickets_id' => $ticketId, 'entities_id' => $entity,
             'request_key' => Http::string($_POST, 'request_key', bin2hex(random_bytes(32)))]);
+        Http::hidden(['from_ticket' => Http::integer($_POST + $_GET, 'from_ticket')]);
+        if (!$ticketId) { TicketOptions::show($ticketOptions); }
         Assignees::show($assignees);
         WorkflowBuilder\FormView::show($definition['fields'], Http::values($_POST), false, $ticketId ?: null);
         echo '<button class="btn btn-primary mt-3">Valider et ' . ($ticketId ? 'associer au ticket' : 'créer le ticket') . '</button></form>';
