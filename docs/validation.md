@@ -1,5 +1,12 @@
 # Rapport de validation — 5 novembre 2026
 
+## Mise à jour 0.8.1 — Icônes des onglets du ticket (19 novembre 2026)
+
+Les onglets Workflow et Mes étapes à traiter utilisent le rendu natif GLPI createTabEntry avec, respectivement, les icônes ti-checklist et ti-list-check. Les identifiants et libellés restent inchangés ; les pictogrammes sont décoratifs pour les lecteurs d’écran. Cette API a été vérifiée dans les sources officielles GLPI 12.0.0 et 12.0.1.
+
+Les contrôles existants passent : 43 tests de la vue personnelle, 69 tests des services et 16 contrôles des URL d’onglets. Les cinq fichiers PHP modifiés passent la vérification de syntaxe ; le contrôle des espaces Git et la cohérence des dix références à la version courante 0.8.1 passent également. Les tests utilisent des doublures GLPI. L’affichage réel des icônes reste à vérifier après mise à jour du plugin dans GLPI ; aucun navigateur ou instance réelle n’a été utilisé pour cette modification.
+
+
 ## Mise à jour 0.8.0 — Échéances et tri par urgence (19 novembre 2026)
 
 - 43 tests ciblés réussis, dont neuf nouveaux scénarios pour les échéances : retards en tête, dates égales, absence de date, tri inverse et par récence, modifications de la date actuelle du ticket, valeurs invalides, changements d’heure, frontière exacte du retard, rendu dans les deux vues, tri avant pagination et validation des paramètres du contrôleur.

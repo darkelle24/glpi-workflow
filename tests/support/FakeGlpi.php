@@ -58,7 +58,12 @@ final class Session
 }
 function getAncestorsOf($table,$id):array{return [];}
 function getUserName($id):string{return (int)$id===7?'Technicien A':'Technicien B';}
-class CommonGLPI {}
+class CommonGLPI {
+    /** Explicit-icon subset of the native tab renderer, used by adapter tests. */
+    public static function createTabEntry($text, $nb = 0, ?string $form_itemtype = null, string $icon = '', ?int $total_nb = null): string {
+        return '<span><i class="' . htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></i>' . htmlspecialchars($text, ENT_QUOTES, 'UTF-8') . '</span>';
+    }
+}
 class CommonITILObject extends CommonGLPI {public const INCOMING=1;public const SOLVED=5;public const CLOSED=6;}
 final class Ticket extends CommonITILObject
 {

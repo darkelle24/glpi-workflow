@@ -1,5 +1,10 @@
 # Historique des versions
 
+## 0.8.1 — 19 novembre 2026
+
+- Icônes natives GLPI dans les onglets du ticket : checklist pour Workflow et liste cochée pour Mes étapes à traiter, en cohérence avec le menu latéral.
+- Rendu via createTabEntry, libellés accessibles conservés et icônes décoratives ; identifiants d’onglets, liens et droits inchangés.
+
 ## 0.8.0 — 19 novembre 2026
 
 - Échéance de résolution actuelle de chaque ticket affichée dans la liste Mes étapes à traiter et dans son onglet personnel, avec le format de date GLPI et un repère En retard lorsque l’échéance est dépassée.

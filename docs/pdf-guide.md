@@ -1,6 +1,6 @@
 # Tutoriel PDF — de la première fiche au modèle réutilisable
 
-Ce tutoriel explique pas à pas comment produire une fiche de connexion salarié avec Workflow Builder **0.8.0** pour GLPI 12. Deux méthodes sont disponibles : **composition automatique** et **placement libre**. Vous trouverez ici deux workflows JSON prêts à importer, des captures de l’éditeur et des exemples du résultat.
+Ce tutoriel explique pas à pas comment produire une fiche de connexion salarié avec Workflow Builder **0.8.1** pour GLPI 12. Deux méthodes sont disponibles : **composition automatique** et **placement libre**. Vous trouverez ici deux workflows JSON prêts à importer, des captures de l’éditeur et des exemples du résultat.
 
 > Les captures montrent les composants réels du plugin dans une démonstration autonome. Les réponses et personnes sont fictives. Les menus et couleurs de l’environnement GLPI peuvent varier selon votre thème et vos droits. Le tutoriel et toutes ses images sont livrés avec le plugin : il est consultable dans GLPI sans accéder à GitHub.
 

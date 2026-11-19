@@ -166,7 +166,9 @@ check('empty results and query markup are safe and readable', function () {
 check('side menu and ticket tabs respect view rights and preserve workflow tab number', function () {
     $id=fixture(); $ticket=Access::ticket(ticketId($id));
     $tabs=(new PluginWorkflowbuilderTicket())->getTabNameForItem($ticket);
-    eq([1=>'Workflow',2=>'Mes étapes à traiter'],$tabs);
+    eq([1=>'Workflow',2=>'Mes étapes à traiter'],array_map('strip_tags',$tabs));
+    eq(true,str_contains($tabs[1],'ti ti-checklist'));eq(true,str_contains($tabs[2],'ti ti-list-check'));
+    eq(true,str_contains($tabs[1],'aria-hidden="true"'));eq(true,str_contains($tabs[2],'aria-hidden="true"'));
     eq('/plugins/workflowbuilder/front/my-steps.php',PluginWorkflowbuilderMyStepsMenu::getMenuContent()['page']);
     $html=render(fn()=>PluginWorkflowbuilderTicket::displayTabContentForItem($ticket,2));
     eq(true,str_contains($html,'Mes étapes à traiter pour le ticket #'.ticketId($id)));

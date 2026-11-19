@@ -5,7 +5,8 @@ final class PluginWorkflowbuilderTicket extends CommonGLPI
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
         return $item instanceof Ticket && $item->getID() > 0 && WorkflowBuilder\Access::has('view')
-            ? [1 => __('Workflow', 'workflowbuilder'), 2 => __('Mes étapes à traiter', 'workflowbuilder')] : '';
+            ? [1 => self::createTabEntry(__('Workflow', 'workflowbuilder'), 0, null, 'ti ti-checklist'),
+                2 => self::createTabEntry(__('Mes étapes à traiter', 'workflowbuilder'), 0, null, 'ti ti-list-check')] : '';
     }
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
