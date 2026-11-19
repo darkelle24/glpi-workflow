@@ -339,7 +339,7 @@ check('ticket workflow actions retain ticket context and distinct anchors for mu
     ob_start();WorkflowBuilder\View::ticket((int)$i['tickets_id']);$html=ob_get_clean();
     foreach([$id,$second] as $key){if(!str_contains($html,'id="wb-instance-'.$key.'-step-check"'))throw new RuntimeException('Missing unique anchor');}
     if(!str_contains($html,'name="from_ticket" value="1"')||!str_contains($html,'Lien direct vers ce workflow'))throw new RuntimeException('Lost ticket context');
-    eq('/front/ticket.form.php?id='.$i['tickets_id'].'&forcetab=PluginWorkflowbuilderTicket%241#wb-instance-'.$id.'-step-check',WorkflowBuilder\Http::ticketWorkflow((int)$i['tickets_id'],$id,'check'));
+    eq('/front/ticket.form.php?id='.$i['tickets_id'].'&forcetab=PluginWorkflowbuilderTicket#wb-instance-'.$id.'-step-check',WorkflowBuilder\Http::ticketWorkflow((int)$i['tickets_id'],$id,'check'));
     ob_start();WorkflowBuilder\View::instance($id);$standalone=ob_get_clean();
     if(!str_contains($standalone,'name="from_ticket" value="0"'))throw new RuntimeException('Wrong standalone context');
 });

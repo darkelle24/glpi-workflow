@@ -1,5 +1,9 @@
 # Rapport de validation — 5 novembre 2026
 
+## Mise à jour 0.5.1 — paramètres d’onglets simplifiés
+
+Les tests locaux passent : 16 contrôles PHP des URL (dont identifiant dynamique, suppression de `$1` et conservation de `$4`), 9 contrôles du contrôleur et 69 tests de services. Les scénarios JavaScript avec DOM simulé couvrent aussi l’ouverture de `forcetab=Change_Ticket`, l’ancien lien `%241`, un onglet absent, l’absence d’entrée d’historique supplémentaire à l’ouverture et la restauration des ancres Workflow. Syntaxes PHP/JavaScript vérifiées. Aucun test de cette correction sur une instance GLPI ou dans un navigateur réel n’a été exécuté.
+
 ## Mise à jour 0.5.0 — URL des onglets (19 novembre 2026)
 
 - PHP 8.5.12 : 12 contrôles de noms, compatibilité, sous-répertoire, onglets disponibles et ancres ; 9 contrôles du contrôleur avec doublures GLPI (session, droits du ticket, onglet absent, paramètres invalides, refus de POST).

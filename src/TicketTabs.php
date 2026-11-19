@@ -31,7 +31,7 @@ final class TicketTabs
         global $CFG_GLPI;
         return self::pretty()
             ? $CFG_GLPI['root_doc'] . '/front/ticket/' . $ticket . '/' . self::slug($key)
-            : self::nativeUrl($ticket, $key);
+            : self::nativeUrl($ticket, preg_replace('/\\$1$/D', '', $key));
     }
 
     public static function nativeUrl(int $ticket, string $key): string

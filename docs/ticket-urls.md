@@ -22,7 +22,7 @@ Le plugin ne peut pas déclarer une route globale GLPI hors de son propre préfi
 
 Les autres onglets natifs disposent aussi de noms fixes. Les onglets ajoutés par d’autres plugins utilisent un nom `onglet-…` dérivé de leur identifiant technique, indépendant de la langue et du nombre affiché dans le badge.
 
-1. Déployer le plugin 0.5.0 et effectuer sa mise à jour dans GLPI. Le schéma SQL reste à 5.
+1. Déployer le plugin 0.5.1 et effectuer sa mise à jour dans GLPI. Le schéma SQL reste à 5.
 2. Ajouter la règle [Nginx](../deploy/ticket-urls.nginx.conf) ou [Apache](../deploy/ticket-urls.apache.conf) à la configuration existante, avant les règles génériques GLPI. Pour une installation sous `/glpi`, préfixer les chemins source et destination par `/glpi`. Avec Apache dans un sous-répertoire, adapter aussi le motif au contexte du VirtualHost ou du fichier .htaccess.
 3. Vérifier la syntaxe et recharger le serveur web selon votre environnement.
 4. Avant activation, essayer `https://glpi.udaf24.fr/front/ticket/11/statistiques` avec un ticket accessible : une redirection doit ouvrir son onglet Statistiques. Un onglet inconnu renvoie 404.
@@ -39,3 +39,8 @@ Le contrôleur exige une session GLPI, un plugin actif et le droit de lire le ti
 Vérifier avec un technicien puis un utilisateur à droits restreints : ouverture directe, changement d’onglet, rechargement, précédent/suivant, clic central/Ctrl+clic, sélecteur mobile, Tout, et lien Workflow avec ancre. Vérifier aussi un ticket inaccessible et un onglet inconnu.
 
 Les exemples de configuration ne sont pas appliqués automatiquement à votre serveur. Désactiver la variable avant de retirer la règle, afin de revenir aux URL natives sans casser la navigation. Aucun changement du cœur GLPI n’est nécessaire.
+## Liens simplifiés sans configuration serveur (0.5.1)
+
+Les onglets dont l’identifiant interne se termine par `$1` utilisent maintenant le nom de leur classe seul dans l’adresse : `/front/ticket.form.php?id=11&forcetab=Change_Ticket` ou `forcetab=TicketValidation`. L’identifiant du ticket reste dynamique.
+
+Le plugin sélectionne l’onglet disponible correspondant à l’ouverture du lien. Les anciens liens avec `%241` continuent de fonctionner et sont simplifiés à l’affichage. Les numéros distincts, comme `Ticket$4` pour Statistiques, et `Ticket$main` restent conservés. JavaScript et le plugin actif sont nécessaires à la résolution des liens simplifiés ; sans eux, GLPI peut afficher son onglet par défaut. Les appels internes de GLPI conservent leurs identifiants complets.

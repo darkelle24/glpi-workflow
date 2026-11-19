@@ -1,5 +1,10 @@
 # Historique des versions
 
+## 0.5.1 — 19 novembre 2026
+
+- Liens d’onglets simplifiés sans suffixe `$1` dans la barre d’adresse : `forcetab=Change_Ticket`, `forcetab=TicketValidation`, etc., sans configuration serveur supplémentaire.
+- Résolution de l’onglet demandé à l’ouverture, conservation des anciens liens complets et des ancres Workflow ; les autres numéros de sous-onglets restent inchangés.
+
 ## 0.5.0 — 19 novembre 2026
 
 - URL partageable pour chaque onglet de ticket : synchronisation de la barre d’adresse, retour/précédent du navigateur et liens ouvrables dans un nouvel onglet, y compris le sélecteur mobile et Tout.

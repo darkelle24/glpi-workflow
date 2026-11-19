@@ -19,7 +19,11 @@ function equal($expected, $actual): void {
 try {
     putenv('WORKFLOWBUILDER_TICKET_URLS=0');
     equal('/glpi/front/ticket.form.php?id=11&forcetab=Ticket%244', TicketTabs::url(11, 'Ticket$4'));
-    equal('/glpi/front/ticket.form.php?id=11&forcetab=PluginWorkflowbuilderTicket%241#wb-instance-7-step-check', Http::ticketWorkflow(11, 7, 'check'));
+    equal('/glpi/front/ticket.form.php?id=11&forcetab=PluginWorkflowbuilderTicket#wb-instance-7-step-check', Http::ticketWorkflow(11, 7, 'check'));
+    equal('/glpi/front/ticket.form.php?id=245&forcetab=Change_Ticket', TicketTabs::url(245, 'Change_Ticket$1'));
+    equal('/glpi/front/ticket.form.php?id=11&forcetab=TicketValidation', TicketTabs::url(11, 'TicketValidation$1'));
+    equal('/glpi/front/ticket.form.php?id=11&forcetab=Ticket%244', TicketTabs::url(11, 'Ticket$4'));
+    equal('/glpi/front/ticket.form.php?id=11&forcetab=Change_Ticket%241', TicketTabs::nativeUrl(11, 'Change_Ticket$1'));
     putenv('WORKFLOWBUILDER_TICKET_URLS=1');
     equal('/glpi/front/ticket/11/statistiques', TicketTabs::url(11, 'Ticket$4'));
     equal('/glpi/front/ticket/11/workflow#wb-instance-7-step-check', Http::ticketWorkflow(11, 7, 'check'));

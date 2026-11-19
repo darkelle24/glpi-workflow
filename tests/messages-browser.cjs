@@ -70,7 +70,7 @@ const state=JSON.parse(fs.readFileSync(process.env.WB_MESSAGES_STATE_PATH,'utf8'
         await finalStep.getByRole('button',{name:'Je prends en charge',exact:true}).click();
         await finalStep.locator('.wb-worker').waitFor();
         assert.match(page.url(),/\/front\/ticket\.form\.php\?/);
-        assert.equal(new URL(page.url()).searchParams.get('forcetab'),'PluginWorkflowbuilderTicket$1');
+        assert.equal(new URL(page.url()).searchParams.get('forcetab'),'PluginWorkflowbuilderTicket');
         console.log('PASS taking a step inside the ticket keeps the workflow tab open');
         await finalStep.getByRole('button',{name:'Signaler un blocage',exact:true}).click();
         await finalStep.waitFor();

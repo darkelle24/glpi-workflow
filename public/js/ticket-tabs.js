@@ -16,6 +16,7 @@
         }).then(function (data) {
             const links = Array.from(panel.querySelectorAll('a[data-bs-toggle="tab"]'));
             const byLink = new Map();
+            const byKey = new Map();
             links.forEach(function (link) {
                 const ajax = link.getAttribute('data-glpi-ajax-content');
                 const key = link.getAttribute('data-show-all-tabs') === 'true' ? '-1'
@@ -29,6 +30,7 @@
                 });
                 link.href = url.pathname + url.search;
                 byLink.set(link, link.href);
+                byKey.set(key, link);
             });
             let last = null;
             function sync(link, push) {
@@ -40,11 +42,32 @@
                 }
                 last = link;
             }
+            const requested = new URLSearchParams(location.search).get('forcetab');
+            const requestedLink = byKey.get(requested) || byKey.get(requested + '$1');
             const active = panel.querySelector('a.active');
-            if (active) sync(active, false);
+            let restoring = true;
             window.jQuery(panel).on('shown.bs.tab.wbTicketUrls', 'a[data-bs-toggle="tab"]', function () {
-                sync(this, true);
+                sync(this, !restoring);
             });
+            if (requestedLink && requestedLink !== active) {
+                // GLPI stores full internal keys; resolve the shorter public key on arrival.
+                // Keep workflow anchors working when GLPI initially loaded another tab.
+                const hash = location.hash;
+                if (hash) {
+                    const restoreAnchor = function () {
+                        let target;
+                        try { target = document.getElementById(decodeURIComponent(hash.slice(1))); }
+                        catch (error) { return; }
+                        if (!target || !requestedLink.classList.contains('active')) return;
+                        target.scrollIntoView();
+                        window.jQuery(document).off('glpi.tab.loaded.wbTicketUrlAnchor', restoreAnchor);
+                    };
+                    window.jQuery(document).on('glpi.tab.loaded.wbTicketUrlAnchor', restoreAnchor);
+                }
+                window.jQuery(requestedLink).tab('show');
+            }
+            if (requestedLink || active) sync(requestedLink || active, false);
+            restoring = false;
             // Bootstrap catches modifier clicks; preserve normal browser link behavior.
             panel.addEventListener('click', function (event) {
                 const link = event.target.closest('a');
