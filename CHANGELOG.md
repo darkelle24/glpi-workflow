@@ -1,5 +1,27 @@
 # Historique des versions
 
+## 0.8.0 — 19 novembre 2026
+
+- Échéance de résolution actuelle de chaque ticket affichée dans la liste Mes étapes à traiter et dans son onglet personnel, avec le format de date GLPI et un repère En retard lorsque l’échéance est dépassée.
+- Tri par défaut de l’échéance la plus proche : tickets en retard en tête, puis échéances futures ; tickets sans échéance en dernier. Choix du tri inverse ou des tickets les plus récents, conservé avec les filtres et la pagination.
+- Dates relues depuis le ticket, y compris après une modification GLPI ; dates absentes ou invalides présentées Sans échéance. Classement appliqué avant pagination et ordre stable en cas d’égalité.
+- Tests des retards, des tris, des échéances modifiées, de la pagination et des changements d’heure ; schéma SQL 5 et format JSON schema 1 conservés.
+
+## 0.7.0 — 19 novembre 2026
+
+- Vue Mes étapes à traiter regroupée par ticket, même avec plusieurs workflows : étapes terminées par l’utilisateur connecté / total personnel, étapes restantes, actions disponibles immédiatement et étapes en attente ; vingt tickets par page.
+- Clic sur un ticket vers son onglet Mes étapes à traiter, avec toutes ses étapes personnelles restantes en détail : descriptions, procédures, responsables, champs, commentaires et boutons d’action selon les droits et l’état.
+- Les étapes en attente ou bloquées restent visibles dans les tâches restantes ; les tickets sans travail personnel restant disparaissent. Les validations des collègues ne sont pas comptées comme un travail réalisé par l’utilisateur connecté.
+- Retour dans le même onglet après les actions, conservation des valeurs en cas d’erreur et ancres distinctes pour l’onglet Tout. Les filtres de la liste conservent les compteurs complets de chaque ticket.
+- Schéma SQL 5 et format JSON schema 1 inchangés.
+
+## 0.6.0 — 19 novembre 2026
+
+- Nouvelle entrée Assistance → Mes étapes à traiter : étapes personnelles disponibles, en cours ou à débloquer, recherche par numéro ou titre de ticket, filtre par état et pagination.
+- Nouvel onglet Mes étapes à traiter sur chaque ticket, limité aux étapes de ce ticket ; liens directs vers le ticket, son workflow et l’étape sélectionnée. L’onglet Workflow complet reste disponible.
+- Affectations utilisateur/groupe, équipe du workflow, prise en charge, droits natifs et restrictions du modèle respectés ; tickets supprimés, inaccessibles, résolus ou clos exclus. Les droits d’administration n’ajoutent pas les étapes affectées aux autres responsables à la vue personnelle.
+- Schéma SQL 5 et format JSON schema 1 inchangés.
+
 ## 0.5.1 — 19 novembre 2026
 
 - Liens d’onglets simplifiés sans suffixe `$1` dans la barre d’adresse : `forcetab=Change_Ticket`, `forcetab=TicketValidation`, etc., sans configuration serveur supplémentaire.

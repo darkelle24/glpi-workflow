@@ -12,7 +12,8 @@ final class TicketTabs
         'TicketCost$1' => 'couts', 'Itil_Project$1' => 'projets',
         'ProjectTask_Ticket$1' => 'taches-projet', 'Problem_Ticket$1' => 'problemes',
         'Change_Ticket$1' => 'changements', 'Ticket_Contract$1' => 'contrats',
-        'Log$1' => 'historique', 'PluginWorkflowbuilderTicket$1' => 'workflow', '-1' => 'tout',
+        'Log$1' => 'historique', 'PluginWorkflowbuilderTicket$1' => 'workflow',
+        'PluginWorkflowbuilderTicket$2' => 'mes-etapes', '-1' => 'tout',
     ];
 
     public static function pretty(): bool

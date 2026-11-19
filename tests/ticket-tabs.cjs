@@ -14,7 +14,7 @@ async function fixture({pretty = true, path = '/glpi/front/ticket.form.php?id=11
         const attributes = key === '-1' ? {'data-show-all-tabs':'true'} : {'data-glpi-ajax-content':'/glpi/ajax/common.tabs.php?_glpi_tab=' + encodeURIComponent(key)};
         let href = '#'; return {active, get href() {return new URL(href, current).href;}, set href(value) {href=value;}, get classList() {return {contains: () => this.active};}, getAttribute(name) {return attributes[name] || null;}};
     }
-    const links = [link('Ticket$4', true), link('PluginWorkflowbuilderTicket$1'), link('-1'), link('Change_Ticket$1')];
+    const links = [link('Ticket$4', true), link('PluginWorkflowbuilderTicket$1'), link('-1'), link('Change_Ticket$1'), link('PluginWorkflowbuilderTicket$2')];
     const panel = {querySelectorAll() {return links;}, querySelector() {return links.find(a=>a.active);}, addEventListener(name, fn) {panelEvents[name] = fn;}};
     const window = {addEventListener(name, fn) {events[name] = fn;}, jQuery(target) {return {
         on(name, selector, fn) {if (typeof selector === 'function') events[name] = selector; else shown = fn;},
@@ -22,7 +22,7 @@ async function fixture({pretty = true, path = '/glpi/front/ticket.form.php?id=11
         tab() {links.forEach(a => a.active = false); target.active = true; if (shown) shown.call(target);}
     };}};
     window.top = window.self = window;
-    const tabs = Object.fromEntries(['Ticket$4','PluginWorkflowbuilderTicket$1','-1','Change_Ticket$1'].map((key,i) => [key, {url:pretty ? '/glpi/front/ticket/11/' + ['statistiques','workflow','tout','changements'][i] : '/glpi/front/ticket.form.php?id=11&forcetab='+encodeURIComponent(key.endsWith('$1') ? key.slice(0,-2) : key)}]));
+    const tabs = Object.fromEntries(['Ticket$4','PluginWorkflowbuilderTicket$1','-1','Change_Ticket$1','PluginWorkflowbuilderTicket$2'].map((key,i) => [key, {url:pretty ? '/glpi/front/ticket/11/' + ['statistiques','workflow','tout','changements','mes-etapes'][i] : '/glpi/front/ticket.form.php?id=11&forcetab='+encodeURIComponent(key.endsWith('$1') ? key.slice(0,-2) : key)}]));
     const context = {
         window, location, URL, URLSearchParams, console,
         document: {readyState:'complete', getElementById(id) {return id === 'tabspanel' ? panel : id === 'wb-instance-7' ? {scrollIntoView(){anchorScrolls++;}} : null;}},
@@ -69,6 +69,11 @@ async function fixture({pretty = true, path = '/glpi/front/ticket.form.php?id=11
     anchored.events['glpi.tab.loaded.wbTicketUrlAnchor']();
     assert.equal(anchored.anchorScrolls,1);
     assert.equal(anchored.events['glpi.tab.loaded.wbTicketUrlAnchor'],undefined);
+    const mine = await fixture({pretty:false,path:'/glpi/front/ticket.form.php?id=11&forcetab=PluginWorkflowbuilderTicket%242'});
+    assert.equal(mine.links[4].active,true);
+    assert.equal(new URL(mine.location.href).searchParams.get('forcetab'),'PluginWorkflowbuilderTicket$2');
+    const minePretty = await fixture({path:'/glpi/front/ticket.form.php?id=11&forcetab=PluginWorkflowbuilderTicket%242'});
+    assert.equal(minePretty.location.pathname,'/glpi/front/ticket/11/mes-etapes');
     const unrelated = await fixture({path:'/glpi/front/problem.form.php?id=11'});
     assert.equal(unrelated.fetches,0);
     const creation = await fixture({path:'/glpi/front/ticket.form.php?id=0'});

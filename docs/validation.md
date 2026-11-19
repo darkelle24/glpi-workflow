@@ -1,5 +1,42 @@
 # Rapport de validation — 5 novembre 2026
 
+## Mise à jour 0.8.0 — Échéances et tri par urgence (19 novembre 2026)
+
+- 43 tests ciblés réussis, dont neuf nouveaux scénarios pour les échéances : retards en tête, dates égales, absence de date, tri inverse et par récence, modifications de la date actuelle du ticket, valeurs invalides, changements d’heure, frontière exacte du retard, rendu dans les deux vues, tri avant pagination et validation des paramètres du contrôleur.
+- Les filtres et compteurs personnels restent inchangés par le classement ; le tri choisi est conservé dans la pagination. Le rendu passe par le formatage natif des dates GLPI ; l’existence de cette API a été contrôlée dans les sources officielles GLPI 12.0.0 et 12.0.1 et ajoutée aux contrats de la CI.
+- Non-régression : 82 tests du moteur, 69 tests des services, 17 contrôles PDF, 13 contrôles PDF automatique, 16 contrôles d’URL, 9 contrôles du contrôleur d’onglets et 18 cas des conditions JavaScript réussis. Les scénarios de navigation des onglets passent également.
+- Syntaxe des 76 fichiers PHP vérifiée avec PHP 8.5.12 et contrôle des espaces Git réussi. Cohérence des dix références à la version courante 0.8.0 vérifiée ; schéma SQL 5 conservé.
+
+Ces contrôles utilisent des doublures GLPI et de base de données ainsi qu’un DOM simulé. Aucune instance GLPI réelle, navigateur réel ou base MariaDB n’a été utilisé pour cette modification. Les contrôles optionnels de rendu TCPDF ont été ignorés faute de dépendances de rendu. Le format de date utilisateur et son fuseau horaire restent à vérifier dans GLPI, les tests locaux utilisant une doublure du formatage natif.
+
+Après déploiement, vérifier plusieurs tickets avec une date passée, une date future et aucune échéance. Tester le tri par défaut, le tri inverse et les filtres combinés sur plusieurs pages, puis ouvrir un ticket pour retrouver son échéance dans l’onglet personnel. Modifier une échéance dans GLPI et actualiser la liste pour vérifier sa nouvelle position.
+
+
+## Mise à jour 0.7.0 — Liste de tickets et étapes détaillées (19 novembre 2026)
+
+- 34 tests ciblés réussis : droits, affectations et états existants, une seule ligne par ticket avec plusieurs workflows, compteurs cumulés, attribution des validations à leur auteur réel, étapes futures en attente, filtres sans modification des totaux, vingt tickets par page, disparition des tickets terminés et mise à jour après réouverture.
+- Rendu personnel vérifié : descriptions, procédures, champs modifiables, commentaires et actions ; masquage des étapes des autres et des étapes terminées ; champs en attente en lecture seule et validation impossible avant les préalables. Les deux onglets utilisent des ancres distinctes lorsqu’ils sont affichés ensemble.
+- Contrôleur d’action réel testé avec doublures GLPI : retour à l’onglet personnel après validation, conservation et réaffichage des valeurs après erreur, maintien des destinations historiques de l’onglet Workflow et de la page d’instance.
+- Non-régression : 82 tests du moteur, 69 tests des services, 17 contrôles PDF, 13 contrôles PDF automatique, 16 contrôles d’URL, 9 contrôles du contrôleur d’onglets et 18 cas des conditions JavaScript réussis. Les scénarios JavaScript de navigation des onglets passent également.
+- Syntaxe vérifiée sur 76 fichiers PHP avec PHP 8.5.12, JavaScript et contrôle des espaces Git. Les métadonnées, guides et archive utilisent la version 0.7.0 ; schéma SQL 5 conservé.
+
+Ces contrôles utilisent des doublures GLPI et base de données ainsi qu’un DOM simulé. Aucun test sur une instance GLPI réelle, un navigateur réel ou MariaDB n’a été effectué pour cette modification. Les contrôles optionnels de rendu TCPDF ont été ignorés faute de dépendances de rendu.
+
+Après déploiement, ouvrir **Assistance → Mes étapes à traiter**, vérifier une seule ligne pour un ticket à plusieurs workflows, filtrer puis cliquer sur **Ouvrir mes étapes**. Vérifier les formulaires directement dans le ticket, terminer une étape, puis contrôler les compteurs et le maintien de l’onglet. Tester aussi une erreur sur un champ obligatoire et une étape en attente de préalable.
+
+
+## Mise à jour 0.6.0 — Mes étapes à traiter (19 novembre 2026)
+
+- 23 tests ciblés réussis : affectations utilisateur/groupe, équipe du workflow, responsabilités personnelles sans élargissement administratif, prise en charge, droits d’exécution et de validation, dépendances, conditions effectives, étapes facultatives, tickets inaccessibles/supprimés/résolus/clos, filtres combinés par numéro/titre/état, pagination, échappement HTML, onglets et contrôleur réel sans écriture de données.
+- Non-régression PHP : 82 tests du moteur, 69 tests des services, 17 contrôles PDF, 13 contrôles PDF automatique, 16 contrôles d’URL et 9 contrôles du contrôleur des onglets réussis.
+- JavaScript : 18 cas des conditions réussis ; scénarios de navigation des onglets réussis, étendus au nouvel onglet personnel en URL native et courte.
+- Syntaxe vérifiée sur 76 fichiers PHP avec PHP 8.5.12 ; syntaxe JavaScript et contrôle des espaces Git réussis. Les menus multiples et onglets multiples ont été vérifiés dans les sources officielles GLPI 12.0.1.
+
+Les tests PHP utilisent des doublures GLPI et de base de données, et les tests JavaScript un DOM simulé. Aucun test sur une instance GLPI réelle, dans un navigateur réel ou avec MariaDB n’a été exécuté pour cette mise à jour. Les contrôles de rendu TCPDF optionnels ont été ignorés faute de dépendances de rendu. Le schéma SQL reste à 5.
+
+Après déploiement et mise à jour du plugin, vérifier avec un technicien : **Assistance → Mes étapes à traiter**, filtre par numéro puis titre de ticket, filtre par état, clic vers le ticket et l’étape exacte, puis nouvel onglet **Mes étapes à traiter** limité au ticket ouvert. Vérifier également avec un second technicien qu’une étape prise en charge disparaît de sa liste et que le ticket clos n’est plus proposé.
+
+
 ## Mise à jour 0.5.1 — paramètres d’onglets simplifiés
 
 Les tests locaux passent : 16 contrôles PHP des URL (dont identifiant dynamique, suppression de `$1` et conservation de `$4`), 9 contrôles du contrôleur et 69 tests de services. Les scénarios JavaScript avec DOM simulé couvrent aussi l’ouverture de `forcetab=Change_Ticket`, l’ancien lien `%241`, un onglet absent, l’absence d’entrée d’historique supplémentaire à l’ouverture et la restauration des ancres Workflow. Syntaxes PHP/JavaScript vérifiées. Aucun test de cette correction sur une instance GLPI ou dans un navigateur réel n’a été exécuté.

@@ -49,12 +49,14 @@ try {
             Http::redirect(Http::url('template.form.php', ['id' => $copy]));
         case 'step':
             $fromTicket = Http::integer($_POST, 'from_ticket');
+            $fromMySteps = $fromTicket && Http::integer($_POST, 'from_my_steps') === 1;
             Instances::act($id, Http::string($_POST, 'step'), Http::string($_POST, 'action'),
                 Http::values($_POST), Http::integer($_POST, 'revision'), Http::string($_POST, 'comment'),
                 Http::integer($_POST, 'users_id'), Http::integer($_POST, 'groups_id'));
             $instance = Store::one('instances', $id);
             $step = Http::string($_POST, 'step');
-            Http::redirect($fromTicket ? Http::ticketWorkflow((int) $instance['tickets_id'], $id, $step) : Http::url('instance.php', ['id' => $id]) . '#wb-step-' . rawurlencode($step));
+            $ticketUrl = $fromMySteps ? Http::ticketMySteps((int) $instance['tickets_id'], $id, $step) : Http::ticketWorkflow((int) $instance['tickets_id'], $id, $step);
+            Http::redirect($fromTicket ? $ticketUrl : Http::url('instance.php', ['id' => $id]) . '#wb-step-' . rawurlencode($step));
         case 'rights':
             if (!Access::has('admin', UPDATE) && !Access::canBootstrapRights()) { throw new ValidationException('Administration des droits interdite.'); }
             $profile = new Profile();
@@ -91,7 +93,9 @@ try {
             $step = is_string($_POST['step'] ?? null) ? $_POST['step'] : '';
             if (is_array($_POST['values'] ?? null)) { $_SESSION['wb_failed'][$id][$step] = $_POST['values']; }
             Session::addMessageAfterRedirect(View::e($error->getMessage()), false, ERROR);
-            Http::redirect(Http::ticketWorkflow((int) $returnInstance['tickets_id'], $id, $step));
+            Http::redirect(($_POST['from_my_steps'] ?? '') === '1'
+                ? Http::ticketMySteps((int) $returnInstance['tickets_id'], $id, $step)
+                : Http::ticketWorkflow((int) $returnInstance['tickets_id'], $id, $step));
         }
     }
     Http::start('Action non effectuée');

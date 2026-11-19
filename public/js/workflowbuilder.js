@@ -918,7 +918,7 @@
         if(target && !confirm(target.dataset.confirm))event.preventDefault();
     });
     function openLinkedStep() {
-        if (!/^#wb-(step-|instance-)/.test(location.hash)) return;
+        if (!/^#wb-(step-|instance-|my-instance-)/.test(location.hash)) return;
         const step = document.getElementById(location.hash.slice(1));
         if (step?.matches('details.wb-step')) step.open = true;
     }

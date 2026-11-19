@@ -13,6 +13,11 @@ final class Http
         $url = TicketTabs::url($ticket, 'PluginWorkflowbuilderTicket$1');
         return $url . ($instance ? '#wb-instance-' . $instance . ($step !== '' ? '-step-' . rawurlencode($step) : '') : '');
     }
+    public static function ticketMySteps(int $ticket, int $instance = 0, string $step = ''): string
+    {
+        $url = TicketTabs::url($ticket, 'PluginWorkflowbuilderTicket$2');
+        return $url . ($instance ? '#wb-my-instance-' . $instance . ($step !== '' ? '-step-' . rawurlencode($step) : '') : '');
+    }
     public static function token(): string
     {
         return $_SESSION['workflowbuilder_csrf'] ??= bin2hex(random_bytes(32));
@@ -26,11 +31,12 @@ final class Http
             throw new ValidationException('Le formulaire a expiré. Recharger la page.');
         }
     }
-    public static function start(string $title): void
+    public static function start(string $title, string $menu = 'PluginWorkflowbuilderMenu'): void
     {
-        \Html::header($title, '', 'helpdesk', 'PluginWorkflowbuilderMenu');
+        \Html::header($title, '', 'helpdesk', $menu);
         echo '<main class="wb container-fluid" data-wb-root data-lookup="' . View::e(self::url('lookup.php')) . '">';
         echo '<nav class="wb-toolbar"><a class="btn btn-outline-secondary" href="' . View::e(self::url('index.php')) . '">Workflows</a>';
+        if (Access::has('view')) { echo '<a class="btn btn-outline-secondary" href="' . View::e(self::url('my-steps.php')) . '">Mes étapes à traiter</a>'; }
         echo '<a class="btn btn-outline-secondary" href="' . View::e(self::url('launch.php')) . '">Lancer un workflow</a>';
         if (Access::has('template', CREATE)) {
             echo '<a class="btn btn-outline-secondary" href="' . View::e(self::url('template.form.php')) . '">Nouveau modèle</a>';

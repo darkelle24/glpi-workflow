@@ -48,17 +48,18 @@ final class FakeDb
 }
 final class Session
 {
-    public static array $rights=[];public static array $messages=[];public static int $user=7;
+    public static array $rights=[];public static array $messages=[];public static int $user=7;public static ?string $now=null;
     public static function haveRight(string $name,int $bit):bool{return ((self::$rights[$name]??0)&$bit)===$bit;}
     public static function haveAccessToEntity($id,$recursive=false):bool{return (int)$id===0;}
-    public static function getCurrentTime(): ?string { return date('Y-m-d H:i:s'); }
+    public static function getCurrentTime(): ?string { return self::$now ?? date('Y-m-d H:i:s'); }
     public static function getLoginUserID():int{return self::$user;}
     public static function checkLoginUser():void{if(self::$user<=0)throw new \WorkflowBuilder\ValidationException('Session requise.');}
     public static function addMessageAfterRedirect($message,$unused=false,$type=0):void{self::$messages[]=$message;}
 }
 function getAncestorsOf($table,$id):array{return [];}
 function getUserName($id):string{return (int)$id===7?'Technicien A':'Technicien B';}
-class CommonITILObject {public const INCOMING=1;public const SOLVED=5;public const CLOSED=6;}
+class CommonGLPI {}
+class CommonITILObject extends CommonGLPI {public const INCOMING=1;public const SOLVED=5;public const CLOSED=6;}
 final class Ticket extends CommonITILObject
 {
     public array $fields=[];public array|false $input=[];
@@ -98,7 +99,7 @@ class Reference
     }
 }
 class User extends Reference {public static function isUserReauthenticationNeeded():bool{return false;}} class Group extends Reference {} class Entity extends Reference {} class Computer extends Reference {}
-class KnowbaseItem extends Reference {}
+class KnowbaseItem extends Reference {public static function getFormURLWithID($id):string{return '/front/knowbaseitem.form.php?id='.$id;}}
 class Document extends Reference
 {
     public function getFromDB($id):bool{return $this->can($id,READ);}

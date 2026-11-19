@@ -2,7 +2,7 @@
 
 Workflow Builder permet de construire des procédures génériques depuis GLPI : formulaire de lancement, étapes avec champs, conditions visuelles, dépendances, documentation et historique. Les définitions sont enregistrées dans MariaDB. Chaque lancement conserve sa version publiée.
 
-Version courante : **0.5.1**. Nom technique et dossier d’installation : **workflowbuilder**. Cible déclarée : **GLPI 12.0.x**, PHP **8.3 minimum**, MariaDB avec InnoDB. Les points d’extension ont été contrôlés dans les sources officielles de GLPI **12.0.0 et 12.0.1**. La validation de votre déploiement Docker reste nécessaire ; consulter le [rapport de validation](docs/validation.md).
+Version courante : **0.8.0**. Nom technique et dossier d’installation : **workflowbuilder**. Cible déclarée : **GLPI 12.0.x**, PHP **8.3 minimum**, MariaDB avec InnoDB. Les points d’extension ont été contrôlés dans les sources officielles de GLPI **12.0.0 et 12.0.1**. La validation de votre déploiement Docker reste nécessaire ; consulter le [rapport de validation](docs/validation.md).
 
 ## Démarrage
 
@@ -23,6 +23,7 @@ Aucune modification du cœur GLPI n’est nécessaire. Le serveur n’a besoin n
 - Conditions ET/OU, visibilité des champs et étapes, activation et blocage ; rejet des dépendances circulaires.
 - Création de ticket avec demandeurs, intervenants attribués, observateurs, utilisateurs et groupes multiples, type, urgence, impact et échéance ; association aux tickets existants.
 - États persistants, validation côté serveur, responsables, dates, commentaires et progression.
+- Mes étapes à traiter : liste par ticket avec progression personnelle, échéances et tri par urgence, puis étapes détaillées et actions dans le ticket.
 - Suivis internes automatiques par étape, récapitulatif final configurable activé par défaut, équipe choisie au lancement et liens directs ; les actions de l’onglet Workflow restent dans le ticket.
 - Prise en charge nominative : « Je prends en charge », nom du technicien visible sur l’étape et libération pour passer le relais.
 - Sélecteur de fiches GLPI avec aperçus, filtres combinables, création de procédures structurées et accès direct depuis les étapes du ticket ; droits natifs vérifiés.
@@ -71,6 +72,7 @@ docs/                       documentation
 ~~~sh
 php tests/run.php
 php tests/services.php
+php tests/my-steps.php # liste personnelle, droits, filtres et navigation ticket
 php tests/pdf-groups.php # composition automatique et modèles de base
 php tests/pdf.php # validations et droits ; fournir un vendor TCPDF isolé pour le rendu réel
 php tests/contracts.php /chemin/vers/les/sources/glpi

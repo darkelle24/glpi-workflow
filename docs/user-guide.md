@@ -2,7 +2,7 @@
 
 **Créer une procédure, la lancer sur un ticket et suivre le travail de chaque technicien.**
 
-Ce guide accompagne Workflow Builder 0.5.1 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
+Ce guide accompagne Workflow Builder 0.8.0 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
 
 > **Les mêmes guides dans GLPI et dans le dépôt.** Ce fichier Markdown est la source du bouton **Guide utilisateur** dans GLPI et du guide consultable dans le dépôt. La page GLPI lit ce fichier livré avec le plugin ; le tutoriel PDF dispose de sa propre source, accessible depuis cette page et la navigation. Déployer sa mise à jour actualise aussi le guide affiché.
 >
@@ -13,6 +13,7 @@ Ce guide accompagne Workflow Builder 0.5.1 pour GLPI 12. Il s’adresse aux **te
 - [Démarrer en cinq minutes](#démarrer-en-cinq-minutes)
 - [Comprendre les modèles et les workflows lancés](#comprendre-les-modèles-et-les-workflows-lancés)
 - [Lancer un workflow](#lancer-un-workflow)
+- [Mes étapes à traiter](#mes-étapes-à-traiter)
 - [Prendre en charge une étape](#prendre-en-charge-une-étape)
 - [Renseigner et terminer les étapes](#renseigner-et-terminer-les-étapes)
 - [Comprendre les états et la progression](#comprendre-les-états-et-la-progression)
@@ -92,6 +93,24 @@ Chaque workflow possède un **Lien direct vers ce workflow**, que vous pouvez co
 *Le ticket conserve la version utilisée, les réponses du lancement, la progression et la checklist.*
 
 > Si vos modèles natifs de tickets imposent des informations supplémentaires que la page de lancement ne fournit pas, créer d’abord le ticket dans GLPI, puis lui associer le workflow.
+
+## Mes étapes à traiter
+
+Ouvrir **Assistance → Mes étapes à traiter** pour retrouver les **tickets ayant des étapes personnelles restantes**. Chaque ticket occupe une seule ligne, même s’il contient plusieurs workflows. La liste affiche vingt tickets par page.
+
+La colonne **Échéance du ticket** indique sa date et son heure de résolution prévues, selon le format de date de GLPI. Il s’agit de l’échéance actuelle du ticket : si elle est modifiée dans GLPI, la liste actualisée reprend cette nouvelle date. Le repère rouge **En retard** signale une échéance dépassée. Sans date définie, la mention **Sans échéance** apparaît. Cette échéance concerne le ticket et tous ses workflows.
+
+Le menu **Trier par** sélectionne par défaut **Échéance la plus proche** : les tickets en retard arrivent en tête, suivis des échéances futures. **Échéance la plus lointaine** inverse le classement des dates ; les tickets sans échéance restent à la fin dans les deux cas. **Tickets les plus récents** permet de classer par numéro décroissant. Cliquer sur **Filtrer** pour appliquer le choix ; le tri est conservé en changeant de page ou en combinant les filtres. L’échéance figure aussi en haut de l’onglet personnel du ticket.
+
+La progression présente **les étapes terminées par vous / votre total personnel**, ainsi que les **étapes restantes**, celles **à traiter maintenant** et celles **en attente**. Par exemple, **3 / 5 traitées par vous · 2 restantes** signifie que vous avez terminé trois étapes et qu’il vous en reste deux. Le total personnel est la somme des étapes que vous avez terminées et de vos étapes restantes ; les validations effectuées par un collègue ne vous sont pas attribuées. Les étapes en attente de préalables et les étapes bloquées comptent dans le reste à faire. Un ticket sans étape personnelle restante disparaît de la liste.
+
+Saisir un **numéro de ticket** (avec ou sans `#`) ou une partie de son **titre**, puis choisir éventuellement un **état d’étape restante** et cliquer sur **Filtrer**. Ce filtre sélectionne les tickets concernés et conserve tous leurs compteurs personnels. **Réinitialiser** retire les filtres.
+
+Cliquer sur le titre du ticket ou **Ouvrir mes étapes** ouvre directement l’onglet **Mes étapes à traiter** de ce ticket. Cet onglet présente **toutes vos étapes restantes**, regroupées par workflow, avec leurs descriptions, procédures associées, responsables, valeurs, champs à remplir, commentaires et boutons d’action. Les étapes en attente restent consultables ; les actions deviennent disponibles selon les dépendances et vos droits. Après une prise en charge, un enregistrement ou une validation, vous restez dans cet onglet. En cas d’erreur de saisie, vos réponses sont conservées pour correction.
+
+La liste respecte les responsables explicites des étapes, vos groupes, l’équipe choisie au lancement et vos droits. Une étape sans responsable ni équipe est proposée à tous les exécutants autorisés. Les étapes prises en charge par un autre technicien, terminées ou non applicables ne figurent pas parmi vos étapes restantes. Les tickets supprimés, résolus, clos ou que vous ne pouvez pas modifier sont exclus. Un administrateur ne récupère pas automatiquement les affectations des autres dans sa liste personnelle. Les étapes facultatives encore restantes restent visibles même si le workflow a terminé toutes ses étapes obligatoires.
+
+L’onglet **Workflow** conserve la procédure complète et son historique. Il reste disponible à côté de votre vue personnelle.
 
 ## Prendre en charge une étape
 
