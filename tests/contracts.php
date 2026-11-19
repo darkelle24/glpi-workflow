@@ -6,7 +6,7 @@ if (!$root) { fwrite(STDERR, "Usage: php tests/contracts.php /path/to/glpi-sourc
 $contracts = [
     'src/DBmysql.php' => ['doQuery','fetchAssoc','request','insert','insertId','update','updateOrInsert','delete','tableExists','beginTransaction','commit','rollBack'],
     'src/Plugin.php' => ['registerClass','isPluginActive','doHook'],
-    'src/CommonGLPI.php' => ['getTypeName','getMenuContent','getTabNameForItem','displayTabContentForItem','getFormURLWithID','isUserReauthenticationNeeded','checkReAuthenticationOrRedirect'],
+    'src/CommonGLPI.php' => ['defineAllTabs','getTypeName','getMenuContent','getTabNameForItem','displayTabContentForItem','getFormURLWithID','isUserReauthenticationNeeded','checkReAuthenticationOrRedirect'],
     'src/CommonDBTM.php' => ['can','check','getFromDB','getTable','add','update'],
     'src/Session.php' => ['checkLoginUser','haveRight','haveAccessToEntity','getLoginUserID','getCurrentTime','addMessageAfterRedirect'],
     'src/ProfileRight.php' => ['updateProfileRights','deleteProfileRights'],

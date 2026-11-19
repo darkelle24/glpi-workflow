@@ -2,6 +2,7 @@
   "name": "glpi-workflowbuilder-tests",
   "private": true,
   "scripts": {
+    "test:ticket-tabs": "node tests/ticket-tabs.cjs",
     "test:conditions": "node tests/conditions.cjs",
     "test:ui": "playwright test"
   },

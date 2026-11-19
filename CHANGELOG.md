@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.5.0 — 19 novembre 2026
+
+- URL partageable pour chaque onglet de ticket : synchronisation de la barre d’adresse, retour/précédent du navigateur et liens ouvrables dans un nouvel onglet, y compris le sélecteur mobile et Tout.
+- URL courtes optionnelles `/front/ticket/11/statistiques`, `/workflow`, `/historique`, etc. ; règles Nginx/Apache fournies et activation explicite après configuration du serveur.
+- Résolution des onglets selon les droits natifs du ticket et les onglets réellement disponibles ; noms stables pour les onglets tiers et conservation des ancres des workflows.
+- Liens GLPI historiques conservés ; schéma SQL 5 et format JSON schema 1 inchangés.
+
 ## 0.4.0 — 5 novembre 2026
 
 - Tutoriel PDF séparé et détaillé avec huit illustrations : composition automatique, associations, modèles administrables, placement libre et résultats PDF réels sur données fictives.

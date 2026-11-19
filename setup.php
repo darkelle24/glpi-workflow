@@ -13,14 +13,14 @@ function plugin_init_workflowbuilder(): void
     Plugin::registerClass(PluginWorkflowbuilderProfile::class, ['addtabon' => Profile::class]);
     $PLUGIN_HOOKS[Hooks::MENU_TOADD]['workflowbuilder'] = ['helpdesk' => PluginWorkflowbuilderMenu::class];
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['workflowbuilder'] = ['css/workflowbuilder.css'];
-    $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['workflowbuilder'] = ['js/workflowbuilder.js'];
+    $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['workflowbuilder'] = ['js/workflowbuilder.js', 'js/ticket-tabs.js'];
     $PLUGIN_HOOKS[Hooks::CHANGE_PROFILE]['workflowbuilder'] = [WorkflowBuilder\Access::class, 'reload'];
     $PLUGIN_HOOKS[Hooks::POST_PREPAREUPDATE]['workflowbuilder'] = [Ticket::class => [WorkflowBuilder\TicketGuard::class, 'beforeUpdate']];
     WorkflowBuilder\Access::reload();
 }
 function plugin_version_workflowbuilder(): array
 {
-    return ['name' => 'Workflow Builder', 'version' => '0.4.0',
+    return ['name' => 'Workflow Builder', 'version' => '0.5.0',
         'author' => 'UDAF24', 'license' => 'GPLv3+', 'homepage' => 'https://github.com/darkelle24/glpi-workflow',
         'requirements' => ['glpi' => ['min' => '12.0.0', 'max' => '12.1.0'], 'php' => ['min' => '8.3']]];
 }

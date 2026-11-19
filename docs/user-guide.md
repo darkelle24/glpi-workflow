@@ -2,7 +2,7 @@
 
 **Créer une procédure, la lancer sur un ticket et suivre le travail de chaque technicien.**
 
-Ce guide accompagne Workflow Builder 0.4.0 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
+Ce guide accompagne Workflow Builder 0.5.0 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
 
 > **Les mêmes guides dans GLPI et dans le dépôt.** Ce fichier Markdown est la source du bouton **Guide utilisateur** dans GLPI et du guide consultable dans le dépôt. La page GLPI lit ce fichier livré avec le plugin ; le tutoriel PDF dispose de sa propre source, accessible depuis cette page et la navigation. Déployer sa mise à jour actualise aussi le guide affiché.
 >
@@ -531,3 +531,7 @@ Les noms des champs modifiés sont tracés. Le journal ne recopie pas les ancien
 Le bouton **Télécharger le Markdown** fournit exactement le fichier du dépôt. Pour consulter ses images hors ligne, conserver l’arborescence du plugin : le guide dans le dossier docs et les captures dans public/images/guide.
 
 Le guide décrit les fonctions disponibles dans cette version, dont les suivis automatiques de ticket. Les scénarios de notifications dédiés hors suivis, approbations dédiées et tâches natives synchronisées restent à réaliser.
+
+## Partager un onglet de ticket
+
+L’adresse du navigateur suit l’onglet ouvert : la copier pour partager directement Statistiques, Workflow ou Historique. Les boutons précédent et suivant retrouvent l’onglet correspondant. Le format court /front/ticket/11/statistiques dépend de la [configuration serveur](ticket-urls.md) ; les liens natifs restent disponibles sans cette configuration.

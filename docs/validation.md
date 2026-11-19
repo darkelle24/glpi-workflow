@@ -1,5 +1,14 @@
 # Rapport de validation — 5 novembre 2026
 
+## Mise à jour 0.5.0 — URL des onglets (19 novembre 2026)
+
+- PHP 8.5.12 : 12 contrôles de noms, compatibilité, sous-répertoire, onglets disponibles et ancres ; 9 contrôles du contrôleur avec doublures GLPI (session, droits du ticket, onglet absent, paramètres invalides, refus de POST).
+- Node.js : scénarios de navigation avec DOM simulé pour l’adresse initiale, push/replace de l’historique, précédent/suivant, suppression des anciennes ancres lors d’un changement d’onglet, Tout, clic modifié, options natives, sous-répertoire et échec de chargement des URL.
+- Non-régression : 82 tests du moteur, 69 tests des services et 18 cas des conditions JavaScript réussis.
+- Syntaxe PHP des fichiers ajoutés/modifiés et syntaxe JavaScript vérifiées ; contrôle des espaces Git effectué.
+
+Les identifiants d’onglets, le rendu des liens et la restriction des routes de plugins ont été vérifiés dans les sources officielles GLPI 12.0.1. Le schéma SQL reste à 5. Les tests locaux utilisent des doublures ; aucun test sur GLPI de production, navigateur réel ou serveur Nginx/Apache n’est revendiqué pour cette mise à jour. Appliquer la [recette de déploiement](ticket-urls.md) avant d’activer les URL courtes.
+
 ## Mise à jour 0.4.0 — tutoriel illustré, exemples et accès au ticket
 
 | Vérification locale | Résultat |

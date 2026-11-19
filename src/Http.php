@@ -10,7 +10,7 @@ final class Http
     }
     public static function ticketWorkflow(int $ticket, int $instance = 0, string $step = ''): string
     {
-        $url = \Ticket::getFormURLWithID($ticket) . '&forcetab=' . rawurlencode('PluginWorkflowbuilderTicket$1');
+        $url = TicketTabs::url($ticket, 'PluginWorkflowbuilderTicket$1');
         return $url . ($instance ? '#wb-instance-' . $instance . ($step !== '' ? '-step-' . rawurlencode($step) : '') : '');
     }
     public static function token(): string

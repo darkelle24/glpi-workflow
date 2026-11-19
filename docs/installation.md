@@ -160,3 +160,6 @@ Le lien **Administration PDF** est réservé aux profils disposant du droit d’
 Déployer les fichiers, y compris le nouveau tutoriel et toutes les images de documentation, puis effectuer la mise à jour du plugin dans GLPI. Le schéma SQL reste à 5 : aucune nouvelle modification de table n’est nécessaire depuis 0.3.0. Les installations antérieures appliquent aussi la création de bibliothèque PDF déjà fournie en 0.3.0.
 
 Vérifier les entrées **Guide utilisateur** et **Tutoriel PDF**, les deux téléchargements JSON proposés dans le tutoriel et le bouton **Ouvrir le ticket** d’un workflow lancé. Les guides sont servis depuis les fichiers déployés, sans chargement distant depuis GitHub.
+## URL directes des onglets (0.5.0)
+
+Voir [la configuration des URL de tickets](ticket-urls.md) pour activer les adresses comme /front/ticket/11/statistiques. Les liens natifs fonctionnent sans règle serveur supplémentaire.
