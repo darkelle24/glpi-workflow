@@ -2,7 +2,7 @@
 
 Workflow Builder permet de construire des procédures génériques depuis GLPI : formulaire de lancement, étapes avec champs, conditions visuelles, dépendances, documentation et historique. Les définitions sont enregistrées dans MariaDB. Chaque lancement conserve sa version publiée.
 
-Version courante : **0.8.1**. Nom technique et dossier d’installation : **workflowbuilder**. Cible déclarée : **GLPI 12.0.x**, PHP **8.3 minimum**, MariaDB avec InnoDB. Les points d’extension ont été contrôlés dans les sources officielles de GLPI **12.0.0 et 12.0.1**. La validation de votre déploiement Docker reste nécessaire ; consulter le [rapport de validation](docs/validation.md).
+Version courante : **0.9.0**. Nom technique et dossier d’installation : **workflowbuilder**. Cible déclarée : **GLPI 12.0.x**, PHP **8.3 minimum**, MariaDB avec InnoDB. Les points d’extension ont été contrôlés dans les sources officielles de GLPI **12.0.0 et 12.0.1**. La validation de votre déploiement Docker reste nécessaire ; consulter le [rapport de validation](docs/validation.md).
 
 ## Démarrage
 
@@ -29,6 +29,7 @@ Aucune modification du cœur GLPI n’est nécessaire. Le serveur n’a besoin n
 - Sélecteur de fiches GLPI avec aperçus, filtres combinables, création de procédures structurées et accès direct depuis les étapes du ticket ; droits natifs vérifiés.
 - Deux modes PDF : composition automatique par groupes avec aperçu et bibliothèque administrable de modèles préremplis, ou placement libre conservé.
 - Modèle PDF facultatif : pages A4 blanches ou images PNG/JPEG, zones déplaçables, réponses du lancement et des étapes, polices, taille, couleur, aperçu et téléchargement final avec récapitulatif complet optionnel.
+- Procédures de connaissance : liens vers les modèles ajoutés automatiquement aux éléments liés lors de leur publication, sans doublons et selon les droits GLPI.
 - Brouillons, publications immuables, archivage, duplication, historique des versions et import/export JSON validé.
 - Droits de profils, restrictions par entité, utilisateur et groupe, droits du ticket et contrôles sur chaque endpoint.
 - Historique sans copie des anciennes et nouvelles valeurs des champs.
@@ -73,6 +74,7 @@ docs/                       documentation
 php tests/run.php
 php tests/services.php
 php tests/my-steps.php # liste personnelle, droits, filtres et navigation ticket
+php tests/knowledge-links.php # publication et éléments liés natifs de la base de connaissance
 php tests/pdf-groups.php # composition automatique et modèles de base
 php tests/pdf.php # validations et droits ; fournir un vendor TCPDF isolé pour le rendu réel
 php tests/contracts.php /chemin/vers/les/sources/glpi

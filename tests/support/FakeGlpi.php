@@ -32,6 +32,9 @@ final class FakeDb
     public function update(string $table,array $data,array $where):bool {
         foreach($this->tables[$table]??[] as $id=>$row)if($this->matches($row,$where))$this->tables[$table][$id]=array_replace($row,$data);return true;
     }
+    public function delete(string $table,array $where):bool {
+        foreach($this->tables[$table]??[] as $id=>$row)if($this->matches($row,$where))unset($this->tables[$table][$id]);return true;
+    }
     public function updateOrInsert(string $table,array $data,array $where):bool {
         foreach($this->tables[$table]??[] as $row)if($this->matches($row,$where))return $this->update($table,$data,$where);
         return $this->insert($table,$where+$data);
@@ -62,6 +65,37 @@ class CommonGLPI {
     /** Explicit-icon subset of the native tab renderer, used by adapter tests. */
     public static function createTabEntry($text, $nb = 0, ?string $form_itemtype = null, string $icon = '', ?int $total_nb = null): string {
         return '<span><i class="' . htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></i>' . htmlspecialchars($text, ENT_QUOTES, 'UTF-8') . '</span>';
+    }
+}
+class CommonDBTM extends CommonGLPI {
+    public array $fields=[];
+    public static function canCreate():bool{return false;}
+    public static function canUpdate():bool{return false;}
+    public static function canDelete():bool{return false;}
+    public static function canPurge():bool{return false;}
+    public function getID():int{return (int)($this->fields['id']??0);}
+    public function getFromDB($id):bool {
+        global $DB;$this->fields=$DB->tables[static::getTable()][$id]??[];return (bool)$this->fields;
+    }
+    public function can($id,int $right,?array &$input=null):bool {
+        return $right===READ&&$this->getFromDB($id)&&static::canView()&&$this->canViewItem();
+    }
+    public static function getFormURLWithID($id=0,$full=true):string{return static::getFormURL($full).'?id='.(int)$id;}
+    public function getLinkURL():string{return static::getFormURLWithID($this->getID());}
+    public function getName($options=[]):string{return (string)($this->fields['name']??'');}
+}
+class KnowbaseItem_Item {
+    public static array $deniedArticles=[];
+    public static int $failOnArticle=0;
+    public static function getTable():string{return 'glpi_knowbaseitems_items';}
+    public function can($id,int $right,?array &$input=null):bool {
+        if($right!==CREATE||!Session::haveRight('knowbase',UPDATE)||in_array((int)$input['knowbaseitems_id'],self::$deniedArticles,true))return false;
+        try{\WorkflowBuilder\Access::template(\WorkflowBuilder\Store::one('templates',(int)$input['items_id']));return (new KnowbaseItem())->can($input['knowbaseitems_id'],READ);}
+        catch(\WorkflowBuilder\ValidationException){return false;}
+    }
+    public function add(array $input):int|false {
+        global $DB;if((int)$input['knowbaseitems_id']===self::$failOnArticle)return false;
+        $DB->insert(self::getTable(),$input+['date_creation'=>Session::getCurrentTime(),'date_mod'=>Session::getCurrentTime()]);return $DB->insertId();
     }
 }
 class CommonITILObject extends CommonGLPI {public const INCOMING=1;public const SOLVED=5;public const CLOSED=6;}

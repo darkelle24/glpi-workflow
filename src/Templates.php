@@ -48,7 +48,8 @@ final class Templates
             Access::definitionReferences($definition);
             foreach ($definition['steps'] as $step) {
                 foreach ($step['knowbaseitems_id'] as $article) {
-                    if (!(new \KnowbaseItem())->can($article, READ)) {
+                    $procedure = new \KnowbaseItem();
+                    if (!$procedure->can($article, READ) || !empty($procedure->fields['is_deleted'])) {
                         throw new ValidationException('Article de connaissance introuvable ou inaccessible : ' . $article);
                     }
                 }
@@ -76,6 +77,7 @@ final class Templates
                 Store::insert('rules', ['versions_id' => $version, 'position' => $position, 'definition' => Store::json($rule)]);
             }
             Store::update('templates', $id, ['active_versions_id' => $version, 'state' => 'active', 'revision' => $revision + 1, 'date_mod' => Store::now()]);
+            Knowledge::linkTemplate($id, $definition);
         });
     }
     private static function field(int $version, string $step, int $position, array $field): void

@@ -57,6 +57,13 @@ if (process.env.WORKFLOWBUILDER_ALLOW_NATIVE_TESTS !== '1' || !['localhost','127
         console.log('PASS saved workflow reloads linked article titles');
         if (process.env.WB_KNOWLEDGE_PREVIEW_PATH) await saved.locator('.wb-knowledge').screenshot({path:process.env.WB_KNOWLEDGE_PREVIEW_PATH});
         await page.getByRole('button',{name:'Publier une nouvelle version',exact:true}).click();
+        await page.goto(new URL(item.url,base).href);
+        const reverseLink = page.locator('a[href*="/plugins/workflowbuilder/front/template.form.php?id=' + templateId + '"]');
+        await reverseLink.first().waitFor();
+        assert.equal(await reverseLink.count(),1);
+        await reverseLink.click();
+        assert.equal(new URL(page.url()).searchParams.get('id'),templateId);
+        console.log('PASS native knowledge article links back to its published workflow model');
         await page.goto(base + '/plugins/workflowbuilder/front/launch.php?template=' + templateId);
         await page.getByRole('button',{name:'Valider et créer le ticket',exact:true}).click();
         await page.locator('.wb-procedures a').waitFor();

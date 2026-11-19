@@ -2,7 +2,7 @@
 
 **Créer une procédure, la lancer sur un ticket et suivre le travail de chaque technicien.**
 
-Ce guide accompagne Workflow Builder 0.8.1 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
+Ce guide accompagne Workflow Builder 0.9.0 pour GLPI 12. Il s’adresse aux **techniciens**, qui exécutent les procédures, et aux **administrateurs**, qui construisent et publient les modèles.
 
 > **Les mêmes guides dans GLPI et dans le dépôt.** Ce fichier Markdown est la source du bouton **Guide utilisateur** dans GLPI et du guide consultable dans le dépôt. La page GLPI lit ce fichier livré avec le plugin ; le tutoriel PDF dispose de sa propre source, accessible depuis cette page et la navigation. Déployer sa mise à jour actualise aussi le guide affiché.
 >
@@ -480,6 +480,12 @@ Un export de modèle ne sauvegarde pas les instances, leurs réponses ni leur hi
 ### Articles de connaissance
 
 Dans l’éditeur d’une étape, rechercher un article par son titre et le sélectionner. Le plugin conserve sa référence GLPI.
+
+Lors de **Publier une nouvelle version**, le modèle est automatiquement ajouté aux **éléments liés** de chaque fiche de connaissance choisie dans ses étapes. Depuis une procédure, cliquer sur le nom du **Modèle de workflow** ouvre son éditeur, selon vos droits de lecture des modèles et votre accès à son entité. Le lien concerne le modèle, même si plusieurs tickets utilisent ce workflow.
+
+Une fiche utilisée dans plusieurs étapes n’apparaît qu’une fois pour ce modèle. Republier ne crée pas de doublon. Les liens des versions publiées précédemment restent présents afin de retrouver les modèles qui ont utilisé la procédure. Pour ajouter ces liens à un modèle déjà publié avant cette fonctionnalité, **publier une nouvelle version**.
+
+L’ajout respecte les droits natifs GLPI : la personne qui publie doit pouvoir modifier les fiches à associer. Si GLPI refuse l’association ou si l’écriture échoue, toute la publication est annulée et un message permet d’en identifier la cause. L’enregistrement d’un brouillon ne crée aucun lien.
 
 Pendant l’exécution, **Voir la procédure** ouvre l’article dans un autre onglet. Les droits sont revérifiés ; un article supprimé ou inaccessible est signalé.
 

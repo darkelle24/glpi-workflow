@@ -1,5 +1,17 @@
 # Rapport de validation — 5 novembre 2026
 
+## Mise à jour 0.9.0 — Modèles liés aux procédures (19 novembre 2026)
+
+- 17 tests ciblés réussis : enregistrement du type natif, absence de lien en brouillon, dédoublonnage entre étapes et publications, plusieurs modèles sur une même procédure, conservation des références historiques, droits de publication et de gestion, permissions natives d’association, annulation complète sur refus ou échec d’écriture, reprise après échec, accès au modèle et à son URL, conservation du contenu des articles et nettoyage ciblé à la désinstallation.
+- Non-régression : 82 tests du moteur, 69 tests des services, 43 tests des étapes personnelles, 17 contrôles PDF, 13 contrôles PDF automatique, 16 contrôles d’URL, 9 contrôles du contrôleur d’onglets et 18 cas des conditions JavaScript réussis. Les scénarios de navigation des onglets passent également.
+- Contrats d’extension contrôlés avec succès sur les sources officielles GLPI 12.0.0 et 12.0.1, notamment KnowbaseItem_Item et CommonDBRelation. Le type PluginWorkflowbuilderTemplate s’appuie sur la table existante des modèles et les relations natives de GLPI ; schéma SQL 5 conservé.
+- Syntaxe des 78 fichiers PHP et du scénario JavaScript modifié vérifiée, contrôle des espaces Git réussi et cohérence des dix références à la version courante 0.9.0 vérifiée.
+
+Les tests locaux utilisent des doublures GLPI et de base de données. Les scripts natifs et navigateur dédiés aux connaissances ont été enrichis pour contrôler le lien inverse depuis une fiche vers son modèle, mais ils n’ont pas été exécutés : aucune instance GLPI ni base MariaDB de test n’a été utilisée pour cette modification. Les contrôles optionnels de rendu TCPDF ont été ignorés faute de dépendances de rendu.
+
+Après mise à jour du plugin, sélectionner une procédure dans plusieurs étapes et publier le modèle avec un profil autorisé à modifier cette fiche. Ouvrir la procédure dans la base de connaissance : son élément lié Modèle de workflow doit apparaître une seule fois et ouvrir le bon éditeur. Republier, vérifier l’absence de doublon, puis tester avec un profil sans lecture des modèles. Pour les modèles publiés avant cette version, publier une nouvelle version afin de créer leurs liens.
+
+
 ## Mise à jour 0.8.1 — Icônes des onglets du ticket (19 novembre 2026)
 
 Les onglets Workflow et Mes étapes à traiter utilisent le rendu natif GLPI createTabEntry avec, respectivement, les icônes ti-checklist et ti-list-check. Les identifiants et libellés restent inchangés ; les pictogrammes sont décoratifs pour les lecteurs d’écran. Cette API a été vérifiée dans les sources officielles GLPI 12.0.0 et 12.0.1.

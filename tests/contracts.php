@@ -13,6 +13,8 @@ $contracts = [
     'src/Config.php' => ['setConfigurationValues','getConfigurationValues','deleteConfigurationValues'],
     'src/Document.php' => ['canViewFile'],
     'src/KnowbaseItem.php' => ['canViewItem','getFormURLWithID'],
+    'src/KnowbaseItem_Item.php' => ['prepareInputForAdd','getItems'],
+    'src/CommonDBRelation.php' => ['canCreate','canCreateItem'],
     'src/DbUtils.php' => ['getUserName'],
     'src/Html.php' => ['header','footer','redirect','convDateTime'],
 ];

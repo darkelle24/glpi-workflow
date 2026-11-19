@@ -25,7 +25,22 @@ $article = new KnowbaseItem(); $article->getFromDB($id);
 verify('six procedure sections with escaped content', substr_count($article->fields['answer'], '<h2>') === 6 && !str_contains($article->fields['answer'], '<script>'));
 verify('legacy instructions copied into knowledge base', str_contains($article->fields['answer'], $input['legacy']));
 verify('native entity visibility targets the selected entity', $DB->request(['FROM' => 'glpi_entities_knowbaseitems', 'WHERE' => ['knowbaseitems_id' => $id, 'entities_id' => 0]])->count() === 1);
-verify('empty-query browsing works', count(Knowledge::search([])['items']) > 0);
+// Native reverse associations point to the model, not to a ticket execution.
+$d=Definition::empty();$d['name']='Modèle lié '.bin2hex(random_bytes(5));
+$d['steps']=[['id'=>'first','title'=>'Première étape','knowbaseitems_id'=>[$id]],
+    ['id'=>'second','title'=>'Deuxième étape','knowbaseitems_id'=>[$id]]];
+$linkedTemplate=Templates::save(0,$d,0,false,0);Templates::publish($linkedTemplate,1);
+$relationWhere=['knowbaseitems_id'=>$id,'itemtype'=>PluginWorkflowbuilderTemplate::class,'items_id'=>$linkedTemplate];
+verify('publication creates one native model association despite repeated procedure use', $DB->request(['FROM'=>KnowbaseItem_Item::getTable(),'WHERE'=>$relationWhere])->count()===1);
+$nativeModel=new PluginWorkflowbuilderTemplate();
+verify('native item hydration and editor link are usable from the knowledge base', $nativeModel->can($linkedTemplate,READ)
+    && $nativeModel->getName()===$d['name'] && $nativeModel->getLinkURL()===Http::url('template.form.php',['id'=>$linkedTemplate]));
+Templates::publish($linkedTemplate,2);
+verify('native republication does not duplicate the relation', $DB->request(['FROM'=>KnowbaseItem_Item::getTable(),'WHERE'=>$relationWhere])->count()===1);
+$beforeRights=$_SESSION['glpiactiveprofile'];$_SESSION['glpiactiveprofile']['plugin_workflowbuilder_template']=0;
+verify('native model item remains hidden without model read rights', !(new PluginWorkflowbuilderTemplate())->can($linkedTemplate,READ));
+$_SESSION['glpiactiveprofile']=$beforeRights;
+verify('empty-query browsing works' , count(Knowledge::search([])['items']) > 0);
 verify('full text finds procedure body', in_array($id, array_column(Knowledge::search(['q' => 'tokencontenunatif'])['items'], 'id'), true));
 verify('title-only excludes body matches', !in_array($id, array_column(Knowledge::search(['q' => 'tokencontenunatif', 'scope' => 'title'])['items'], 'id'), true));
 verify('title search and internal filter', in_array($id, array_column(Knowledge::search(['q' => $input['title'], 'kind' => 'internal', 'mine' => '1'])['items'], 'id'), true));

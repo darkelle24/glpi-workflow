@@ -10,6 +10,8 @@ function plugin_init_workflowbuilder(): void
     require_once __DIR__ . '/inc/mystepsmenu.class.php';
     require_once __DIR__ . '/inc/ticket.class.php';
     require_once __DIR__ . '/inc/profile.class.php';
+    require_once __DIR__ . '/inc/template.class.php';
+    Plugin::registerClass(PluginWorkflowbuilderTemplate::class, ['kb_types' => true]);
     Plugin::registerClass(PluginWorkflowbuilderTicket::class, ['addtabon' => Ticket::class]);
     Plugin::registerClass(PluginWorkflowbuilderProfile::class, ['addtabon' => Profile::class]);
     $PLUGIN_HOOKS[Hooks::MENU_TOADD]['workflowbuilder'] = ['helpdesk' => [PluginWorkflowbuilderMenu::class, PluginWorkflowbuilderMyStepsMenu::class]];
@@ -21,7 +23,7 @@ function plugin_init_workflowbuilder(): void
 }
 function plugin_version_workflowbuilder(): array
 {
-    return ['name' => 'Workflow Builder', 'version' => '0.8.1',
+    return ['name' => 'Workflow Builder', 'version' => '0.9.0',
         'author' => 'UDAF24', 'license' => 'GPLv3+', 'homepage' => 'https://github.com/darkelle24/glpi-workflow',
         'requirements' => ['glpi' => ['min' => '12.0.0', 'max' => '12.1.0'], 'php' => ['min' => '8.3']]];
 }

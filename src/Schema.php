@@ -101,6 +101,9 @@ final class Schema
     public static function uninstall(): void
     {
         global $DB;
+        if ($DB->tableExists('glpi_knowbaseitems_items')) {
+            $DB->delete('glpi_knowbaseitems_items', ['itemtype' => 'PluginWorkflowbuilderTemplate']);
+        }
         foreach (array_reverse(Store::TABLES) as $name) {
             $DB->doQuery('DROP TABLE IF EXISTS ' . Store::table($name));
         }

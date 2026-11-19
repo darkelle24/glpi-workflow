@@ -48,7 +48,7 @@ Les références GLPI ne possèdent pas de contrainte SQL en cascade. Supprimer 
 
 ## Cycle de vie
 
-Un modèle possède un brouillon modifiable. Publier crée une nouvelle version, ses projections, son numéro et son empreinte, dans une transaction. Le brouillon courant n’affecte pas la version active avant publication. Désactiver ou archiver interdit les nouveaux lancements.
+Un modèle possède un brouillon modifiable. Publier crée une nouvelle version, ses projections, son numéro et son empreinte, dans une transaction. Le brouillon courant n’affecte pas la version active avant publication. La même transaction associe le modèle aux procédures de ses étapes via KnowbaseItem_Item et le type natif PluginWorkflowbuilderTemplate, enregistré dans kb_types. Les doublons sont évités par le verrou du modèle et la vérification de la relation existante ; les droits natifs de création de relation sont contrôlés avant insertion. Un échec annule version, projections et associations. Les liens des anciennes publications sont conservés ; seule la désinstallation supprime les relations de ce type, sans supprimer les articles. Désactiver ou archiver interdit les nouveaux lancements.
 
 Une instance référence uniquement une version figée. Les responsables d’une étape peuvent être réaffectés par un administrateur sans modifier la définition publiée ; l’action est tracée. L’entité du modèle devient immuable après première publication : dupliquer le modèle pour changer sa portée.
 

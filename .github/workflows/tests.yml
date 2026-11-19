@@ -20,6 +20,7 @@ jobs:
       - run: php tests/run.php
       - run: php tests/services.php
       - run: php tests/my-steps.php
+      - run: php tests/knowledge-links.php
       - run: php tests/pdf.php
       - run: php tests/pdf-groups.php
       - uses: actions/checkout@v4

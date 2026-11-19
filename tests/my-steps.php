@@ -21,7 +21,7 @@ function check(string $name, callable $run): void {
     global $DB, $passed, $failed;
     $DB = new FakeDb(); Session::$user = 7; Session::$now = '2026-11-19 12:00:00';
     Session::$rights = array_fill_keys(array_keys(Access::RIGHTS), READ | UPDATE | CREATE);
-    Session::$rights += ['native_ticket' => READ | UPDATE | CREATE, 'native_followup' => CREATE];
+    Session::$rights += ['native_ticket' => READ | UPDATE | CREATE, 'native_followup' => CREATE, 'knowbase' => READ | UPDATE];
     $_SESSION = ['glpigroups' => [12]];
     putenv('WORKFLOWBUILDER_TICKET_URLS=0');
     try { $run(); $passed++; echo "PASS $name\n"; }

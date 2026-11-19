@@ -14,6 +14,7 @@ Analyse effectuée les 3 et 4 novembre 2026 sur les tags officiels 12.0.0 et 12.
 | Entités | Session::haveAccessToEntity ; getAncestorsOf | Portée et sous-entités |
 | Tickets | Ticket::can, add, getFormURLWithID | Droits et création par le modèle natif |
 | Connaissance | KnowbaseItem::can avec READ ; getFormURLWithID | Permissions et lien vers l’article |
+| Éléments liés aux procédures | Plugin::registerClass avec kb_types ; CommonDBTM ; KnowbaseItem_Item::can/add | Lien inverse du modèle publié dans la fiche, selon les droits natifs |
 | Documents | Document::canViewFile ; associations glpi_documents_items | Sélection et consultation des documents du ticket |
 | Persistance | DBmysql::request, insert, update, updateOrInsert, doQuery | Requêtes structurées et DDL |
 | Transactions | DBmysql::beginTransaction, commit, rollBack | Atomicité des écritures |

@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.9.0 — 19 novembre 2026
+
+- À la publication d’un modèle, les procédures choisies dans ses étapes reçoivent automatiquement ce modèle dans leurs éléments liés GLPI, avec un lien vers son éditeur.
+- Type natif Modèle de workflow enregistré pour la base de connaissance ; droits de lecture et portée d’entité respectés, accès natif en lecture seule pour conserver les écritures dans l’éditeur versionné.
+- Une seule association par procédure et modèle, même sur plusieurs étapes ou republications ; les liens des anciennes versions publiées sont conservés.
+- Droits natifs de modification de la fiche et d’association vérifiés ; un refus ou un échec annule toute la publication. Désinstaller le plugin retire uniquement ses associations aux modèles, en conservant les articles et les autres éléments liés.
+- Tests des publications, doublons, droits et annulations ; parcours natifs et navigateur enrichis. Schéma SQL 5 et format JSON schema 1 inchangés.
+
 ## 0.8.1 — 19 novembre 2026
 
 - Icônes natives GLPI dans les onglets du ticket : checklist pour Workflow et liste cochée pour Mes étapes à traiter, en cohérence avec le menu latéral.

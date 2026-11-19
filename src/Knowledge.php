@@ -69,6 +69,35 @@ final class Knowledge
         return ['items' => $items, 'next' => ($scanned >= 500 || count($items) >= 20) ? $last : 0];
     }
 
+    /** Called inside the publication transaction; retain links used by earlier versions. */
+    public static function linkTemplate(int $templateId, array $definition): void
+    {
+        Access::need('publish', UPDATE);
+        Access::template(Store::one('templates', $templateId), true);
+        $articles = [];
+        foreach ($definition['steps'] as $step) {
+            foreach ($step['knowbaseitems_id'] as $id) { $articles[(int) $id] = true; }
+        }
+        foreach (array_keys($articles) as $id) {
+            $identity = ['knowbaseitems_id' => $id, 'itemtype' => \PluginWorkflowbuilderTemplate::class, 'items_id' => $templateId];
+            $input = $identity;
+            if (self::hasTemplateLink($identity)) { continue; }
+            $link = new \KnowbaseItem_Item();
+            if (!$link->can(-1, CREATE, $input)) {
+                throw new ValidationException('Association à la procédure #' . $id . ' interdite par GLPI. Vérifier le droit de modifier cette fiche et l’accès au modèle.');
+            }
+            if (!$link->add($input) && !self::hasTemplateLink($identity)) {
+                throw new ValidationException('GLPI n’a pas pu lier le modèle à la procédure #' . $id . '. La publication a été annulée.');
+            }
+        }
+    }
+    private static function hasTemplateLink(array $input): bool
+    {
+        global $DB;
+        foreach ($DB->request(['FROM' => \KnowbaseItem_Item::getTable(), 'WHERE' => $input, 'LIMIT' => 1]) as $row) { return true; }
+        return false;
+    }
+
     public static function content(string $workflow, string $step, string $description, string $legacy = ''): string
     {
         $e = static fn(string $text): string => htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
