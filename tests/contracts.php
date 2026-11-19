@@ -14,7 +14,7 @@ $contracts = [
     'src/Document.php' => ['canViewFile'],
     'src/KnowbaseItem.php' => ['canViewItem','getFormURLWithID'],
     'src/DbUtils.php' => ['getUserName'],
-    'src/Html.php' => ['header','footer','redirect'],
+    'src/Html.php' => ['header','footer','redirect','convDateTime'],
 ];
 $failed = 0;
 foreach ($contracts as $file=>$methods) {
